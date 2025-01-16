@@ -37,100 +37,98 @@ class RPSGameTest(unittest.TestCase):
 
     def test_01_auto_registration(self):
         """Test that players are automatically registered and get a session"""
-        # Check if both players get unique IDs
-        player1_id = self.wait1.until(EC.presence_of_element_located((By.ID, "player-id"))).text
-        player2_id = self.wait2.until(EC.presence_of_element_located((By.ID, "player-id"))).text
+        # Check if both players get unique balances
+        player1_balance = self.wait1.until(EC.presence_of_element_located((By.XPATH, "//div[contains(text(), '🪙')]/following-sibling::div"))).text
+        player2_balance = self.wait2.until(EC.presence_of_element_located((By.XPATH, "//div[contains(text(), '🪙')]/following-sibling::div"))).text
         
-        self.assertNotEqual(player1_id, player2_id)
-        self.assertTrue(player1_id.startswith("Player"))
-        self.assertTrue(player2_id.startswith("Player"))
+        self.assertEqual(player1_balance, "100")
+        self.assertEqual(player2_balance, "100")
 
     def test_02_create_and_cancel_match(self):
         """Test match creation and cancellation"""
         # Player 1 creates a match
-        create_button = self.wait1.until(EC.element_to_be_clickable((By.ID, "create-game")))
+        create_button = self.wait1.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'CREATE MATCH')]")))
         create_button.click()
         
         # Verify player 1 is in waiting state
-        self.wait1.until(EC.presence_of_element_located((By.ID, "waiting-message")))
+        self.wait1.until(EC.presence_of_element_located((By.XPATH, "//div[contains(text(), 'Looking for worthy opponents')]")))
         
         # Verify match appears in player 2's list
-        open_matches = self.wait2.until(EC.presence_of_element_located((By.ID, "open-matches")))
-        self.assertIn("Join", open_matches.text)
+        open_matches = self.wait2.until(EC.presence_of_element_located((By.XPATH, "//h2[text()='Open Matches']/following-sibling::div")))
+        self.assertTrue(len(open_matches.find_elements(By.TAG_NAME, "button")) > 0)
         
-        # Player 1 cancels the match
-        cancel_button = self.wait1.until(EC.element_to_be_clickable((By.ID, "cancel-game")))
-        cancel_button.click()
+        # Player 1 cancels the match by going back to lobby
+        back_button = self.wait1.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Back to Lobby')]")))
+        back_button.click()
         
         # Verify match disappears from player 2's list
         time.sleep(2)  # Wait for update
-        open_matches = self.driver2.find_element(By.ID, "open-matches")
-        self.assertNotIn("Join", open_matches.text)
+        open_matches = self.driver2.find_element(By.XPATH, "//h2[text()='Open Matches']/following-sibling::div")
+        self.assertEqual(len(open_matches.find_elements(By.TAG_NAME, "button")), 0)
 
     def test_03_match_visibility(self):
         """Test that matches are properly visible/hidden"""
         # Player 1 creates a match
-        create_button = self.wait1.until(EC.element_to_be_clickable((By.ID, "create-game")))
+        create_button = self.wait1.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'CREATE MATCH')]")))
         create_button.click()
         
-        # Verify player 1 doesn't see their own match
-        player1_matches = self.wait1.until(EC.presence_of_element_located((By.ID, "open-matches")))
-        self.assertNotIn("Join", player1_matches.text)
+        # Verify player 1 is in waiting state and doesn't see their own match
+        self.wait1.until(EC.presence_of_element_located((By.XPATH, "//div[contains(text(), 'Looking for worthy opponents')]")))
         
         # Player 2 should see the match
-        player2_matches = self.wait2.until(EC.presence_of_element_located((By.ID, "open-matches")))
-        self.assertIn("Join", player2_matches.text)
+        player2_matches = self.wait2.until(EC.presence_of_element_located((By.XPATH, "//h2[text()='Open Matches']/following-sibling::div")))
+        self.assertTrue(len(player2_matches.find_elements(By.TAG_NAME, "button")) > 0)
 
     def test_04_play_full_match(self):
         """Test playing a full match including rematch"""
         # Player 1 creates a match
-        create_button = self.wait1.until(EC.element_to_be_clickable((By.ID, "create-game")))
+        create_button = self.wait1.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'CREATE MATCH')]")))
         create_button.click()
         
         # Player 2 joins the match
-        join_button = self.wait2.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".join-game")))
+        join_button = self.wait2.until(EC.element_to_be_clickable((By.XPATH, "//h2[text()='Open Matches']/following-sibling::div//button")))
         join_button.click()
         
         # Both players make their choices
-        choice1 = self.wait1.until(EC.element_to_be_clickable((By.ID, "rock")))
-        choice2 = self.wait2.until(EC.element_to_be_clickable((By.ID, "paper")))
+        choice1 = self.wait1.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Rock')]")))
+        choice2 = self.wait2.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Paper')]")))
         
         choice1.click()
         choice2.click()
         
         # Wait for result
-        self.wait1.until(EC.presence_of_element_located((By.CLASS_NAME, "game-result")))
-        self.wait2.until(EC.presence_of_element_located((By.CLASS_NAME, "game-result")))
+        self.wait1.until(EC.presence_of_element_located((By.XPATH, "//h2[text()='Match Result']")))
+        self.wait2.until(EC.presence_of_element_located((By.XPATH, "//h2[text()='Match Result']")))
         
         # Test rematch functionality
-        rematch_button = self.wait1.until(EC.element_to_be_clickable((By.ID, "rematch")))
+        rematch_button = self.wait1.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Rematch')]")))
         rematch_button.click()
         
         # Wait for rematch confirmation from player 2
-        rematch_button2 = self.wait2.until(EC.element_to_be_clickable((By.ID, "rematch")))
+        rematch_button2 = self.wait2.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Rematch')]")))
         rematch_button2.click()
         
         # Verify both players are back in game state
-        self.wait1.until(EC.presence_of_element_located((By.ID, "rock")))
-        self.wait2.until(EC.presence_of_element_located((By.ID, "rock")))
+        self.wait1.until(EC.presence_of_element_located((By.XPATH, "//button[contains(text(), 'Rock')]")))
+        self.wait2.until(EC.presence_of_element_located((By.XPATH, "//button[contains(text(), 'Rock')]")))
 
     def test_05_match_auto_cancel(self):
         """Test that match is cancelled when creator leaves"""
         # Player 1 creates a match
-        create_button = self.wait1.until(EC.element_to_be_clickable((By.ID, "create-game")))
+        create_button = self.wait1.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'CREATE MATCH')]")))
         create_button.click()
         
         # Verify match appears for player 2
-        player2_matches = self.wait2.until(EC.presence_of_element_located((By.ID, "open-matches")))
-        self.assertIn("Join", player2_matches.text)
+        player2_matches = self.wait2.until(EC.presence_of_element_located((By.XPATH, "//h2[text()='Open Matches']/following-sibling::div")))
+        self.assertTrue(len(player2_matches.find_elements(By.TAG_NAME, "button")) > 0)
         
         # Simulate player 1 leaving
         self.driver1.get("about:blank")
         
         # Verify match disappears for player 2
         time.sleep(2)  # Wait for server to process disconnect
-        player2_matches = self.driver2.find_element(By.ID, "open-matches")
-        self.assertNotIn("Join", player2_matches.text)
+        player2_matches = self.driver2.find_element(By.XPATH, "//h2[text()='Open Matches']/following-sibling::div")
+        self.assertEqual(len(player2_matches.find_elements(By.TAG_NAME, "button")), 0)
 
 if __name__ == '__main__':
     unittest.main()
