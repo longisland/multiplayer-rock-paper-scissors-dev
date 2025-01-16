@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors Arena</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/retro.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header animate__animated animate__fadeInDown">
+            <h1>Rock Paper Scissors Arena</h1>
+            <div class="coins">
+                <span class="coin-icon">🪙</span>
+                <span id="coinBalance">100</span>
+            </div>
+            <div class="stats animate__animated animate__fadeInUp">
+                <h3 class="stats-title">Your Stats</h3>
+                <div class="stats-grid">
+                    <div class="stats-item">
+                        <span class="stats-label">Wins</span>
+                        <span id="playerWins" class="stats-value">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">Losses</span>
+                        <span id="playerLosses" class="stats-value">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">Draws</span>
+                        <span id="playerDraws" class="stats-value">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">Total Won</span>
+                        <span id="totalCoinsWon" class="stats-value">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lobby Screen -->
+        <div id="lobbyScreen" class="screen active">
+            <div class="lobby-content animate__animated animate__fadeIn">
+                <button id="createMatchBtn" class="btn glow-effect">
+                    <span class="btn-icon">🎮</span>
+                    Create Match
+                </button>
+                <div id="createMatchForm" class="animate__animated" style="display: none;">
+                    <div class="stake-input-container">
+                        <input type="number" id="stakeInput" placeholder="Enter stake amount" min="1" class="btn">
+                        <div class="stake-preview">
+                            <span class="coin-icon">🪙</span>
+                            <span id="stakePreview">0</span>
+                        </div>
+                    </div>
+                    <button id="confirmStakeBtn" class="btn glow-effect">
+                        <span class="btn-icon">✨</span>
+                        Confirm Stake
+                    </button>
+                </div>
+                <h2 class="section-title">Open Matches</h2>
+                <div id="matchList" class="match-list">
+                    <!-- Match items will be added here dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Waiting Screen -->
+        <div id="waitingScreen" class="screen">
+            <div class="waiting-content animate__animated animate__fadeIn">
+                <h2>Waiting for opponent...</h2>
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+                <div class="waiting-message">
+                    <span class="message-text">Looking for worthy opponents</span>
+                    <span class="dots">...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Play Screen -->
+        <div id="playScreen" class="screen">
+            <div class="play-content animate__animated animate__fadeIn">
+                <div class="timer-container">
+                    <div class="timer" id="moveTimer">10</div>
+                    <div class="timer-ring"></div>
+                </div>
+                <h2 class="battle-text animate__animated animate__pulse animate__infinite">Choose your move!</h2>
+                <div class="move-buttons">
+                    <button class="btn move-btn animate__animated animate__bounceIn" data-move="rock">
+                        <span class="move-icon">✊</span>
+                        <span class="move-text">Rock</span>
+                        <div class="move-effect"></div>
+                    </button>
+                    <button class="btn move-btn animate__animated animate__bounceIn animate__delay-1s" data-move="paper">
+                        <span class="move-icon">✋</span>
+                        <span class="move-text">Paper</span>
+                        <div class="move-effect"></div>
+                    </button>
+                    <button class="btn move-btn animate__animated animate__bounceIn animate__delay-2s" data-move="scissors">
+                        <span class="move-icon">✌️</span>
+                        <span class="move-text">Scissors</span>
+                        <div class="move-effect"></div>
+                    </button>
+                </div>
+                <div id="moveStatus" class="status-container">
+                    <div id="playerMoveStatus" class="status-message">Waiting for your move...</div>
+                    <div id="opponentMoveStatus" class="status-message">Waiting for opponent to move...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="resultScreen" class="screen">
+            <div class="result animate__animated animate__zoomIn">
+                <h2 class="result-title">Match Result</h2>
+                <div id="resultAnimation" class="result-animation"></div>
+                <div id="movesDisplay" class="moves-container">
+                    <div id="playerMove" class="move-display animate__animated"></div>
+                    <div class="vs animate__animated animate__pulse animate__infinite">VS</div>
+                    <div id="opponentMove" class="move-display animate__animated"></div>
+                </div>
+                <p id="resultText" class="result-message animate__animated"></p>
+                <div class="match-stats animate__animated animate__fadeIn animate__delay-1s">
+                    <h3>Match Statistics</h3>
+                    <div id="matchStats" class="stats-grid"></div>
+                </div>
+                <div class="action-buttons animate__animated animate__fadeIn animate__delay-2s">
+                    <div class="rematch-container">
+                        <button id="rematchBtn" class="btn" style="display: none;">
+                            <span class="btn-icon">🔄</span>
+                            Rematch (<span id="rematchTimer">15</span>s)
+                        </button>
+                        <div id="rematchStatus" class="status-message"></div>
+                    </div>
+                    <button id="backToLobbyBtn" class="btn">
+                        <span class="btn-icon">🏠</span>
+                        Back to Lobby
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        // Global variables
+        let currentMatchId = null;
+        let moveTimer = null;
+        let isCreator = false;
+        let socket = null;
+        let matches = {};  // Store match states
+        let rematchTimer = null;
+        let lastMatchStake = null;  // Store stake for rematch
+
+        // Initialize socket connection with logging
+        socket = io({
+            transports: ['websocket'],
+            upgrade: false,
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000
+        });
+
+        socket.on('connect', () => {
+            console.log('Socket connected:', socket.id);
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Socket connection error:', error);
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Socket disconnected');
+        });
+
+        socket.on('reconnect', (attemptNumber) => {
+            console.log('Socket reconnected after', attemptNumber, 'attempts');
+            if (currentMatchId) {
+                socket.emit('join_match_room', { match_id: currentMatchId });
+            }
+        });
+
+        // Game state management
+        async function updateGameState() {
+            try {
+                const response = await fetch('/api/state');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // Update coin balance and stats
+                const coinBalance = document.getElementById('coinBalance');
+                if (coinBalance) {
+                    coinBalance.textContent = data.coins;
+                }
+
+                if (data.stats) {
+                    const elements = {
+                        'playerWins': data.stats.wins,
+                        'playerLosses': data.stats.losses,
+                        'playerDraws': data.stats.draws,
+                        'totalCoinsWon': data.stats.total_coins_won
+                    };
+
+                    for (const [id, value] of Object.entries(elements)) {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            element.textContent = value;
+                        }
+                    }
+                }
+                
+                // Update match list
+                const matchList = document.getElementById('matchList');
+                if (matchList) {
+                    matchList.innerHTML = '';
+                    data.open_matches.forEach(match => {
+                        const matchDiv = document.createElement('div');
+                        matchDiv.className = 'match-item animate__animated animate__fadeIn';
+                        matchDiv.innerHTML = `
+                            <span>Stake: <span class="coin-icon">🪙</span>${match.stake}</span>
+                            <button class="btn" onclick="joinMatch('${match.id}')">Join Match</button>
+                        `;
+                        matchList.appendChild(matchDiv);
+                    });
+                }
+
+                // Handle current match state
+                if (data.current_match) {
+                    currentMatchId = data.current_match.id;
+                    isCreator = data.current_match.is_creator;
+
+                    // Show appropriate screen based on match status
+                    if (data.current_match.status === 'waiting') {
+                        if (!document.getElementById('waitingScreen').classList.contains('active')) {
+                            showScreen('waitingScreen');
+                        }
+                    } else if (data.current_match.status === 'playing') {
+                        if (!document.getElementById('playScreen').classList.contains('active') &&
+                            !document.getElementById('resultScreen').classList.contains('active')) {
+                            showScreen('playScreen');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating game state:', error);
+            }
+        }
+
+        // Global functions
+        function showScreen(screenId) {
+            console.log('Showing screen:', screenId);
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+            } else {
+                console.error('Screen not found:', screenId);
+            }
+        }
+
+        function startMoveTimer() {
+            let timeLeft = 10;
+            const timerElement = document.getElementById('moveTimer');
+            const timerRing = document.querySelector('.timer-ring');
+            
+            if (!timerElement || !timerRing) {
+                console.error('Timer elements not found');
+                return;
+            }
+            
+            function updateTimer() {
+                timerElement.textContent = timeLeft;
+                timerRing.style.setProperty('--progress', (timeLeft / 10) * 100 + '%');
+                
+                if (timeLeft <= 3) {
+                    timerElement.style.color = 'var(--danger-color)';
+                    timerElement.classList.add('animate__animated', 'animate__headShake');
+                }
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(moveTimer);
+                    timerElement.textContent = 'Time is up!';
+                    timerElement.classList.remove('animate__headShake');
+                    timerElement.classList.add('animate__bounceOut');
+                    document.querySelectorAll('.move-btn').forEach(btn => {
+                        btn.disabled = true;
+                        btn.classList.add('animate__animated', 'animate__fadeOut');
+                    });
+                }
+            }
+            
+            // Clear any existing timer
+            stopMoveTimer();
+            
+            // Reset timer elements
+            timerElement.classList.remove('animate__headShake', 'animate__bounceOut');
+            timerElement.style.color = 'var(--warning-color)';
+            document.querySelectorAll('.move-btn').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('animate__fadeOut');
+            });
+            
+            updateTimer();
+            moveTimer = setInterval(updateTimer, 1000);
+        }
+
+        function stopMoveTimer() {
+            if (moveTimer) {
+                clearInterval(moveTimer);
+                moveTimer = null;
+                const timerElement = document.getElementById('moveTimer');
+                if (timerElement) {
+                    timerElement.classList.remove('animate__headShake', 'animate__bounceOut');
+                }
+            }
+        }
+
+        function stopRematchTimer() {
+            if (rematchTimer) {
+                clearInterval(rematchTimer);
+                rematchTimer = null;
+                const rematchBtn = document.getElementById('rematchBtn');
+                if (rematchBtn) {
+                    rematchBtn.classList.remove('animate__headShake');
+                    rematchBtn.style.color = '';
+                }
+            }
+        }
+
+        function getMoveIcon(move) {
+            switch (move) {
+                case 'rock': return '✊';
+                case 'paper': return '✋';
+                case 'scissors': return '✌️';
+                default: return '';
+            }
+        }
+
+        // Match functions
+        window.joinMatch = async function(matchId) {
+            try {
+                if (!socket || !socket.connected) {
+                    throw new Error('Socket not connected');
+                }
+
+                console.log('Joining match:', matchId);
+                const response = await fetch('/api/join_match', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({match_id: matchId}),
+                    credentials: 'same-origin'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                if (data.success) {
+                    currentMatchId = matchId;
+                    isCreator = false;
+                    
+                    // Join the match room via socket
+                    console.log('Joining match room:', matchId);
+                    socket.emit('join_match_room', { match_id: matchId });
+                    
+                    // Show waiting screen
+                    showScreen('waitingScreen');
+                    
+                    // Wait a bit to ensure room is joined before signaling ready
+                    setTimeout(() => {
+                        if (currentMatchId === matchId) {  // Make sure we're still in the same match
+                            console.log('Signaling ready for match:', matchId);
+                            socket.emit('ready_for_match', { match_id: matchId });
+                        }
+                    }, 1000);
+                } else if (data.error) {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error joining match:', error);
+                alert(error.message || 'Failed to join match. Please try again.');
+                // Reset state on error
+                currentMatchId = null;
+                isCreator = false;
+                showScreen('lobbyScreen');
+            }
+        };
+
+        // Event handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize UI and event handlers
+            const createMatchBtn = document.getElementById('createMatchBtn');
+            if (createMatchBtn) {
+                createMatchBtn.addEventListener('click', function() {
+                    const form = document.getElementById('createMatchForm');
+                    if (form) {
+                        if (form.style.display === 'block') {
+                            form.style.display = 'none';
+                            form.classList.remove('animate__fadeIn');
+                        } else {
+                            form.style.display = 'block';
+                            form.classList.add('animate__fadeIn');
+                        }
+                    } else {
+                        console.error('Create match form not found');
+                    }
+                });
+            }
+
+            // Update stake preview
+            const stakeInput = document.getElementById('stakeInput');
+            if (stakeInput) {
+                stakeInput.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value) || 0;
+                    const preview = document.getElementById('stakePreview');
+                    if (preview) {
+                        preview.textContent = value;
+                    }
+                });
+            }
+
+            // Confirm stake
+            const confirmStakeBtn = document.getElementById('confirmStakeBtn');
+            if (confirmStakeBtn) {
+                confirmStakeBtn.addEventListener('click', async function() {
+                    const stakeInput = document.getElementById('stakeInput');
+                    const stake = parseInt(stakeInput.value);
+
+                    if (!stake || stake <= 0) {
+                        alert('Please enter a valid stake amount');
+                        return;
+                    }
+
+                    try {
+                        console.log('Creating match with stake:', stake);
+                        const response = await fetch('/api/create_match', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({stake}),
+                            credentials: 'same-origin'
+                        });
+
+                        console.log('Create match response status:', response.status);
+                        const data = await response.json();
+                        console.log('Create match response data:', data);
+
+                        if (response.ok && data.match_id) {
+                            currentMatchId = data.match_id;
+                            isCreator = true;
+
+                            // Join the match room via socket
+                            console.log('Joining match room:', data.match_id);
+                            socket.emit('join_match_room', { match_id: data.match_id });
+                            
+                            // Wait a bit to ensure room is joined before signaling ready
+                            setTimeout(() => {
+                                if (currentMatchId === data.match_id) {  // Make sure we're still in the same match
+                                    console.log('Signaling ready for match:', data.match_id);
+                                    socket.emit('ready_for_match', { match_id: data.match_id });
+                                }
+                            }, 1000);
+
+                            const form = document.getElementById('createMatchForm');
+                            if (form) {
+                                form.classList.remove('animate__fadeIn');
+                                form.classList.add('animate__fadeOut');
+                                setTimeout(() => {
+                                    form.style.display = 'none';
+                                    form.classList.remove('animate__fadeOut');
+                                    stakeInput.value = '';
+                                    const preview = document.getElementById('stakePreview');
+                                    if (preview) preview.textContent = '0';
+                                    showScreen('waitingScreen');
+                                }, 500);
+                            } else {
+                                console.error('Form not found');
+                                showScreen('waitingScreen');
+                            }
+                        } else {
+                            const errorMessage = data.error || 'Failed to create match';
+                            console.error('Error creating match:', errorMessage);
+                            alert(errorMessage);
+                        }
+                    } catch (error) {
+                        console.error('Error creating match:', error);
+                        alert('Failed to create match. Please try again.');
+                    }
+                });
+            }
+
+            // Make move
+            document.querySelectorAll('.move-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const move = btn.dataset.move;
+                    
+                    // Animate the clicked button
+                    btn.classList.add('animate__rubberBand');
+                    setTimeout(() => btn.classList.remove('animate__rubberBand'), 1000);
+                    
+                    try {
+                        const response = await fetch('/api/move', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({move}),
+                            credentials: 'same-origin'
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        if (data.success) {
+                            // Disable and fade out other buttons
+                            document.querySelectorAll('.move-btn').forEach(b => {
+                                if (b !== btn) {
+                                    b.classList.add('animate__fadeOut');
+                                    setTimeout(() => b.style.visibility = 'hidden', 500);
+                                }
+                                b.disabled = true;
+                            });
+                            
+                            // Update status with animation
+                            const status = document.getElementById('playerMoveStatus');
+                            status.classList.add('animate__animated', 'animate__fadeIn');
+                            status.textContent = 'Move made: ' + move;
+                            
+                            // Show player's move with animation
+                            const playerMove = document.getElementById('playerMove');
+                            playerMove.classList.add('animate__animated', 'animate__bounceIn');
+                            playerMove.innerHTML = `
+                                <span class="move-icon">${getMoveIcon(move)}</span>
+                                <span class="move-text">${move}</span>
+                            `;
+                        }
+                    } catch (error) {
+                        console.error('Error making move:', error);
+                        alert('Failed to make move. Please try again.');
+                    }
+                });
+            });
+
+            // Back to lobby
+            const backToLobbyBtn = document.getElementById('backToLobbyBtn');
+            if (backToLobbyBtn) {
+                backToLobbyBtn.addEventListener('click', () => {
+                    showScreen('lobbyScreen');
+                    updateGameState();
+                });
+            }
+
+            // Socket events
+            socket.on('match_error', (data) => {
+                console.error('Match error:', data);
+                alert(data.error);
+                showScreen('lobbyScreen');
+                updateGameState();
+            });
+
+            socket.on('match_started', (data) => {
+                console.log('Match started event received:', data);
+                if (data.match_id === currentMatchId) {
+                    // Reset game state
+                    matches[currentMatchId] = {
+                        status: 'playing',
+                        start_time: data.start_time
+                    };
+                    
+                    // Show play screen with animation
+                    const playScreen = document.getElementById('playScreen');
+                    playScreen.classList.add('animate__animated', 'animate__fadeIn');
+                    showScreen('playScreen');
+                    
+                    // Start timer
+                    startMoveTimer();
+                    
+                    // Reset and show move buttons with animation
+                    document.querySelectorAll('.move-btn').forEach((btn, index) => {
+                        btn.disabled = false;
+                        btn.style.visibility = 'visible';
+                        btn.classList.remove('animate__fadeOut');
+                        setTimeout(() => {
+                            btn.classList.add('animate__bounceIn');
+                        }, index * 200);
+                    });
+                    
+                    // Reset status messages with animation
+                    const messages = [
+                        document.getElementById('playerMoveStatus'),
+                        document.getElementById('opponentMoveStatus')
+                    ];
+                    messages.forEach(msg => {
+                        if (msg) {
+                            msg.classList.add('animate__animated', 'animate__fadeIn');
+                            msg.textContent = msg.id === 'playerMoveStatus' ? 
+                                'Waiting for your move...' : 'Waiting for opponent to move...';
+                        }
+                    });
+                    
+                    // If this is a rematch, show a message
+                    if (data.rematch) {
+                        const notification = document.createElement('div');
+                        notification.className = 'notification animate__animated animate__fadeIn';
+                        notification.textContent = 'Rematch started!';
+                        document.querySelector('.container').appendChild(notification);
+                        setTimeout(() => {
+                            notification.classList.add('animate__fadeOut');
+                            setTimeout(() => notification.remove(), 1000);
+                        }, 2000);
+                    }
+                }
+            });
+
+            socket.on('move_made', (data) => {
+                console.log('Move made event received:', data);
+                const isOpponent = (data.player === 'creator' && !isCreator) || 
+                                 (data.player === 'joiner' && isCreator);
+                if (isOpponent) {
+                    const status = document.getElementById('opponentMoveStatus');
+                    if (status) {
+                        status.classList.add('animate__animated', 'animate__fadeIn');
+                        status.textContent = data.auto ? 
+                            'Opponent move was random (timeout)' : 
+                            'Opponent made their move';
+                    }
+                }
+            });
+
+            socket.on('match_result', (data) => {
+                console.log('Match result event received:', data);
+                stopMoveTimer();
+                
+                const isWinner = (data.winner === 'player1' && isCreator) || 
+                               (data.winner === 'player2' && !isCreator);
+                
+                // Prepare move displays with animations
+                const playerMoveElement = document.getElementById('playerMove');
+                const opponentMoveElement = document.getElementById('opponentMove');
+                
+                if (playerMoveElement && opponentMoveElement) {
+                    const playerMove = isCreator ? data.creator_move : data.joiner_move;
+                    const opponentMove = isCreator ? data.joiner_move : data.creator_move;
+                    
+                    playerMoveElement.classList.add('animate__animated', 'animate__bounceIn');
+                    playerMoveElement.style.animationDelay = '0s';
+                    playerMoveElement.innerHTML = `
+                        <span class="move-icon">${getMoveIcon(playerMove)}</span>
+                        <span class="move-text">${playerMove}</span>
+                    `;
+                    
+                    opponentMoveElement.classList.add('animate__animated', 'animate__bounceIn');
+                    opponentMoveElement.style.animationDelay = '0.5s';
+                    opponentMoveElement.innerHTML = `
+                        <span class="move-icon">${getMoveIcon(opponentMove)}</span>
+                        <span class="move-text">${opponentMove}</span>
+                    `;
+                }
+                
+                // Show result with animation
+                setTimeout(() => {
+                    let resultText = '';
+                    const resultAnimation = document.getElementById('resultAnimation');
+                    const resultTextElement = document.getElementById('resultText');
+                    
+                    if (resultAnimation && resultTextElement) {
+                        if (data.winner === 'draw') {
+                            resultText = "It's a draw!";
+                            resultAnimation.innerHTML = '🤝';
+                            resultAnimation.classList.add('animate__animated', 'animate__bounce');
+                        } else if (isWinner) {
+                            resultText = 'You won!';
+                            resultAnimation.innerHTML = '🏆';
+                            resultAnimation.classList.add('animate__animated', 'animate__tada');
+                        } else {
+                            resultText = 'You lost!';
+                            resultAnimation.innerHTML = '💔';
+                            resultAnimation.classList.add('animate__animated', 'animate__wobble');
+                        }
+                        
+                        resultTextElement.classList.add('animate__animated', 'animate__fadeInUp');
+                        resultTextElement.textContent = resultText;
+                    }
+                    
+                    // Show match stats with animation
+                    const stats = data.match_stats;
+                    const statsContainer = document.getElementById('matchStats');
+                    if (statsContainer && stats) {
+                        statsContainer.classList.add('animate__animated', 'animate__fadeIn');
+                        statsContainer.innerHTML = `
+                            <div class="stats-item">
+                                <span>Total Rounds:</span>
+                                <span>${stats.rounds}</span>
+                            </div>
+                            <div class="stats-item">
+                                <span>Creator Wins:</span>
+                                <span>${stats.creator_wins}</span>
+                            </div>
+                            <div class="stats-item">
+                                <span>Joiner Wins:</span>
+                                <span>${stats.joiner_wins}</span>
+                            </div>
+                            <div class="stats-item">
+                                <span>Draws:</span>
+                                <span>${stats.draws}</span>
+                            </div>
+                        `;
+                    }
+                }, 1000);
+                
+                showScreen('resultScreen');
+                updateGameState();
+
+                // Handle rematch
+                lastMatchStake = data.stake;
+                const rematchBtn = document.getElementById('rematchBtn');
+                const rematchStatus = document.getElementById('rematchStatus');
+                const rematchTimerDisplay = document.getElementById('rematchTimer');
+                
+                // Reset rematch button state
+                rematchBtn.disabled = false;
+                rematchBtn.classList.remove('animate__pulse', 'animate__infinite');
+                rematchBtn.innerHTML = `
+                    <span class="btn-icon">🔄</span>
+                    Rematch (<span id="rematchTimer">15</span>s)
+                `;
+                
+                // Only show rematch button if player has enough coins
+                if (data.can_rematch) {
+                    rematchBtn.style.display = 'block';
+                    let timeLeft = 15;
+                    
+                    // Clear any existing timer
+                    stopRematchTimer();
+                    
+                    // Start rematch timer
+                    const updateTimer = () => {
+                        timeLeft--;
+                        // Get the timer display element again as it might have been recreated
+                        const timerDisplay = document.getElementById('rematchTimer');
+                        if (timerDisplay) {
+                            timerDisplay.textContent = timeLeft;
+                        }
+                        
+                        // Add visual feedback for last 5 seconds
+                        if (timeLeft <= 5 && rematchBtn && !rematchBtn.disabled) {
+                            rematchBtn.classList.add('animate__headShake');
+                            rematchBtn.style.color = 'var(--danger-color)';
+                        }
+                        
+                        if (timeLeft <= 0) {
+                            clearInterval(rematchTimer);
+                            if (rematchBtn) {
+                                rematchBtn.classList.remove('animate__headShake');
+                                rematchBtn.style.display = 'none';
+                            }
+                            if (rematchStatus) {
+                                rematchStatus.textContent = 'Rematch time expired';
+                                rematchStatus.classList.add('animate__animated', 'animate__fadeOut');
+                                setTimeout(() => {
+                                    rematchStatus.textContent = '';
+                                    rematchStatus.classList.remove('animate__fadeOut');
+                                }, 2000);
+                            }
+                            socket.emit('rematch_declined', { match_id: currentMatchId });
+                        }
+                    };
+                    
+                    // Initial timer update
+                    updateTimer();
+                    // Start interval
+                    rematchTimer = setInterval(updateTimer, 1000);
+                    
+                    // Handle rematch button click
+                    rematchBtn.onclick = () => {
+                        socket.emit('rematch_accepted', { match_id: currentMatchId });
+                        rematchBtn.disabled = true;
+                        rematchBtn.innerHTML = `
+                            <span class="btn-icon">🔄</span>
+                            Waiting for opponent...
+                        `;
+                        if (rematchStatus) {
+                            rematchStatus.textContent = 'Waiting for opponent to accept rematch...';
+                        }
+                    };
+                } else {
+                    if (rematchStatus) {
+                        rematchStatus.textContent = 'Not enough coins for rematch';
+                    }
+                }
+            });
+
+            // Handle rematch events
+            socket.on('rematch_accepted_by_player', (data) => {
+                console.log('Player accepted rematch:', data);
+                const rematchStatus = document.getElementById('rematchStatus');
+                const rematchBtn = document.getElementById('rematchBtn');
+                
+                if (rematchStatus) {
+                    if (data.player === 'creator' && !isCreator || data.player === 'joiner' && isCreator) {
+                        rematchStatus.textContent = 'Opponent wants a rematch! Accept?';
+                        if (rematchBtn && !rematchBtn.disabled) {
+                            rematchBtn.classList.add('animate__animated', 'animate__pulse', 'animate__infinite');
+                        }
+                    }
+                }
+            });
+
+            socket.on('rematch_declined', (data) => {
+                console.log('Opponent declined rematch:', data);
+                const rematchBtn = document.getElementById('rematchBtn');
+                const rematchStatus = document.getElementById('rematchStatus');
+                
+                if (rematchBtn) {
+                    rematchBtn.style.display = 'none';
+                }
+                
+                if (rematchStatus) {
+                    rematchStatus.textContent = 'Opponent declined rematch';
+                    rematchStatus.classList.add('animate__animated', 'animate__fadeOut');
+                    setTimeout(() => {
+                        rematchStatus.textContent = '';
+                        rematchStatus.classList.remove('animate__fadeOut');
+                    }, 2000);
+                }
+            });
+
+            socket.on('rematch_started', (data) => {
+                console.log('Rematch started:', data);
+                currentMatchId = data.match_id;
+                isCreator = data.is_creator;
+                
+                // Stop rematch timer
+                stopRematchTimer();
+                
+                // Clear rematch UI
+                const rematchBtn = document.getElementById('rematchBtn');
+                const rematchStatus = document.getElementById('rematchStatus');
+                if (rematchBtn) {
+                    rematchBtn.style.display = 'none';
+                }
+                if (rematchStatus) {
+                    rematchStatus.textContent = '';
+                }
+                
+                // Clear any existing timers
+                if (rematchTimer) {
+                    clearInterval(rematchTimer);
+                    rematchTimer = null;
+                }
+                
+                // Show waiting screen
+                showScreen('waitingScreen');
+                
+                // Join the match room
+                socket.emit('join_match_room', { match_id: data.match_id });
+                
+                // Signal ready after a short delay
+                setTimeout(() => {
+                    socket.emit('ready_for_match', { match_id: data.match_id });
+                }, 1000);
+            });
+
+            // Initial state update
+            updateGameState();
+            setInterval(updateGameState, 5000);
+        });
+    </script>
+</body>
+</html>
