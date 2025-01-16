@@ -1,5 +1,6 @@
 import unittest
 import time
+import logging
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -9,15 +10,20 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
+logging.basicConfig(level=logging.INFO)
+
 class RPSGameTest(unittest.TestCase):
     BASE_URL = "http://165.227.160.131:3001"
     
     @classmethod
     def setUpClass(cls):
         chrome_options = Options()
-        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--headless=new')
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--window-size=1920,1080')
+        chrome_options.add_argument('--remote-debugging-port=9222')
         
         cls.driver1 = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         cls.driver2 = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
@@ -34,15 +40,31 @@ class RPSGameTest(unittest.TestCase):
         self.driver1.get(self.BASE_URL)
         self.driver2.get(self.BASE_URL)
         time.sleep(2)  # Allow for initial load
+        
+    def log_page_source(self, driver, name):
+        logging.info(f"Page source for {name}:")
+        logging.info(driver.page_source)
 
     def test_01_auto_registration(self):
         """Test that players are automatically registered and get a session"""
-        # Check if both players get unique balances
-        player1_balance = self.wait1.until(EC.presence_of_element_located((By.XPATH, "//div[contains(text(), '🪙')]/following-sibling::div"))).text
-        player2_balance = self.wait2.until(EC.presence_of_element_located((By.XPATH, "//div[contains(text(), '🪙')]/following-sibling::div"))).text
+        logging.info("Starting test_01_auto_registration")
         
-        self.assertEqual(player1_balance, "100")
-        self.assertEqual(player2_balance, "100")
+        try:
+            # Check if both players get unique balances
+            logging.info("Waiting for player 1 balance")
+            player1_balance = self.wait1.until(EC.presence_of_element_located((By.XPATH, "//div[contains(text(), '🪙')]/following-sibling::div"))).text
+            logging.info(f"Player 1 balance: {player1_balance}")
+            
+            logging.info("Waiting for player 2 balance")
+            player2_balance = self.wait2.until(EC.presence_of_element_located((By.XPATH, "//div[contains(text(), '🪙')]/following-sibling::div"))).text
+            logging.info(f"Player 2 balance: {player2_balance}")
+            
+            self.assertEqual(player1_balance, "100")
+            self.assertEqual(player2_balance, "100")
+        except:
+            self.log_page_source(self.driver1, "Player 1")
+            self.log_page_source(self.driver2, "Player 2")
+            raise
 
     def test_02_create_and_cancel_match(self):
         """Test match creation and cancellation"""
