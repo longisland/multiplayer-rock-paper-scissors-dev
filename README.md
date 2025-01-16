@@ -1,41 +1,67 @@
-# RPS-Web: Rock Paper Scissors Web App
+# Multiplayer Rock Paper Scissors - Development Version
 
-A simple multiplayer Rock Paper Scissors web application with virtual coins.
+This is the development version of the Multiplayer Rock Paper Scissors game. For the stable version, please check [multiplayer-rock-paper-scissors](https://github.com/longisland/multiplayer-rock-paper-scissors).
 
-## Features
+## Development Status
 
-- Anonymous multiplayer gameplay
-- Virtual coin system (100 coins on start)
-- Create and join matches with custom stakes
-- Mobile-friendly interface
-- Real-time updates using WebSocket
+This repository contains the latest development version of the game. Features here may be unstable or incomplete. For production use, please use the stable version.
 
-## Quick Start
+## Features in Development
 
-1. Install dependencies:
+- Enhanced session management
+- Improved match handling
+- Better error handling
+- Real-time game state updates
+- Performance optimizations
+- Additional game statistics
+- UI/UX improvements
+
+## Requirements
+
+- Python 3.8+
+- Redis server
+- Flask and Flask-SocketIO
+- Eventlet
+
+## Installation for Development
+
+1. Clone the repository:
+```bash
+git clone https://github.com/longisland/multiplayer-rock-paper-scissors-dev.git
+cd multiplayer-rock-paper-scissors-dev
+```
+
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Run the application:
+3. Make sure Redis server is running:
+```bash
+systemctl start redis-server
+```
+
+4. Run the application:
 ```bash
 python app.py
 ```
 
-3. Open your browser and visit: `http://localhost:5000`
+## Contributing
 
-## How to Play
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-1. When you first visit the site, you'll get 100 virtual coins
-2. Create a match by setting a stake amount
-3. Other players can join your match
-4. Choose Rock, Paper, or Scissors when the game starts
-5. Winner gets the stake from the loser
-6. In case of a draw, both players keep their coins
+## Testing
 
-## Technical Details
+Before submitting a pull request, please ensure:
+1. All existing tests pass
+2. New tests are added for new features
+3. Code follows the existing style
+4. Documentation is updated
 
-- Backend: Flask + Flask-SocketIO
-- Frontend: HTML5, CSS3, Vanilla JavaScript
-- Storage: In-memory (no database required)
-- WebSocket for real-time updates
+## License
+
+MIT License
