@@ -4,7 +4,8 @@ import secrets
 import os
 import random
 import time
-from datetime import datetime, UTC, timedelta
+from datetime import datetime, timezone, timedelta
+UTC = timezone.utc
 from threading import Timer
 import logging
 from models import db, Player, Match
