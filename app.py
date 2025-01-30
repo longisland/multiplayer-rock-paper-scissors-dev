@@ -4,7 +4,7 @@ import secrets
 import os
 import random
 import time
-from datetime import datetime
+from datetime import datetime, UTC
 from threading import Timer
 import logging
 from models import db, Player, Match
@@ -127,7 +127,7 @@ def get_state():
             logger.info(f"Reinitialized player: {session_id}")
         
         # Update last active timestamp
-        player.last_active = datetime.utcnow()
+        player.last_active = datetime.now(UTC)
         db.session.commit()
         
         # Get open matches that:
@@ -368,7 +368,7 @@ def calculate_and_emit_result(match_id):
         match.winner = joiner.session_id
     
     match.status = 'finished'
-    match.finished_at = datetime.utcnow()
+    match.finished_at = datetime.now(UTC)
     
     # Clear current match references
     creator.current_match_id = None
@@ -480,7 +480,7 @@ def on_ready_for_match(data):
         # If both players are ready, start the match
         if match.creator_ready and match.joiner_ready:
             match.status = 'playing'
-            match.started_at = datetime.utcnow()
+            match.started_at = datetime.now(UTC)
             match.creator_move = None
             match.joiner_move = None
             db.session.commit()
