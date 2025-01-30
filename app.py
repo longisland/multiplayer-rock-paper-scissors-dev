@@ -41,15 +41,6 @@ socketio = SocketIO(
 # Match timers storage
 match_timers = {}
 
-# Start cleanup thread
-def cleanup_thread():
-    while True:
-        cleanup_stale_matches()
-        time.sleep(10)  # Run every 10 seconds
-
-cleanup_thread = threading.Thread(target=cleanup_thread, daemon=True)
-cleanup_thread.start()
-
 def get_match(match_id):
     """Get a match by ID using the new SQLAlchemy API."""
     return db.session.get(Match, match_id)
@@ -632,6 +623,15 @@ def on_rematch_declined(data):
         logger.info(f"Rematch declined for match {match_id} by {session_id}")
     except Exception as e:
         logger.exception("Error in rematch_declined handler")
+
+# Start cleanup thread
+def cleanup_thread_func():
+    while True:
+        cleanup_stale_matches()
+        time.sleep(10)  # Run every 10 seconds
+
+cleanup_thread = threading.Thread(target=cleanup_thread_func, daemon=True)
+cleanup_thread.start()
 
 if __name__ == '__main__':
     socketio.run(app,
