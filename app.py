@@ -340,6 +340,18 @@ def make_move():
         
         # Record the move
         try:
+            # Lock the match for update
+            match = Match.query.filter_by(id=match.id).with_for_update().first()
+            if not match:
+                logger.error(f"Match {match.id} disappeared during move")
+                return jsonify({'error': 'Match not found'}), 400
+            
+            # Check match state again after lock
+            if match.status != 'playing':
+                logger.error(f"Match {match.id} not in playing state after lock. Status: {match.status}")
+                return jsonify({'error': 'Match not in playing state'}), 400
+            
+            # Record the move
             if session_id == match.creator_id:
                 match.creator_move = move
             else:
@@ -553,7 +565,10 @@ def on_ready_for_match(data):
             match_timers[match_id].start()
             
             logger.info(f"Match {match_id} started")
-            socketio.emit('match_started', room=match_id)
+            socketio.emit('match_started', {
+                'match_id': match_id,
+                'start_time': match.started_at.isoformat()
+            }, room=match_id)
     except Exception as e:
         logger.exception("Error in ready_for_match handler")
 
