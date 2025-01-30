@@ -53,9 +53,17 @@ def cleanup_stale_matches():
     try:
         with app.app_context():
             # Find matches that have been in 'playing' state for more than 30 seconds
-            stale_matches = Match.query.filter_by(status='playing').filter(
-                Match.started_at < datetime.now(UTC) - timedelta(seconds=30)
-            ).all()
+            cutoff_time = datetime.now(UTC) - timedelta(seconds=30)
+            stale_matches = Match.query.filter_by(status='playing').all()
+            
+            # Filter matches manually to handle naive datetimes
+            stale_matches = [
+                match for match in stale_matches
+                if match.started_at and (
+                    match.started_at.replace(tzinfo=UTC) if match.started_at.tzinfo is None
+                    else match.started_at
+                ) < cutoff_time
+            ]
             
             for match in stale_matches:
                 logger.info(f"Cleaning up stale match {match.id}")
@@ -323,10 +331,17 @@ def make_move():
             return jsonify({'error': 'No active match'}), 400
         
         # Check if match is too old (more than 10 seconds)
-        if match.started_at and match.started_at < datetime.now(UTC) - timedelta(seconds=10):
-            logger.error(f"Match {match.id} has timed out")
-            handle_match_timeout(match.id)
-            return jsonify({'error': 'Match has timed out. Random moves were assigned.'}), 400
+        if match.started_at:
+            # Convert naive datetime to UTC
+            if match.started_at.tzinfo is None:
+                match_start = match.started_at.replace(tzinfo=UTC)
+            else:
+                match_start = match.started_at
+            
+            if match_start < datetime.now(UTC) - timedelta(seconds=10):
+                logger.error(f"Match {match.id} has timed out")
+                handle_match_timeout(match.id)
+                return jsonify({'error': 'Match has timed out. Random moves were assigned.'}), 400
         
         if match.status != 'playing':
             logger.error(f"Match {match.id} not in playing state. Status: {match.status}")
