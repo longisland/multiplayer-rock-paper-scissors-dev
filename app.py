@@ -28,7 +28,7 @@ with app.app_context():
 socketio = SocketIO(
     app,
     async_mode='gevent',  # Use gevent for WebSocket support
-    cors_allowed_origins=app.config['CORS_ALLOWED_ORIGINS'],
+    cors_allowed_origins='*',  # Allow all origins in development
     logger=True,
     engineio_logger=True,
     ping_timeout=60,
