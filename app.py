@@ -702,7 +702,7 @@ def on_rematch_request(data):
             logger.info(f"Rematch started: {new_match_id}")
             
             # First notify about the rematch being accepted
-            socketio.emit('rematch_started', {
+            socketio.emit('match_started', {
                 'match_id': new_match_id,
                 'creator_id': new_creator_id,
                 'joiner_id': new_joiner_id,
