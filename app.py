@@ -322,11 +322,11 @@ def make_move():
             logger.error(f"No active match for player {session_id}")
             return jsonify({'error': 'No active match'}), 400
         
-        # Check if match is too old (more than 30 seconds)
-        if match.started_at and match.started_at < datetime.now(UTC) - timedelta(seconds=30):
+        # Check if match is too old (more than 10 seconds)
+        if match.started_at and match.started_at < datetime.now(UTC) - timedelta(seconds=10):
             logger.error(f"Match {match.id} has timed out")
             handle_match_timeout(match.id)
-            return jsonify({'error': 'Match has timed out'}), 400
+            return jsonify({'error': 'Match has timed out. Random moves were assigned.'}), 400
         
         if match.status != 'playing':
             logger.error(f"Match {match.id} not in playing state. Status: {match.status}")
@@ -344,6 +344,13 @@ def make_move():
                 match.creator_move = move
             else:
                 match.joiner_move = move
+            
+            # Cancel the timer if both players have moved
+            if match.creator_move and match.joiner_move:
+                if match.id in match_timers and match_timers[match.id]:
+                    match_timers[match.id].cancel()
+                    match_timers.pop(match.id)
+            
             db.session.commit()
             
             logger.info(f"Player {session_id} made move {move} in match {match.id}")
@@ -362,7 +369,7 @@ def make_move():
         except Exception as e:
             db.session.rollback()
             logger.exception(f"Error recording move for match {match.id}")
-            return jsonify({'error': 'Failed to record move'}), 500
+            return jsonify({'error': 'Failed to record move. Please try again.'}), 500
     except Exception as e:
         logger.exception("Error making move")
         return jsonify({'error': 'Internal server error'}), 500
@@ -531,9 +538,18 @@ def on_ready_for_match(data):
             
             # Set up timer for move timeout
             def handle_timeout():
-                handle_match_timeout(match_id)
+                with app.app_context():
+                    try:
+                        handle_match_timeout(match_id)
+                    except Exception as e:
+                        logger.exception(f"Error in match timeout handler for match {match_id}")
             
-            match_timers[match_id] = Timer(30, handle_timeout)
+            # Cancel any existing timer
+            if match_id in match_timers and match_timers[match_id]:
+                match_timers[match_id].cancel()
+            
+            # Start new timer
+            match_timers[match_id] = Timer(10, handle_timeout)  # 10 seconds for move timeout
             match_timers[match_id].start()
             
             logger.info(f"Match {match_id} started")
@@ -626,9 +642,13 @@ def on_rematch_declined(data):
 
 # Start cleanup thread
 def cleanup_thread_func():
-    while True:
-        cleanup_stale_matches()
-        time.sleep(10)  # Run every 10 seconds
+    with app.app_context():
+        while True:
+            try:
+                cleanup_stale_matches()
+            except Exception as e:
+                logger.exception("Error in cleanup thread")
+            time.sleep(10)  # Run every 10 seconds
 
 cleanup_thread = threading.Thread(target=cleanup_thread_func, daemon=True)
 cleanup_thread.start()
