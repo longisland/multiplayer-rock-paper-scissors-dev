@@ -217,14 +217,9 @@ def get_state():
                 if match.started_at:
                     cutoff_time = datetime.now(UTC) - timedelta(seconds=30)
                     match_time = match.started_at.replace(tzinfo=UTC) if match.started_at.tzinfo is None else match.started_at
-                    if match_time < cutoff_time:
+                    if match_time < cutoff_time and match.status == 'playing':
                         # Clean up stale match
-                        if match.status == 'playing':
-                            handle_match_timeout(match.id)
-                        else:
-                            player.current_match_id = None
-                            db.session.delete(match)
-                            db.session.commit()
+                        handle_match_timeout(match.id)
                         match = None
                 
                 if match:
@@ -232,7 +227,9 @@ def get_state():
                         'id': match.id,
                         'status': match.status,
                         'stake': match.stake,
-                        'is_creator': session_id == match.creator_id
+                        'is_creator': session_id == match.creator_id,
+                        'creator_ready': match.creator_ready,
+                        'joiner_ready': match.joiner_ready
                     }
         
         logger.debug(f"State for {session_id}: coins={player.coins}, current_match={current_match}")
@@ -694,6 +691,11 @@ def on_rematch_declined(data):
         match = get_match(match_id)
         if not match:
             return
+        
+        # Reset ready states
+        match.creator_ready = False
+        match.joiner_ready = False
+        db.session.commit()
         
         # Notify others that a player declined rematch
         socketio.emit('rematch_declined', {}, room=match_id)
