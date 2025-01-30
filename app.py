@@ -579,8 +579,12 @@ def on_ready_for_match(data):
             logger.error(f"Match {match_id} not found")
             return
         
-        if match.status != 'waiting':
-            logger.error(f"Match {match_id} not in waiting state. Status: {match.status}")
+        # Join the match room if not already in it
+        join_room(match_id)
+        
+        # For rematch, the match will already be in playing state
+        if match.status not in ['waiting', 'playing']:
+            logger.error(f"Match {match_id} in invalid state. Status: {match.status}")
             return
         
         if session_id == match.creator_id:
@@ -597,11 +601,12 @@ def on_ready_for_match(data):
         
         # If both players are ready, start the match
         if match.creator_ready and match.joiner_ready:
-            match.status = 'playing'
-            match.started_at = datetime.now(UTC)
-            match.creator_move = None
-            match.joiner_move = None
-            db.session.commit()
+            if match.status == 'waiting':
+                match.status = 'playing'
+                match.started_at = datetime.now(UTC)
+                match.creator_move = None
+                match.joiner_move = None
+                db.session.commit()
             
             # Set up timer for move timeout
             def handle_timeout():
@@ -622,7 +627,11 @@ def on_ready_for_match(data):
             logger.info(f"Match {match_id} started")
             socketio.emit('match_started', {
                 'match_id': match_id,
-                'start_time': match.started_at.isoformat()
+                'start_time': match.started_at.isoformat(),
+                'creator_id': match.creator_id,
+                'joiner_id': match.joiner_id,
+                'stake': match.stake,
+                'rematch': True
             }, room=match_id)
     except Exception as e:
         logger.exception("Error in ready_for_match handler")
@@ -922,7 +931,23 @@ def on_rematch_request(data):
             
             logger.info(f"Rematch started: {new_match_id}")
             
-            # Notify both players about the new match
+            # First notify about the rematch being accepted
+            socketio.emit('rematch_accepted', {
+                'match_id': new_match_id,
+                'creator_id': new_creator_id,
+                'joiner_id': new_joiner_id,
+                'stake': new_match.stake
+            }, room=match_id)  # Send to old match room
+            
+            # Then notify about the match starting
+            socketio.emit('ready_for_match', {
+                'match_id': new_match_id,
+                'creator_id': new_creator_id,
+                'joiner_id': new_joiner_id,
+                'stake': new_match.stake
+            }, room=match_id)  # Send to old match room
+            
+            # Finally start the match
             socketio.emit('match_started', {
                 'match_id': new_match_id,
                 'start_time': new_match.started_at.isoformat(),
@@ -930,7 +955,7 @@ def on_rematch_request(data):
                 'creator_id': new_creator_id,
                 'joiner_id': new_joiner_id,
                 'stake': new_match.stake
-            }, room=match_id)  # Send to old match room
+            }, room=new_match_id)  # Send to new match room
     except Exception as e:
         logger.exception("Error in rematch_request handler")
 
