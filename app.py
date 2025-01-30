@@ -800,7 +800,8 @@ def on_rematch_request(data):
             logger.error(f"Invalid session or match ID in rematch_request: {session_id}, {match_id}")
             return
         
-        match = get_match(match_id)
+        # Lock the match for update
+        match = Match.query.filter_by(id=match_id).with_for_update().first()
         if not match:
             logger.error(f"Match {match_id} not found")
             return
@@ -823,8 +824,10 @@ def on_rematch_request(data):
         # Update player ready state in the current match
         if session_id == match.creator_id:
             match.creator_ready = True
+            logger.info(f"Creator {session_id} ready for rematch in match {match_id}")
         else:
             match.joiner_ready = True
+            logger.info(f"Joiner {session_id} ready for rematch in match {match_id}")
         db.session.commit()
         
         # Notify others that a player accepted rematch
@@ -835,6 +838,8 @@ def on_rematch_request(data):
         
         # Start a new match only if both players have accepted
         if match.creator_ready and match.joiner_ready:
+            logger.info(f"Both players ready for rematch in match {match_id}")
+            
             # Create new match with same stake but random creator
             new_creator_id = random.choice([match.creator_id, match.joiner_id])
             new_joiner_id = match.joiner_id if new_creator_id == match.creator_id else match.creator_id
@@ -877,7 +882,15 @@ def on_rematch_request(data):
             
             logger.info(f"Rematch started: {new_match_id}")
             
-            # Notify both players about the new match
+            # First notify about the rematch being accepted
+            socketio.emit('rematch_accepted', {
+                'match_id': new_match_id,
+                'creator_id': new_creator_id,
+                'joiner_id': new_joiner_id,
+                'stake': new_match.stake
+            }, room=match_id)  # Send to old match room
+            
+            # Then start the match
             socketio.emit('match_started', {
                 'match_id': new_match_id,
                 'start_time': new_match.started_at.isoformat(),
@@ -885,7 +898,7 @@ def on_rematch_request(data):
                 'creator_id': new_creator_id,
                 'joiner_id': new_joiner_id,
                 'stake': new_match.stake
-            }, room=match_id)  # Send to old match room
+            }, room=new_match_id)  # Send to new match room
     except Exception as e:
         logger.exception("Error in rematch_request handler")
 
