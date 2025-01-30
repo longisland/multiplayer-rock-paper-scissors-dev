@@ -841,6 +841,11 @@ def on_rematch_request(data):
             logger.error(f"Match {match_id} not found")
             return
         
+        # Check if match is in finished state
+        if match.status != 'finished':
+            logger.error(f"Match {match_id} not in finished state")
+            return
+        
         # Check if both players have enough coins
         creator = Player.query.filter_by(session_id=match.creator_id).first()
         joiner = Player.query.filter_by(session_id=match.joiner_id).first()
@@ -886,8 +891,8 @@ def on_rematch_request(data):
                 joiner_id=new_joiner_id,
                 stake=match.stake,
                 status='playing',  # Start in playing state
-                creator_ready=True,  # Both players are ready
-                joiner_ready=True,
+                creator_ready=False,  # Reset ready states
+                joiner_ready=False,
                 started_at=datetime.now(UTC)  # Set start time
             )
             
@@ -917,15 +922,7 @@ def on_rematch_request(data):
             
             logger.info(f"Rematch started: {new_match_id}")
             
-            # First notify about the rematch being accepted
-            socketio.emit('rematch_accepted', {
-                'match_id': new_match_id,
-                'creator_id': new_creator_id,
-                'joiner_id': new_joiner_id,
-                'stake': new_match.stake
-            }, room=match_id)  # Send to old match room
-            
-            # Then start the match
+            # Notify both players about the new match
             socketio.emit('match_started', {
                 'match_id': new_match_id,
                 'start_time': new_match.started_at.isoformat(),
@@ -933,7 +930,7 @@ def on_rematch_request(data):
                 'creator_id': new_creator_id,
                 'joiner_id': new_joiner_id,
                 'stake': new_match.stake
-            }, room=new_match_id)  # Send to new match room
+            }, room=match_id)  # Send to old match room
     except Exception as e:
         logger.exception("Error in rematch_request handler")
 
