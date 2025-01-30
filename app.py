@@ -4,11 +4,12 @@ import secrets
 import os
 import random
 import time
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 from threading import Timer
 import logging
 from models import db, Player, Match
 from config import Config
+import threading
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -40,12 +41,36 @@ socketio = SocketIO(
 # Match timers storage
 match_timers = {}
 
+# Start cleanup thread
+def cleanup_thread():
+    while True:
+        cleanup_stale_matches()
+        time.sleep(10)  # Run every 10 seconds
+
+cleanup_thread = threading.Thread(target=cleanup_thread, daemon=True)
+cleanup_thread.start()
+
 def get_match(match_id):
     """Get a match by ID using the new SQLAlchemy API."""
     return db.session.get(Match, match_id)
 
 def random_move():
     return random.choice(['rock', 'paper', 'scissors'])
+
+def cleanup_stale_matches():
+    """Clean up matches that have been stuck in 'playing' state for too long."""
+    try:
+        with app.app_context():
+            # Find matches that have been in 'playing' state for more than 30 seconds
+            stale_matches = Match.query.filter_by(status='playing').filter(
+                Match.started_at < datetime.now(UTC) - timedelta(seconds=30)
+            ).all()
+            
+            for match in stale_matches:
+                logger.info(f"Cleaning up stale match {match.id}")
+                handle_match_timeout(match.id)
+    except Exception as e:
+        logger.exception("Error cleaning up stale matches")
 
 def handle_match_timeout(match_id):
     try:
@@ -79,6 +104,23 @@ def handle_match_timeout(match_id):
         calculate_and_emit_result(match_id)
     except Exception as e:
         logger.exception(f"Error in match timeout handler for match {match_id}")
+        # Try to clean up the match in case of error
+        try:
+            match = get_match(match_id)
+            if match:
+                match.status = 'finished'
+                match.finished_at = datetime.now(UTC)
+                if match.creator_id:
+                    creator = Player.query.filter_by(session_id=match.creator_id).first()
+                    if creator:
+                        creator.current_match_id = None
+                if match.joiner_id:
+                    joiner = Player.query.filter_by(session_id=match.joiner_id).first()
+                    if joiner:
+                        joiner.current_match_id = None
+                db.session.commit()
+        except Exception as cleanup_error:
+            logger.exception(f"Error cleaning up match {match_id} after timeout error")
 
 def calculate_winner(move1, move2):
     if move1 == move2:
@@ -289,6 +331,12 @@ def make_move():
             logger.error(f"No active match for player {session_id}")
             return jsonify({'error': 'No active match'}), 400
         
+        # Check if match is too old (more than 30 seconds)
+        if match.started_at and match.started_at < datetime.now(UTC) - timedelta(seconds=30):
+            logger.error(f"Match {match.id} has timed out")
+            handle_match_timeout(match.id)
+            return jsonify({'error': 'Match has timed out'}), 400
+        
         if match.status != 'playing':
             logger.error(f"Match {match.id} not in playing state. Status: {match.status}")
             return jsonify({'error': 'Match not in playing state'}), 400
@@ -300,25 +348,30 @@ def make_move():
             return jsonify({'error': 'Move already made'}), 400
         
         # Record the move
-        if session_id == match.creator_id:
-            match.creator_move = move
-        else:
-            match.joiner_move = move
-        db.session.commit()
-        
-        logger.info(f"Player {session_id} made move {move} in match {match.id}")
-        
-        # Notify others that a move was made (without revealing the move)
-        socketio.emit('move_made', {
-            'player': 'creator' if session_id == match.creator_id else 'joiner',
-            'auto': False
-        }, room=match.id)
-        
-        # If both players have moved, calculate result
-        if match.creator_move and match.joiner_move:
-            calculate_and_emit_result(match.id)
-        
-        return jsonify({'success': True})
+        try:
+            if session_id == match.creator_id:
+                match.creator_move = move
+            else:
+                match.joiner_move = move
+            db.session.commit()
+            
+            logger.info(f"Player {session_id} made move {move} in match {match.id}")
+            
+            # Notify others that a move was made (without revealing the move)
+            socketio.emit('move_made', {
+                'player': 'creator' if session_id == match.creator_id else 'joiner',
+                'auto': False
+            }, room=match.id)
+            
+            # If both players have moved, calculate result
+            if match.creator_move and match.joiner_move:
+                calculate_and_emit_result(match.id)
+            
+            return jsonify({'success': True})
+        except Exception as e:
+            db.session.rollback()
+            logger.exception(f"Error recording move for match {match.id}")
+            return jsonify({'error': 'Failed to record move'}), 500
     except Exception as e:
         logger.exception("Error making move")
         return jsonify({'error': 'Internal server error'}), 500
