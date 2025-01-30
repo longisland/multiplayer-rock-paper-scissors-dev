@@ -708,7 +708,8 @@ def on_rematch_request(data):
                 'joiner_id': new_joiner_id,
                 'stake': new_match.stake,
                 'rematch': True,
-                'time_limit': 10
+                'time_limit': 10,
+                'start_time': new_match.started_at.isoformat()
             }, room=match_id)  # Send to old match room
 
             # Join both players to the new match room
