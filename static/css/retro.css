@@ -436,3 +436,40 @@ h1 {
         font-size: 0.7em;
     }
 }
+
+#createMatchForm {
+    display: none;
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+#stakeInput {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-color);
+    font-size: 1em;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+}
+
+#stakeInput:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--warning-color);
+}
+
+#stakeInput::-webkit-inner-spin-button,
+#stakeInput::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#stakeInput[type=number] {
+    -moz-appearance: textfield;
+}
