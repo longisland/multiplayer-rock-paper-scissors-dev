@@ -640,10 +640,14 @@ def on_rematch_request(data):
         db.session.add(new_match)
         db.session.commit()
         
+        # Join both players to the new match room
+        join_room(new_match_id)
+        
         # Notify players about the new match
         socketio.emit('rematch_created', {
             'match_id': new_match_id,
-            'creator_id': new_creator_id
+            'creator_id': new_creator_id,
+            'stake': match.stake
         }, room=match_id)
         
         logger.info(f"Rematch created: {new_match_id} from match {match_id}")
@@ -682,6 +686,70 @@ def cleanup_thread_func():
 
 cleanup_thread = threading.Thread(target=cleanup_thread_func, daemon=True)
 cleanup_thread.start()
+
+@socketio.on('rematch_accepted')
+def on_rematch_accepted(data):
+    try:
+        session_id = session.get('session_id')
+        match_id = data.get('match_id')
+        
+        if not session_id or not match_id:
+            logger.error(f"Invalid session or match ID in rematch_accepted: {session_id}, {match_id}")
+            return
+        
+        match = get_match(match_id)
+        if not match:
+            logger.error(f"Match {match_id} not found")
+            return
+        
+        # Join the match room if not already in it
+        join_room(match_id)
+        
+        # Update player ready state
+        if session_id == match.creator_id:
+            match.creator_ready = True
+        else:
+            match.joiner_ready = True
+        db.session.commit()
+        
+        # Notify others that a player accepted rematch
+        socketio.emit('rematch_accepted_by_player', {
+            'player': 'creator' if session_id == match.creator_id else 'joiner',
+            'match_id': match_id
+        }, room=match_id)
+        
+        # Start the match immediately if both players have accepted
+        if match.creator_ready and match.joiner_ready:
+            match.status = 'playing'
+            match.started_at = datetime.now(UTC)
+            match.creator_move = None
+            match.joiner_move = None
+            db.session.commit()
+            
+            # Set up timer for move timeout
+            def handle_timeout():
+                with app.app_context():
+                    try:
+                        handle_match_timeout(match_id)
+                    except Exception as e:
+                        logger.exception(f"Error in match timeout handler for match {match_id}")
+            
+            # Cancel any existing timer
+            if match_id in match_timers and match_timers[match_id]:
+                match_timers[match_id].cancel()
+            
+            # Start new timer
+            match_timers[match_id] = Timer(10, handle_timeout)  # 10 seconds for move timeout
+            match_timers[match_id].start()
+            
+            logger.info(f"Rematch started: {match_id}")
+            socketio.emit('match_started', {
+                'match_id': match_id,
+                'start_time': match.started_at.isoformat(),
+                'rematch': True
+            }, room=match_id)
+    except Exception as e:
+        logger.exception("Error in rematch_accepted handler")
 
 if __name__ == '__main__':
     socketio.run(app,
