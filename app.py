@@ -49,12 +49,14 @@ def random_move():
     return random.choice(['rock', 'paper', 'scissors'])
 
 def cleanup_stale_matches():
-    """Clean up matches that have been stuck in 'playing' state for too long."""
+    """Clean up matches that have been stuck in 'playing' or 'waiting' state for too long."""
     try:
         with app.app_context():
             # Find matches that have been in 'playing' state for more than 30 seconds
             cutoff_time = datetime.now(UTC) - timedelta(seconds=30)
-            stale_matches = Match.query.filter_by(status='playing').all()
+            stale_matches = Match.query.filter(
+                Match.status.in_(['playing', 'waiting'])
+            ).all()
             
             # Filter matches manually to handle naive datetimes
             stale_matches = [
@@ -67,7 +69,25 @@ def cleanup_stale_matches():
             
             for match in stale_matches:
                 logger.info(f"Cleaning up stale match {match.id}")
-                handle_match_timeout(match.id)
+                if match.status == 'playing':
+                    handle_match_timeout(match.id)
+                else:
+                    # For waiting matches, just clean up and reset player states
+                    try:
+                        if match.creator_id:
+                            creator = Player.query.filter_by(session_id=match.creator_id).first()
+                            if creator and creator.current_match_id == match.id:
+                                creator.current_match_id = None
+                        if match.joiner_id:
+                            joiner = Player.query.filter_by(session_id=match.joiner_id).first()
+                            if joiner and joiner.current_match_id == match.id:
+                                joiner.current_match_id = None
+                        db.session.delete(match)
+                        db.session.commit()
+                        logger.info(f"Cleaned up waiting match {match.id}")
+                    except Exception as e:
+                        logger.exception(f"Error cleaning up waiting match {match.id}")
+                        db.session.rollback()
     except Exception as e:
         logger.exception("Error cleaning up stale matches")
 
@@ -193,12 +213,27 @@ def get_state():
         if player.current_match_id:
             match = get_match(player.current_match_id)
             if match:
-                current_match = {
-                    'id': match.id,
-                    'status': match.status,
-                    'stake': match.stake,
-                    'is_creator': session_id == match.creator_id
-                }
+                # Check if match is stale
+                if match.started_at:
+                    cutoff_time = datetime.now(UTC) - timedelta(seconds=30)
+                    match_time = match.started_at.replace(tzinfo=UTC) if match.started_at.tzinfo is None else match.started_at
+                    if match_time < cutoff_time:
+                        # Clean up stale match
+                        if match.status == 'playing':
+                            handle_match_timeout(match.id)
+                        else:
+                            player.current_match_id = None
+                            db.session.delete(match)
+                            db.session.commit()
+                        match = None
+                
+                if match:
+                    current_match = {
+                        'id': match.id,
+                        'status': match.status,
+                        'stake': match.stake,
+                        'is_creator': session_id == match.creator_id
+                    }
         
         logger.debug(f"State for {session_id}: coins={player.coins}, current_match={current_match}")
         return jsonify({
@@ -922,6 +957,47 @@ def on_rematch_declined(data):
         logger.info(f"Rematch declined for match {match_id} by {session_id}")
     except Exception as e:
         logger.exception("Error in rematch_declined handler")
+
+@socketio.on('disconnect')
+def on_disconnect():
+    try:
+        session_id = session.get('session_id')
+        if not session_id:
+            return
+        
+        player = Player.query.filter_by(session_id=session_id).first()
+        if not player or not player.current_match_id:
+            return
+        
+        match = get_match(player.current_match_id)
+        if not match:
+            return
+        
+        # If match is in waiting state, clean it up
+        if match.status == 'waiting':
+            logger.info(f"Player {session_id} disconnected from waiting match {match.id}")
+            try:
+                if match.creator_id:
+                    creator = Player.query.filter_by(session_id=match.creator_id).first()
+                    if creator:
+                        creator.current_match_id = None
+                if match.joiner_id:
+                    joiner = Player.query.filter_by(session_id=match.joiner_id).first()
+                    if joiner:
+                        joiner.current_match_id = None
+                db.session.delete(match)
+                db.session.commit()
+                logger.info(f"Cleaned up match {match.id} after player disconnect")
+            except Exception as e:
+                logger.exception(f"Error cleaning up match {match.id} after disconnect")
+                db.session.rollback()
+        
+        # If match is in playing state, handle timeout
+        elif match.status == 'playing':
+            logger.info(f"Player {session_id} disconnected from playing match {match.id}")
+            handle_match_timeout(match.id)
+    except Exception as e:
+        logger.exception("Error handling disconnect")
 
 if __name__ == '__main__':
     socketio.run(app,
