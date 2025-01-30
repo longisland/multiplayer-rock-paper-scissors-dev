@@ -41,6 +41,20 @@ socketio = SocketIO(
 # Match timers storage
 match_timers = {}
 
+# Start periodic cleanup task
+def start_cleanup_task():
+    """Start a periodic task to clean up stale matches."""
+    def run_cleanup():
+        while True:
+            time.sleep(30)  # Run every 30 seconds
+            cleanup_stale_matches()
+    
+    cleanup_thread = threading.Thread(target=run_cleanup, daemon=True)
+    cleanup_thread.start()
+
+# Start the cleanup task
+start_cleanup_task()
+
 def get_match(match_id):
     """Get a match by ID using the new SQLAlchemy API."""
     return db.session.get(Match, match_id)
@@ -54,40 +68,61 @@ def cleanup_stale_matches():
         with app.app_context():
             # Find matches that have been in 'playing' state for more than 30 seconds
             cutoff_time = datetime.now(UTC) - timedelta(seconds=30)
+            
+            # Find all matches that might be stale
             stale_matches = Match.query.filter(
                 Match.status.in_(['playing', 'waiting'])
             ).all()
             
-            # Filter matches manually to handle naive datetimes
-            stale_matches = [
-                match for match in stale_matches
-                if match.started_at and (
-                    match.started_at.replace(tzinfo=UTC) if match.started_at.tzinfo is None
-                    else match.started_at
-                ) < cutoff_time
-            ]
+            # Also find matches where one player is missing or inactive
+            all_matches = Match.query.all()
+            for match in all_matches:
+                creator = Player.query.filter_by(session_id=match.creator_id).first()
+                joiner = Player.query.filter_by(session_id=match.joiner_id).first() if match.joiner_id else None
+                
+                # Add to stale matches if:
+                # 1. Creator is missing or inactive
+                # 2. Joiner is missing or inactive (if match has a joiner)
+                # 3. Match is in an inconsistent state
+                if (not creator or 
+                    (match.joiner_id and not joiner) or
+                    (match.status == 'waiting' and match.joiner_id) or
+                    (match.status == 'playing' and not match.joiner_id)):
+                    if match not in stale_matches:
+                        stale_matches.append(match)
             
+            # Process each stale match
             for match in stale_matches:
-                logger.info(f"Cleaning up stale match {match.id}")
-                if match.status == 'playing':
-                    handle_match_timeout(match.id)
-                else:
-                    # For waiting matches, just clean up and reset player states
-                    try:
-                        if match.creator_id:
-                            creator = Player.query.filter_by(session_id=match.creator_id).first()
-                            if creator and creator.current_match_id == match.id:
-                                creator.current_match_id = None
-                        if match.joiner_id:
-                            joiner = Player.query.filter_by(session_id=match.joiner_id).first()
-                            if joiner and joiner.current_match_id == match.id:
-                                joiner.current_match_id = None
-                        db.session.delete(match)
-                        db.session.commit()
-                        logger.info(f"Cleaned up waiting match {match.id}")
-                    except Exception as e:
-                        logger.exception(f"Error cleaning up waiting match {match.id}")
-                        db.session.rollback()
+                logger.info(f"Cleaning up stale match {match.id} (status: {match.status})")
+                
+                try:
+                    # For playing matches, handle timeout
+                    if match.status == 'playing' and match.started_at:
+                        match_time = match.started_at.replace(tzinfo=UTC) if match.started_at.tzinfo is None else match.started_at
+                        if match_time < cutoff_time:
+                            handle_match_timeout(match.id)
+                            continue
+                    
+                    # For all other cases, clean up the match
+                    if match.creator_id:
+                        creator = Player.query.filter_by(session_id=match.creator_id).first()
+                        if creator and creator.current_match_id == match.id:
+                            creator.current_match_id = None
+                    
+                    if match.joiner_id:
+                        joiner = Player.query.filter_by(session_id=match.joiner_id).first()
+                        if joiner and joiner.current_match_id == match.id:
+                            joiner.current_match_id = None
+                    
+                    # Delete the match
+                    db.session.delete(match)
+                    db.session.commit()
+                    logger.info(f"Cleaned up match {match.id}")
+                    
+                except Exception as e:
+                    logger.exception(f"Error cleaning up match {match.id}")
+                    db.session.rollback()
+                    
     except Exception as e:
         logger.exception("Error cleaning up stale matches")
 
@@ -191,18 +226,24 @@ def get_state():
         player.last_active = datetime.now(UTC)
         db.session.commit()
         
+        # Clean up any stale matches
+        cleanup_stale_matches()
+        
         # Get open matches that:
         # 1. Are in waiting state
         # 2. Are not created by current player
         # 3. Have a creator with enough coins
         # 4. Current player has enough coins to join
+        # 5. Creator is still active
         open_matches = []
         available_matches = Match.query.filter_by(status='waiting').all()
         
         for match in available_matches:
+            creator = Player.query.filter_by(session_id=match.creator_id).first()
             if (match.creator_id != session_id and 
-                match.creator.coins >= match.stake and
-                player.coins >= match.stake):
+                creator and creator.coins >= match.stake and
+                player.coins >= match.stake and
+                not match.joiner_id):  # Ensure no joiner is assigned
                 open_matches.append({
                     'id': match.id,
                     'stake': match.stake
@@ -213,21 +254,17 @@ def get_state():
         if player.current_match_id:
             match = get_match(player.current_match_id)
             if match:
-                # Check if match is stale
-                if match.started_at:
-                    cutoff_time = datetime.now(UTC) - timedelta(seconds=30)
-                    match_time = match.started_at.replace(tzinfo=UTC) if match.started_at.tzinfo is None else match.started_at
-                    if match_time < cutoff_time:
-                        # Clean up stale match
-                        if match.status == 'playing':
-                            handle_match_timeout(match.id)
-                        else:
-                            player.current_match_id = None
-                            db.session.delete(match)
-                            db.session.commit()
-                        match = None
+                # Verify match is valid
+                creator = Player.query.filter_by(session_id=match.creator_id).first()
+                joiner = Player.query.filter_by(session_id=match.joiner_id).first() if match.joiner_id else None
                 
-                if match:
+                # Clean up match if it's invalid
+                if not creator or (match.joiner_id and not joiner):
+                    player.current_match_id = None
+                    db.session.delete(match)
+                    db.session.commit()
+                    match = None
+                else:
                     current_match = {
                         'id': match.id,
                         'status': match.status,
@@ -705,6 +742,30 @@ def on_rematch_declined(data):
         logger.info(f"Rematch declined for match {match_id} by {session_id}")
     except Exception as e:
         logger.exception("Error in rematch_declined handler")
+
+@socketio.on('disconnect')
+def on_disconnect():
+    try:
+        session_id = session.get('session_id')
+        if session_id:
+            # Find any matches this player is part of
+            player = Player.query.filter_by(session_id=session_id).first()
+            if player and player.current_match_id:
+                match = get_match(player.current_match_id)
+                if match:
+                    # If match is in waiting state, clean it up
+                    if match.status == 'waiting':
+                        db.session.delete(match)
+                    # If match is playing, handle timeout
+                    elif match.status == 'playing':
+                        handle_match_timeout(match.id)
+                    # Reset player's match reference
+                    player.current_match_id = None
+                    db.session.commit()
+        
+        logger.info(f"Client disconnected: {session_id}")
+    except Exception as e:
+        logger.exception("Error handling disconnect")
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=5000)
