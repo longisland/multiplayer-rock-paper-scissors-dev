@@ -8,4 +8,4 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/rps_game')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = os.getenv('FLASK_DEBUG', 'True').lower() in ('true', '1', 't')
-    CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '*')
+    CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '*').split(',')
