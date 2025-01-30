@@ -27,7 +27,7 @@ with app.app_context():
 # Configure Flask-SocketIO
 socketio = SocketIO(
     app,
-    async_mode='eventlet',  # Use eventlet instead of threading
+    async_mode='gevent',  # Use gevent for WebSocket support
     cors_allowed_origins=app.config['CORS_ALLOWED_ORIGINS'],
     logger=True,
     engineio_logger=True,
