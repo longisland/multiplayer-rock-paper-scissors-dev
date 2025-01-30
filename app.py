@@ -710,6 +710,21 @@ def on_rematch_request(data):
                 'rematch': True,
                 'time_limit': 10
             }, room=match_id)  # Send to old match room
+
+            # Join both players to the new match room
+            socket_id = request.sid
+            leave_room(match_id)
+            join_room(new_match_id)
+
+            # Notify about match start in the new room
+            socketio.emit('match_started', {
+                'match_id': new_match_id,
+                'creator_id': new_creator_id,
+                'joiner_id': new_joiner_id,
+                'stake': new_match.stake,
+                'rematch': True,
+                'time_limit': 10
+            }, room=new_match_id)
             
             # Clean up old match
             db.session.delete(match)
