@@ -27,7 +27,7 @@ with app.app_context():
 # Configure Flask-SocketIO
 socketio = SocketIO(
     app,
-    async_mode='threading',
+    async_mode='eventlet',  # Use eventlet instead of threading
     cors_allowed_origins=app.config['CORS_ALLOWED_ORIGINS'],
     logger=True,
     engineio_logger=True,
@@ -40,12 +40,16 @@ socketio = SocketIO(
 # Match timers storage
 match_timers = {}
 
+def get_match(match_id):
+    """Get a match by ID using the new SQLAlchemy API."""
+    return db.session.get(Match, match_id)
+
 def random_move():
     return random.choice(['rock', 'paper', 'scissors'])
 
 def handle_match_timeout(match_id):
     try:
-        match = Match.query.get(match_id)
+        match = get_match(match_id)
         if not match:
             logger.error(f"Match {match_id} not found in timeout handler")
             return
@@ -146,7 +150,7 @@ def get_state():
         # Get current match details if in a match
         current_match = None
         if player.current_match_id:
-            match = Match.query.get(player.current_match_id)
+            match = get_match(player.current_match_id)
             if match:
                 current_match = {
                     'id': match.id,
@@ -192,7 +196,7 @@ def create_match():
         
         # Clear any existing match
         if player.current_match_id:
-            current_match = Match.query.get(player.current_match_id)
+            current_match = get_match(player.current_match_id)
             if current_match:
                 logger.info(f"Cleaning up existing match: {current_match.id}")
                 if current_match.id in match_timers and match_timers[current_match.id]:
@@ -231,7 +235,7 @@ def join_match():
             return jsonify({'error': 'Invalid session'}), 400
         
         match_id = request.json.get('match_id')
-        match = Match.query.get(match_id)
+        match = get_match(match_id)
         if not match:
             logger.error(f"Invalid match: {match_id}")
             return jsonify({'error': 'Invalid match'}), 400
@@ -246,7 +250,7 @@ def join_match():
         
         # Clear any existing match for the joining player
         if player.current_match_id and player.current_match_id != match_id:
-            current_match = Match.query.get(player.current_match_id)
+            current_match = get_match(player.current_match_id)
             if current_match:
                 logger.info(f"Cleaning up existing match: {current_match.id}")
                 if current_match.id in match_timers and match_timers[current_match.id]:
@@ -280,7 +284,7 @@ def make_move():
             logger.error(f"Invalid move: {move}")
             return jsonify({'error': 'Invalid move'}), 400
         
-        match = Match.query.get(player.current_match_id)
+        match = get_match(player.current_match_id)
         if not match:
             logger.error(f"No active match for player {session_id}")
             return jsonify({'error': 'No active match'}), 400
@@ -320,7 +324,7 @@ def make_move():
         return jsonify({'error': 'Internal server error'}), 500
 
 def calculate_and_emit_result(match_id):
-    match = Match.query.get(match_id)
+    match = get_match(match_id)
     if not match:
         logger.error(f"Match {match_id} not found in calculate_and_emit_result")
         return
@@ -411,7 +415,7 @@ def handle_connect():
                 
                 # If player is in a match, join that room too
                 if player.current_match_id:
-                    match = Match.query.get(player.current_match_id)
+                    match = get_match(player.current_match_id)
                     if match:
                         join_room(match.id)
                         logger.info(f"Player {session_id} joined match room {match.id}")
@@ -428,7 +432,7 @@ def on_join_match_room(data):
             logger.error(f"Invalid session or match ID in join_match_room: {session_id}, {match_id}")
             return
         
-        match = Match.query.get(match_id)
+        match = get_match(match_id)
         if not match:
             logger.error(f"Match {match_id} not found")
             return
@@ -452,7 +456,7 @@ def on_ready_for_match(data):
             logger.error(f"Invalid session or match ID in ready_for_match: {session_id}, {match_id}")
             return
             
-        match = Match.query.get(match_id)
+        match = get_match(match_id)
         if not match:
             logger.error(f"Match {match_id} not found")
             return
@@ -503,7 +507,7 @@ def on_rematch_request(data):
             logger.error(f"Invalid session or match ID in rematch_request: {session_id}, {match_id}")
             return
         
-        match = Match.query.get(match_id)
+        match = get_match(match_id)
         if not match:
             logger.error(f"Match {match_id} not found")
             return
@@ -566,7 +570,7 @@ def on_rematch_declined(data):
             logger.error(f"Invalid session or match ID in rematch_declined: {session_id}, {match_id}")
             return
         
-        match = Match.query.get(match_id)
+        match = get_match(match_id)
         if not match:
             logger.error(f"Match {match_id} not found")
             return
