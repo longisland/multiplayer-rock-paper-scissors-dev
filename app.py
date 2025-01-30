@@ -635,6 +635,24 @@ def on_ready_for_match(data):
                 'stake': match.stake,
                 'rematch': True
             }, room=match_id)
+            
+            # Also emit to individual player rooms to ensure they receive the event
+            socketio.emit('match_started', {
+                'match_id': match_id,
+                'start_time': match.started_at.isoformat(),
+                'creator_id': match.creator_id,
+                'joiner_id': match.joiner_id,
+                'stake': match.stake,
+                'rematch': True
+            }, room=match.creator_id)
+            socketio.emit('match_started', {
+                'match_id': match_id,
+                'start_time': match.started_at.isoformat(),
+                'creator_id': match.creator_id,
+                'joiner_id': match.joiner_id,
+                'stake': match.stake,
+                'rematch': True
+            }, room=match.joiner_id)
     except Exception as e:
         logger.exception("Error in ready_for_match handler")
 
@@ -751,7 +769,21 @@ def on_rematch_request(data):
                 'stake': new_match.stake
             }, room=match_id)  # Send to old match room
             
-            # Then start the match
+            # Give clients time to process the rematch acceptance
+            time.sleep(0.5)
+            
+            # Then notify about the match starting
+            socketio.emit('ready_for_match', {
+                'match_id': new_match_id,
+                'creator_id': new_creator_id,
+                'joiner_id': new_joiner_id,
+                'stake': new_match.stake
+            }, room=match_id)  # Send to old match room
+            
+            # Give clients time to join the new match room
+            time.sleep(0.5)
+            
+            # Finally start the match
             socketio.emit('match_started', {
                 'match_id': new_match_id,
                 'start_time': new_match.started_at.isoformat(),
