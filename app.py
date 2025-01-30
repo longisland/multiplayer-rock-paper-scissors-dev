@@ -85,12 +85,25 @@ def cleanup_stale_matches():
                 # 1. Creator is missing or inactive
                 # 2. Joiner is missing or inactive (if match has a joiner)
                 # 3. Match is in an inconsistent state
+                # 4. Multiple matches between the same players
                 if (not creator or 
                     (match.joiner_id and not joiner) or
                     (match.status == 'waiting' and match.joiner_id) or
                     (match.status == 'playing' and not match.joiner_id)):
                     if match not in stale_matches:
                         stale_matches.append(match)
+                
+                # Check for multiple matches between the same players
+                if match.creator_id and match.joiner_id:
+                    other_matches = Match.query.filter(
+                        Match.id != match.id,
+                        Match.status == 'waiting',
+                        ((Match.creator_id == match.creator_id) & (Match.joiner_id == match.joiner_id) |
+                         (Match.creator_id == match.joiner_id) & (Match.joiner_id == match.creator_id))
+                    ).all()
+                    for other_match in other_matches:
+                        if other_match not in stale_matches:
+                            stale_matches.append(other_match)
             
             # Process each stale match
             for match in stale_matches:
