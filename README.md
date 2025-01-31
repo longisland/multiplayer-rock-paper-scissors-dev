@@ -7,6 +7,27 @@ A multiplayer game where players can create and join matches to play Rock Paper 
 - Docker
 - Docker Compose
 - Git
+- Python 3.12 or later
+
+## Project Structure
+
+```
+.
+├── app/                    # Main application package
+│   ├── config/            # Configuration settings
+│   ├── game/              # Game logic
+│   ├── models/            # Database models
+│   ├── routes/            # Route handlers
+│   ├── static/            # Static files (CSS, JavaScript)
+│   ├── templates/         # HTML templates
+│   └── version.py         # Version tracking
+├── init.sql/              # SQL initialization scripts
+├── deploy.sh             # Deployment script
+├── Dockerfile            # Docker configuration
+├── docker-compose.yml    # Docker Compose configuration
+├── init_db.py           # Database initialization script
+└── requirements.txt     # Python dependencies
+```
 
 ## Installation and Setup
 
@@ -28,34 +49,16 @@ docker-compose up -d --build
 
 The application will be available at http://localhost:5000
 
-## Updating the Application
+## Version Tracking
 
-To update the application with the latest code from the repository while preserving the database data:
+The application includes version tracking to ensure you're running the correct code:
 
-1. Pull the latest changes:
-```bash
-git pull origin main
-```
+- Access `/api/version` endpoint to see:
+  - Application version
+  - Build time
+  - Git commit hash
 
-2. Rebuild and restart the containers:
-```bash
-docker-compose down
-docker-compose up -d --build
-```
-
-The database data will be preserved in the external volume `rps_game_data`.
-
-## Project Structure
-
-- `app.py` - Main application file
-- `models.py` - Database models
-- `config.py` - Configuration settings
-- `init_db.py` - Database initialization script
-- `init.sql/` - SQL initialization scripts
-- `static/` - Static files (CSS, JavaScript)
-- `templates/` - HTML templates
-- `Dockerfile` - Docker configuration for the web application
-- `docker-compose.yml` - Docker Compose configuration
+This helps verify that deployments are successful and the correct version is running.
 
 ## Environment Variables
 
@@ -66,6 +69,7 @@ The following environment variables are configured in docker-compose.yml:
 - `DATABASE_URL` - PostgreSQL connection string
 - `SECRET_KEY` - Flask secret key
 - `CORS_ALLOWED_ORIGINS` - CORS configuration
+- `GIT_COMMIT` - Git commit hash for version tracking
 
 ## Database
 
@@ -87,6 +91,54 @@ docker exec rps-game-db-1 pg_dump -U postgres rps_game > backup.sql
 cat backup.sql | docker exec -i rps-game-db-1 psql -U postgres rps_game
 ```
 
+## Deployment
+
+### Development
+
+1. Create a new branch:
+```bash
+git checkout -b feature-branch
+```
+
+2. Make your changes and test locally:
+```bash
+docker-compose up -d --build
+```
+
+3. Verify the version endpoint:
+```bash
+curl http://localhost:5000/api/version
+```
+
+### Production
+
+1. Create the external volume:
+```bash
+docker volume create rps_game_data
+```
+
+2. Clone and deploy:
+```bash
+cd /var/www
+git clone https://github.com/longisland/multiplayer-rock-paper-scissors-dev.git rps-game
+cd rps-game
+./deploy.sh
+```
+
+3. To update the production deployment:
+```bash
+cd /var/www/rps-game
+git pull origin main
+./deploy.sh
+```
+
+The deploy script will:
+1. Stop existing containers
+2. Remove old images
+3. Build new images with version information
+4. Start new containers
+5. Verify that the correct version is running
+
 ## Troubleshooting
 
 1. If the application is not responding:
@@ -99,6 +151,9 @@ docker logs rps-game-web-1
 
 # View database logs
 docker logs rps-game-db-1
+
+# Check version information
+curl http://localhost:5000/api/version
 ```
 
 2. If you need to reset the database (WARNING: This will delete all data):
@@ -113,7 +168,7 @@ docker volume rm rps_game_data
 docker volume create rps_game_data
 
 # Restart containers
-docker-compose up -d --build
+./deploy.sh
 ```
 
 3. If you need to rebuild from scratch while preserving data:
@@ -121,31 +176,9 @@ docker-compose up -d --build
 # Stop containers
 docker-compose down
 
+# Remove all images
+docker images | grep 'rps-game-web' | awk '{print $3}' | xargs -r docker rmi -f
+
 # Rebuild and restart
-docker-compose up -d --build
-```
-
-## Production Deployment
-
-For production deployment:
-
-1. Create the external volume:
-```bash
-docker volume create rps_game_data
-```
-
-2. Clone and deploy:
-```bash
-cd /var/www
-git clone https://github.com/longisland/multiplayer-rock-paper-scissors-dev.git rps-game
-cd rps-game
-docker-compose up -d --build
-```
-
-3. To update the production deployment:
-```bash
-cd /var/www/rps-game
-git pull origin main
-docker-compose down
-docker-compose up -d --build
+./deploy.sh
 ```
