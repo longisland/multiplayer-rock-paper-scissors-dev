@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     xvfb \
     git \
+    curl \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
     && apt-get update \
@@ -23,8 +24,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Set build-time variables
-ARG GIT_COMMIT
-ENV GIT_COMMIT=${GIT_COMMIT:-$(git rev-parse HEAD)}
+ARG GIT_COMMIT=unknown
+ENV GIT_COMMIT=${GIT_COMMIT}
 
 # Update version.py with build time
 RUN echo "BUILD_TIME = '$(date -u +"%Y-%m-%d %H:%M:%S UTC")'" >> /app/app/version.py

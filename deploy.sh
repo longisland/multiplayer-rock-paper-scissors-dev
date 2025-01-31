@@ -49,7 +49,7 @@ docker images | grep 'rps-game-web' | awk '{print $3}' | xargs -r docker rmi -f
 
 # Build with the current commit hash
 echo "Building new image..."
-docker-compose build --build-arg GIT_COMMIT=$GIT_COMMIT --no-cache web
+GIT_COMMIT=$GIT_COMMIT docker-compose build --no-cache web
 
 # Start the services
 echo "Starting services..."
