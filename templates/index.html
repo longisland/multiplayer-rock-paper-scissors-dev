@@ -790,7 +790,7 @@
                     
                     // Handle rematch button click
                     rematchBtn.onclick = () => {
-                        socket.emit('rematch_accepted', { match_id: currentMatchId });
+                        socket.emit('rematch_request', { match_id: currentMatchId });
                         rematchBtn.disabled = true;
                         rematchBtn.innerHTML = `
                             <span class="btn-icon">🔄</span>
