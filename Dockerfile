@@ -28,7 +28,7 @@ ARG GIT_COMMIT=unknown
 ENV GIT_COMMIT=${GIT_COMMIT}
 
 # Update version.py with build time
-RUN echo "BUILD_TIME = '$(date -u +"%Y-%m-%d %H:%M:%S UTC")'" >> /app/app/version.py
+RUN echo -e "\nBUILD_TIME = '$(date -u +"%Y-%m-%d %H:%M:%S UTC")'" >> /app/app/version.py
 
 EXPOSE 5000
 
