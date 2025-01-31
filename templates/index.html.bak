@@ -143,7 +143,6 @@
         </div>
     </div>
 
-<script src="/static/js/game.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
         // Global variables
@@ -809,3 +808,80 @@
             });
 
             // Handle rematch events
+            socket.on('rematch_accepted_by_player', (data) => {
+                console.log('Player accepted rematch:', data);
+                const rematchStatus = document.getElementById('rematchStatus');
+                const rematchBtn = document.getElementById('rematchBtn');
+                
+                if (rematchStatus) {
+                    if (data.player === 'creator' && !isCreator || data.player === 'joiner' && isCreator) {
+                        rematchStatus.textContent = 'Opponent wants a rematch! Accept?';
+                        if (rematchBtn && !rematchBtn.disabled) {
+                            rematchBtn.classList.add('animate__animated', 'animate__pulse', 'animate__infinite');
+                        }
+                    }
+                }
+            });
+
+            socket.on('rematch_declined', (data) => {
+                console.log('Opponent declined rematch:', data);
+                const rematchBtn = document.getElementById('rematchBtn');
+                const rematchStatus = document.getElementById('rematchStatus');
+                
+                if (rematchBtn) {
+                    rematchBtn.style.display = 'none';
+                }
+                
+                if (rematchStatus) {
+                    rematchStatus.textContent = 'Opponent declined rematch';
+                    rematchStatus.classList.add('animate__animated', 'animate__fadeOut');
+                    setTimeout(() => {
+                        rematchStatus.textContent = '';
+                        rematchStatus.classList.remove('animate__fadeOut');
+                    }, 2000);
+                }
+            });
+
+            socket.on('rematch_started', (data) => {
+                console.log('Rematch started:', data);
+                currentMatchId = data.match_id;
+                isCreator = data.is_creator;
+                
+                // Stop rematch timer
+                stopRematchTimer();
+                
+                // Clear rematch UI
+                const rematchBtn = document.getElementById('rematchBtn');
+                const rematchStatus = document.getElementById('rematchStatus');
+                if (rematchBtn) {
+                    rematchBtn.style.display = 'none';
+                }
+                if (rematchStatus) {
+                    rematchStatus.textContent = '';
+                }
+                
+                // Clear any existing timers
+                if (rematchTimer) {
+                    clearInterval(rematchTimer);
+                    rematchTimer = null;
+                }
+                
+                // Show waiting screen
+                showScreen('waitingScreen');
+                
+                // Join the match room
+                socket.emit('join_match_room', { match_id: data.match_id });
+                
+                // Signal ready after a short delay
+                setTimeout(() => {
+                    socket.emit('ready_for_match', { match_id: data.match_id });
+                }, 1000);
+            });
+
+            // Initial state update
+            updateGameState();
+            setInterval(updateGameState, 5000);
+        });
+    </script>
+</body>
+</html>
