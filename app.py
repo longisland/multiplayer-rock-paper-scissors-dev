@@ -668,80 +668,51 @@ def on_rematch_request(data):
         if match.creator_ready and match.joiner_ready:
             logger.info(f"Both players ready for rematch in match {match_id}")
             
-            # Create new match with same stake but random creator
-            new_creator_id = random.choice([match.creator_id, match.joiner_id])
-            new_joiner_id = match.joiner_id if new_creator_id == match.creator_id else match.creator_id
+            # Deduct stakes from both players
+            creator.coins -= match.stake
+            joiner.coins -= match.stake
             
-            new_match_id = secrets.token_hex(4)
-            new_match = Match(
-                id=new_match_id,
-                creator_id=new_creator_id,
-                joiner_id=new_joiner_id,
-                stake=match.stake,
-                status='playing',  # Start in playing state
-                creator_ready=False,  # Reset ready states for new match
-                joiner_ready=False,
-                started_at=datetime.now(UTC)  # Set start time
-            )
+            # Reset match state but keep the same match
+            match.status = 'playing'
+            match.creator_move = None
+            match.joiner_move = None
+            match.winner_id = None
+            match.started_at = datetime.now(UTC)
+            match.finished_at = None
+            # Keep ready states true until game starts to prevent "waiting" state
             
-            # Update player references
-            new_creator = Player.query.filter_by(session_id=new_creator_id).first()
-            new_joiner = Player.query.filter_by(session_id=new_joiner_id).first()
-            new_creator.current_match_id = new_match_id
-            new_joiner.current_match_id = new_match_id
-            
-            # Deduct stakes
-            new_creator.coins -= match.stake
-            new_joiner.coins -= match.stake
-            
-            db.session.add(new_match)
             db.session.commit()
-            
-            # Join both players to the new match room
-            join_room(new_match_id)
             
             # Set up timer for move timeout
             def handle_timeout():
                 with app.app_context():
                     try:
-                        handle_match_timeout(new_match_id)
+                        handle_match_timeout(match_id)
                     except Exception as e:
-                        logger.exception(f"Error in match timeout handler for match {new_match_id}")
+                        logger.exception(f"Error in match timeout handler for match {match_id}")
             
             # Start new timer
-            match_timers[new_match_id] = Timer(10, handle_timeout)  # 10 seconds for move timeout
-            match_timers[new_match_id].start()
+            if match_id in match_timers and match_timers[match_id]:
+                match_timers[match_id].cancel()
+            match_timers[match_id] = Timer(10, handle_timeout)  # 10 seconds for move timeout
+            match_timers[match_id].start()
             
-            logger.info(f"Rematch started: {new_match_id}")
+            logger.info(f"Rematch started in existing match: {match_id}")
             
-            # First notify about the rematch being accepted
+            # Notify about match start
             socketio.emit('match_started', {
-                'match_id': new_match_id,
-                'creator_id': new_creator_id,
-                'joiner_id': new_joiner_id,
-                'stake': new_match.stake,
+                'match_id': match_id,
+                'creator_id': match.creator_id,
+                'joiner_id': match.joiner_id,
+                'stake': match.stake,
                 'rematch': True,
                 'time_limit': 10,
-                'start_time': new_match.started_at.isoformat()
-            }, room=match_id)  # Send to old match room
-
-            # Join both players to the new match room
-            socket_id = request.sid
-            leave_room(match_id)
-            join_room(new_match_id)
-
-            # Notify about match start in the new room
-            socketio.emit('match_started', {
-                'match_id': new_match_id,
-                'creator_id': new_creator_id,
-                'joiner_id': new_joiner_id,
-                'stake': new_match.stake,
-                'rematch': True,
-                'time_limit': 10
-            }, room=new_match_id)
+                'start_time': match.started_at.isoformat()
+            }, room=match_id)
             
-            # Clean up old match
-            db.session.delete(match)
+            # Reset ready states after game has started
+            match.creator_ready = False
+            match.joiner_ready = False
             db.session.commit()
             
     except Exception as e:
