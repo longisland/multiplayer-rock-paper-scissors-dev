@@ -16,12 +16,18 @@ check_version() {
         # Try to get version info
         if response=$(curl -s http://localhost:5000/api/version); then
             actual_commit=$(echo $response | grep -o '"git_commit":"[^"]*' | cut -d'"' -f4)
+            build_time=$(echo $response | grep -o '"build_time":"[^"]*' | cut -d'"' -f4)
             
             if [ "$actual_commit" = "$expected_commit" ]; then
-                echo "Version check passed! Running expected commit: $expected_commit"
+                echo "Version check passed!"
+                echo "Running commit: $actual_commit"
+                echo "Build time: $build_time"
                 return 0
             else
-                echo "Wrong version running. Expected: $expected_commit, Got: $actual_commit"
+                echo "Wrong version running."
+                echo "Expected commit: $expected_commit"
+                echo "Actual commit: $actual_commit"
+                echo "Build time: $build_time"
             fi
         else
             echo "Service not responding yet..."
