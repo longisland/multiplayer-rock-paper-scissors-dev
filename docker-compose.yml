@@ -22,10 +22,11 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=rps_game
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - rps_game_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5433:5432"
 
 volumes:
-  postgres_data:
+  rps_game_data:
+    external: true

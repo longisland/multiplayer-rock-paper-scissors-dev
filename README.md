@@ -16,7 +16,12 @@ git clone https://github.com/longisland/multiplayer-rock-paper-scissors-dev.git
 cd multiplayer-rock-paper-scissors-dev
 ```
 
-2. Build and start the containers:
+2. Create a persistent volume for the database:
+```bash
+docker volume create rps_game_data
+```
+
+3. Build and start the containers:
 ```bash
 docker-compose up -d --build
 ```
@@ -25,7 +30,7 @@ The application will be available at http://localhost:5000
 
 ## Updating the Application
 
-To update the application with the latest code from the repository:
+To update the application with the latest code from the repository while preserving the database data:
 
 1. Pull the latest changes:
 ```bash
@@ -37,6 +42,8 @@ git pull origin main
 docker-compose down
 docker-compose up -d --build
 ```
+
+The database data will be preserved in the external volume `rps_game_data`.
 
 ## Project Structure
 
@@ -62,7 +69,23 @@ The following environment variables are configured in docker-compose.yml:
 
 ## Database
 
-The application uses PostgreSQL as its database. The database is automatically initialized when the containers start up. The database files are persisted in a Docker volume named `postgres_data`.
+The application uses PostgreSQL as its database. The database files are persisted in an external Docker volume named `rps_game_data`. This ensures that your data remains intact across container restarts and redeployments.
+
+### Database Management
+
+1. To view current volumes:
+```bash
+docker volume ls
+```
+
+2. To backup the database:
+```bash
+# Create a backup
+docker exec rps-game-db-1 pg_dump -U postgres rps_game > backup.sql
+
+# Restore from backup (if needed)
+cat backup.sql | docker exec -i rps-game-db-1 psql -U postgres rps_game
+```
 
 ## Troubleshooting
 
@@ -78,21 +101,51 @@ docker logs rps-game-web-1
 docker logs rps-game-db-1
 ```
 
-2. To reset the database:
+2. If you need to reset the database (WARNING: This will delete all data):
 ```bash
 # Stop containers
 docker-compose down
 
 # Remove volume
-docker volume rm rps-game_postgres_data
+docker volume rm rps_game_data
+
+# Create new volume
+docker volume create rps_game_data
 
 # Restart containers
 docker-compose up -d --build
 ```
 
-3. If you need to rebuild from scratch:
+3. If you need to rebuild from scratch while preserving data:
 ```bash
-# Stop and remove everything
-docker-compose down -v
+# Stop containers
+docker-compose down
+
+# Rebuild and restart
+docker-compose up -d --build
+```
+
+## Production Deployment
+
+For production deployment:
+
+1. Create the external volume:
+```bash
+docker volume create rps_game_data
+```
+
+2. Clone and deploy:
+```bash
+cd /var/www
+git clone https://github.com/longisland/multiplayer-rock-paper-scissors-dev.git rps-game
+cd rps-game
+docker-compose up -d --build
+```
+
+3. To update the production deployment:
+```bash
+cd /var/www/rps-game
+git pull origin main
+docker-compose down
 docker-compose up -d --build
 ```
