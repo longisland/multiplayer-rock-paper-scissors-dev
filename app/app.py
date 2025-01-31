@@ -1,9 +1,10 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_socketio import SocketIO
 import logging
 from .models.models import db
 from .config.config import Config
 from .routes.routes import init_routes
+from .version import get_version_info
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -35,6 +36,11 @@ def create_app():
 
     # Initialize routes
     init_routes(app, socketio)
+
+    # Add version endpoint
+    @app.route('/api/version')
+    def version():
+        return jsonify(get_version_info())
 
     return app, socketio
 
