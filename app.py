@@ -4,7 +4,8 @@ import secrets
 import os
 import random
 import time
-from datetime import datetime, UTC, timedelta
+from datetime import datetime, timezone, timedelta
+UTC = timezone.utc
 from threading import Timer
 import logging
 from models import db, Player, Match
@@ -41,6 +42,20 @@ socketio = SocketIO(
 # Match timers storage
 match_timers = {}
 
+# Start periodic cleanup task
+def start_cleanup_task():
+    """Start a periodic task to clean up stale matches."""
+    def run_cleanup():
+        while True:
+            time.sleep(30)  # Run every 30 seconds
+            cleanup_stale_matches()
+    
+    cleanup_thread = threading.Thread(target=run_cleanup, daemon=True)
+    cleanup_thread.start()
+
+# Start the cleanup task
+start_cleanup_task()
+
 def get_match(match_id):
     """Get a match by ID using the new SQLAlchemy API."""
     return db.session.get(Match, match_id)
@@ -54,40 +69,74 @@ def cleanup_stale_matches():
         with app.app_context():
             # Find matches that have been in 'playing' state for more than 30 seconds
             cutoff_time = datetime.now(UTC) - timedelta(seconds=30)
+            
+            # Find all matches that might be stale
             stale_matches = Match.query.filter(
                 Match.status.in_(['playing', 'waiting'])
             ).all()
             
-            # Filter matches manually to handle naive datetimes
-            stale_matches = [
-                match for match in stale_matches
-                if match.started_at and (
-                    match.started_at.replace(tzinfo=UTC) if match.started_at.tzinfo is None
-                    else match.started_at
-                ) < cutoff_time
-            ]
+            # Also find matches where one player is missing or inactive
+            all_matches = Match.query.all()
+            for match in all_matches:
+                creator = Player.query.filter_by(session_id=match.creator_id).first()
+                joiner = Player.query.filter_by(session_id=match.joiner_id).first() if match.joiner_id else None
+                
+                # Add to stale matches if:
+                # 1. Creator is missing or inactive
+                # 2. Joiner is missing or inactive (if match has a joiner)
+                # 3. Match is in an inconsistent state
+                # 4. Multiple matches between the same players
+                if (not creator or 
+                    (match.joiner_id and not joiner) or
+                    (match.status == 'waiting' and match.joiner_id) or
+                    (match.status == 'playing' and not match.joiner_id)):
+                    if match not in stale_matches:
+                        stale_matches.append(match)
+                
+                # Check for multiple matches between the same players
+                if match.creator_id and match.joiner_id:
+                    other_matches = Match.query.filter(
+                        Match.id != match.id,
+                        Match.status == 'waiting',
+                        ((Match.creator_id == match.creator_id) & (Match.joiner_id == match.joiner_id) |
+                         (Match.creator_id == match.joiner_id) & (Match.joiner_id == match.creator_id))
+                    ).all()
+                    for other_match in other_matches:
+                        if other_match not in stale_matches:
+                            stale_matches.append(other_match)
             
+            # Process each stale match
             for match in stale_matches:
-                logger.info(f"Cleaning up stale match {match.id}")
-                if match.status == 'playing':
-                    handle_match_timeout(match.id)
-                else:
-                    # For waiting matches, just clean up and reset player states
-                    try:
-                        if match.creator_id:
-                            creator = Player.query.filter_by(session_id=match.creator_id).first()
-                            if creator and creator.current_match_id == match.id:
-                                creator.current_match_id = None
-                        if match.joiner_id:
-                            joiner = Player.query.filter_by(session_id=match.joiner_id).first()
-                            if joiner and joiner.current_match_id == match.id:
-                                joiner.current_match_id = None
-                        db.session.delete(match)
-                        db.session.commit()
-                        logger.info(f"Cleaned up waiting match {match.id}")
-                    except Exception as e:
-                        logger.exception(f"Error cleaning up waiting match {match.id}")
-                        db.session.rollback()
+                logger.info(f"Cleaning up stale match {match.id} (status: {match.status})")
+                
+                try:
+                    # For playing matches, handle timeout
+                    if match.status == 'playing' and match.started_at:
+                        match_time = match.started_at.replace(tzinfo=UTC) if match.started_at.tzinfo is None else match.started_at
+                        if match_time < cutoff_time:
+                            handle_match_timeout(match.id)
+                            continue
+                    
+                    # For all other cases, clean up the match
+                    if match.creator_id:
+                        creator = Player.query.filter_by(session_id=match.creator_id).first()
+                        if creator and creator.current_match_id == match.id:
+                            creator.current_match_id = None
+                    
+                    if match.joiner_id:
+                        joiner = Player.query.filter_by(session_id=match.joiner_id).first()
+                        if joiner and joiner.current_match_id == match.id:
+                            joiner.current_match_id = None
+                    
+                    # Delete the match
+                    db.session.delete(match)
+                    db.session.commit()
+                    logger.info(f"Cleaned up match {match.id}")
+                    
+                except Exception as e:
+                    logger.exception(f"Error cleaning up match {match.id}")
+                    db.session.rollback()
+                    
     except Exception as e:
         logger.exception("Error cleaning up stale matches")
 
@@ -191,18 +240,24 @@ def get_state():
         player.last_active = datetime.now(UTC)
         db.session.commit()
         
+        # Clean up any stale matches
+        cleanup_stale_matches()
+        
         # Get open matches that:
         # 1. Are in waiting state
         # 2. Are not created by current player
         # 3. Have a creator with enough coins
         # 4. Current player has enough coins to join
+        # 5. Creator is still active
         open_matches = []
         available_matches = Match.query.filter_by(status='waiting').all()
         
         for match in available_matches:
+            creator = Player.query.filter_by(session_id=match.creator_id).first()
             if (match.creator_id != session_id and 
-                match.creator.coins >= match.stake and
-                player.coins >= match.stake):
+                creator and creator.coins >= match.stake and
+                player.coins >= match.stake and
+                not match.joiner_id):  # Ensure no joiner is assigned
                 open_matches.append({
                     'id': match.id,
                     'stake': match.stake
@@ -213,21 +268,17 @@ def get_state():
         if player.current_match_id:
             match = get_match(player.current_match_id)
             if match:
-                # Check if match is stale
-                if match.started_at:
-                    cutoff_time = datetime.now(UTC) - timedelta(seconds=30)
-                    match_time = match.started_at.replace(tzinfo=UTC) if match.started_at.tzinfo is None else match.started_at
-                    if match_time < cutoff_time:
-                        # Clean up stale match
-                        if match.status == 'playing':
-                            handle_match_timeout(match.id)
-                        else:
-                            player.current_match_id = None
-                            db.session.delete(match)
-                            db.session.commit()
-                        match = None
+                # Verify match is valid
+                creator = Player.query.filter_by(session_id=match.creator_id).first()
+                joiner = Player.query.filter_by(session_id=match.joiner_id).first() if match.joiner_id else None
                 
-                if match:
+                # Clean up match if it's invalid
+                if not creator or (match.joiner_id and not joiner):
+                    player.current_match_id = None
+                    db.session.delete(match)
+                    db.session.commit()
+                    match = None
+                else:
                     current_match = {
                         'id': match.id,
                         'status': match.status,
@@ -396,151 +447,102 @@ def make_move():
         # Check if player is part of the match
         if session_id not in [match.creator_id, match.joiner_id]:
             logger.error(f"Player {session_id} not part of match {match.id}")
-            return jsonify({'error': 'Not your match'}), 400
+            return jsonify({'error': 'Not part of match'}), 400
         
         # Check if player already made a move
         if (session_id == match.creator_id and match.creator_move) or \
            (session_id == match.joiner_id and match.joiner_move):
             logger.error(f"Player {session_id} already made a move in match {match.id}")
-            return jsonify({'error': 'Move already made'}), 400
+            return jsonify({'error': 'Already made a move'}), 400
         
         # Record the move
-        try:
-            # Record the move
-            if session_id == match.creator_id:
-                match.creator_move = move
-            else:
-                match.joiner_move = move
-            
-            # Cancel the timer if both players have moved
-            if match.creator_move and match.joiner_move:
-                if match.id in match_timers and match_timers[match.id]:
-                    match_timers[match.id].cancel()
-                    match_timers.pop(match.id)
-            
-            db.session.commit()
-            
-            logger.info(f"Player {session_id} made move {move} in match {match.id}")
-            
-            # Notify others that a move was made (without revealing the move)
-            socketio.emit('move_made', {
-                'player': 'creator' if session_id == match.creator_id else 'joiner',
-                'auto': False
-            }, room=match.id)
-            
-            # If both players have moved, calculate result
-            if match.creator_move and match.joiner_move:
-                calculate_and_emit_result(match.id)
-            
-            return jsonify({'success': True})
-        except Exception as e:
-            db.session.rollback()
-            logger.exception(f"Error recording move for match {match.id}")
-            return jsonify({'error': 'Failed to record move. Please try again.'}), 500
+        if session_id == match.creator_id:
+            match.creator_move = move
+            logger.info(f"Creator {session_id} made move {move} in match {match.id}")
+        else:
+            match.joiner_move = move
+            logger.info(f"Joiner {session_id} made move {move} in match {match.id}")
+        
+        db.session.commit()
+        
+        # Notify others that a move was made
+        socketio.emit('move_made', {
+            'player': 'creator' if session_id == match.creator_id else 'joiner'
+        }, room=match.id)
+        
+        # If both players have moved, calculate and emit result
+        if match.creator_move and match.joiner_move:
+            calculate_and_emit_result(match.id)
+        
+        return jsonify({'success': True})
     except Exception as e:
         logger.exception("Error making move")
         return jsonify({'error': 'Internal server error'}), 500
 
 def calculate_and_emit_result(match_id):
-    match = get_match(match_id)
-    if not match:
-        logger.error(f"Match {match_id} not found in calculate_and_emit_result")
-        return
-    
-    creator = Player.query.filter_by(session_id=match.creator_id).first()
-    joiner = Player.query.filter_by(session_id=match.joiner_id).first()
-    
-    if not creator or not joiner:
-        logger.error(f"Players not found for match {match_id}")
-        return
-    
-    result = calculate_winner(match.creator_move, match.joiner_move)
-    
-    # Cancel timer if exists
-    if match_id in match_timers and match_timers[match_id]:
-        match_timers[match_id].cancel()
-        match_timers.pop(match_id)
-    
-    # Store stake for potential rematch
-    stake = match.stake
-    
-    # Update player stats and coins
-    if result == 'draw':
-        creator.draws += 1
-        joiner.draws += 1
-    elif result == 'player1':  # Creator wins
-        creator.wins += 1
-        creator.total_coins_won += stake
-        joiner.losses += 1
-        joiner.total_coins_lost += stake
-        creator.coins += stake
-        joiner.coins -= stake
-        match.winner = creator.session_id
-    else:  # Joiner wins
-        joiner.wins += 1
-        joiner.total_coins_won += stake
-        creator.losses += 1
-        creator.total_coins_lost += stake
-        creator.coins -= stake
-        joiner.coins += stake
-        match.winner = joiner.session_id
-    
-    match.status = 'finished'
-    match.finished_at = datetime.now(UTC)
-    match.creator_ready = False  # Reset ready states for rematch
-    match.joiner_ready = False
-    
-    # Keep match references for rematch
-    creator.current_match_id = match_id
-    joiner.current_match_id = match_id
-    
-    # Commit all changes
-    db.session.commit()
-    
-    # Prepare result object
-    result_data = {
-        'winner': result,
-        'creator_move': match.creator_move,
-        'joiner_move': match.joiner_move,
-        'creator_stats': {
-            'wins': creator.wins,
-            'losses': creator.losses,
-            'draws': creator.draws,
-            'total_coins_won': creator.total_coins_won,
-            'total_coins_lost': creator.total_coins_lost
-        },
-        'joiner_stats': {
-            'wins': joiner.wins,
-            'losses': joiner.losses,
-            'draws': joiner.draws,
-            'total_coins_won': joiner.total_coins_won,
-            'total_coins_lost': joiner.total_coins_lost
-        },
-        'stake': stake,
-        'can_rematch': (creator.coins >= stake and joiner.coins >= stake)
-    }
-    
-    # Notify both players
-    socketio.emit('match_result', result_data, room=match_id)
-
-@socketio.on('connect')
-def handle_connect():
     try:
-        session_id = session.get('session_id')
-        if session_id:
-            player = Player.query.filter_by(session_id=session_id).first()
-            if player:
-                join_room(session_id)
-                logger.info(f"Socket connected for session {session_id}")
-                
-                # If player is in a match, join that room too
-                if player.current_match_id:
-                    match = get_match(player.current_match_id)
-                    if match:
-                        join_room(match.id)
-                        logger.info(f"Player {session_id} joined match room {match.id}")
+        # Lock the match for update
+        match = Match.query.filter_by(id=match_id).with_for_update().first()
+        if not match:
+            logger.error(f"Match {match_id} not found in result calculation")
+            return
+        
+        # Get player objects
+        creator = Player.query.filter_by(session_id=match.creator_id).first()
+        joiner = Player.query.filter_by(session_id=match.joiner_id).first()
+        
+        if not creator or not joiner:
+            logger.error(f"Players not found for match {match_id}")
+            return
+        
+        # Store stake for potential rematch
+        stake = match.stake
+        
+        # Calculate winner
+        result = calculate_winner(match.creator_move, match.joiner_move)
+        
+        # Update match status
+        match.status = 'finished'
+        match.finished_at = datetime.now(UTC)
+        match.creator_ready = False  # Reset ready states for rematch
+        match.joiner_ready = False
+        
+        # Keep match references for rematch
+        creator.current_match_id = match_id
+        joiner.current_match_id = match_id
+        
+        # Update player stats and coins
+        if result == 'draw':
+            creator.draws += 1
+            joiner.draws += 1
+            creator.coins += stake
+            joiner.coins += stake
+        elif result == 'player1':  # Creator wins
+            creator.wins += 1
+            joiner.losses += 1
+            creator.coins += stake * 2
+            creator.total_coins_won += stake
+            joiner.total_coins_lost += stake
+        else:  # Joiner wins
+            creator.losses += 1
+            joiner.wins += 1
+            joiner.coins += stake * 2
+            joiner.total_coins_won += stake
+            creator.total_coins_lost += stake
+        
+        db.session.commit()
+        
+        # Emit result to both players
+        socketio.emit('match_result', {
+            'creator_move': match.creator_move,
+            'joiner_move': match.joiner_move,
+            'result': result,
+            'can_rematch': (creator.coins >= stake and joiner.coins >= stake)
+        }, room=match_id)
+        
+        logger.info(f"Match {match_id} finished. Result: {result}")
     except Exception as e:
-        logger.exception("Error in socket connect handler")
+        logger.exception(f"Error calculating result for match {match_id}")
 
 @socketio.on('join_match_room')
 def on_join_match_room(data):
@@ -557,104 +559,51 @@ def on_join_match_room(data):
             logger.error(f"Match {match_id} not found")
             return
         
-        if match.status != 'waiting':
-            logger.error(f"Match {match_id} not in waiting state. Status: {match.status}")
-            return
-        
-        join_room(match_id)
-        logger.info(f"Player {session_id} joined match room {match_id} via socket")
-    except Exception as e:
-        logger.exception("Error in join_match_room handler")
-
-@socketio.on('ready_for_match')
-def on_ready_for_match(data):
-    try:
-        session_id = session.get('session_id')
-        match_id = data.get('match_id')
-        
-        if not session_id or not match_id:
-            logger.error(f"Invalid session or match ID in ready_for_match: {session_id}, {match_id}")
-            return
-            
-        match = get_match(match_id)
-        if not match:
-            logger.error(f"Match {match_id} not found")
-            return
-        
-        # Join the match room if not already in it
-        join_room(match_id)
-        
-        # For rematch, the match will already be in playing state
-        if match.status not in ['waiting', 'playing']:
-            logger.error(f"Match {match_id} in invalid state. Status: {match.status}")
-            return
-        
-        if session_id == match.creator_id:
-            match.creator_ready = True
-            logger.info(f"Creator {session_id} ready in match {match_id}")
-        elif session_id == match.joiner_id:
-            match.joiner_ready = True
-            logger.info(f"Joiner {session_id} ready in match {match_id}")
-        else:
+        # Only allow players who are part of the match
+        if session_id not in [match.creator_id, match.joiner_id]:
             logger.error(f"Player {session_id} not part of match {match_id}")
             return
         
-        db.session.commit()
+        join_room(match_id)
+        logger.info(f"Player {session_id} joined match room {match_id}")
         
-        # If both players are ready, start the match
-        if match.creator_ready and match.joiner_ready:
-            if match.status == 'waiting':
-                match.status = 'playing'
-                match.started_at = datetime.now(UTC)
-                match.creator_move = None
-                match.joiner_move = None
-                db.session.commit()
+        # If this is a joiner joining a waiting match, start the match
+        if match.status == 'waiting' and match.joiner_id == session_id:
+            # Start the match
+            match.status = 'playing'
+            match.started_at = datetime.now(UTC)
             
-            # Set up timer for move timeout
-            def handle_timeout():
-                with app.app_context():
-                    try:
-                        handle_match_timeout(match_id)
-                    except Exception as e:
-                        logger.exception(f"Error in match timeout handler for match {match_id}")
+            # Deduct stakes
+            creator = Player.query.filter_by(session_id=match.creator_id).first()
+            joiner = Player.query.filter_by(session_id=match.joiner_id).first()
             
-            # Cancel any existing timer
-            if match_id in match_timers and match_timers[match_id]:
-                match_timers[match_id].cancel()
+            if not creator or not joiner:
+                logger.error(f"Players not found for match {match_id}")
+                return
             
-            # Start new timer
-            match_timers[match_id] = Timer(10, handle_timeout)  # 10 seconds for move timeout
-            match_timers[match_id].start()
+            creator.coins -= match.stake
+            joiner.coins -= match.stake
+            db.session.commit()
             
-            logger.info(f"Match {match_id} started")
+            # Start match timer
+            timer = Timer(10, handle_match_timeout, args=[match_id])
+            match_timers[match_id] = timer
+            timer.start()
+            
+            # Notify players about match start
             socketio.emit('match_started', {
                 'match_id': match_id,
                 'start_time': match.started_at.isoformat(),
                 'creator_id': match.creator_id,
                 'joiner_id': match.joiner_id,
                 'stake': match.stake,
-                'rematch': True
+                'time_limit': 10
             }, room=match_id)
             
-            # Also emit to individual player rooms to ensure they receive the event
-            socketio.emit('match_started', {
-                'match_id': match_id,
-                'start_time': match.started_at.isoformat(),
-                'creator_id': match.creator_id,
-                'joiner_id': match.joiner_id,
-                'stake': match.stake,
-                'rematch': True
-            }, room=match.creator_id)
-            socketio.emit('match_started', {
-                'match_id': match_id,
-                'start_time': match.started_at.isoformat(),
-                'creator_id': match.creator_id,
-                'joiner_id': match.joiner_id,
-                'stake': match.stake,
-                'rematch': True
-            }, room=match.joiner_id)
+            logger.info(f"Match {match_id} started")
+        
     except Exception as e:
-        logger.exception("Error in ready_for_match handler")
+        logger.exception("Error in join_match_room handler")
 
 @socketio.on('rematch_request')
 def on_rematch_request(data):
@@ -730,8 +679,8 @@ def on_rematch_request(data):
                 joiner_id=new_joiner_id,
                 stake=match.stake,
                 status='playing',  # Start in playing state
-                creator_ready=True,  # Both players are ready
-                joiner_ready=True,
+                creator_ready=False,  # Reset ready states for new match
+                joiner_ready=False,
                 started_at=datetime.now(UTC)  # Set start time
             )
             
@@ -740,6 +689,10 @@ def on_rematch_request(data):
             new_joiner = Player.query.filter_by(session_id=new_joiner_id).first()
             new_creator.current_match_id = new_match_id
             new_joiner.current_match_id = new_match_id
+            
+            # Deduct stakes
+            new_creator.coins -= match.stake
+            new_joiner.coins -= match.stake
             
             db.session.add(new_match)
             db.session.commit()
@@ -762,36 +715,35 @@ def on_rematch_request(data):
             logger.info(f"Rematch started: {new_match_id}")
             
             # First notify about the rematch being accepted
-            socketio.emit('rematch_accepted', {
-                'match_id': new_match_id,
-                'creator_id': new_creator_id,
-                'joiner_id': new_joiner_id,
-                'stake': new_match.stake
-            }, room=match_id)  # Send to old match room
-            
-            # Give clients time to process the rematch acceptance
-            time.sleep(0.5)
-            
-            # Then notify about the match starting
-            socketio.emit('ready_for_match', {
-                'match_id': new_match_id,
-                'creator_id': new_creator_id,
-                'joiner_id': new_joiner_id,
-                'stake': new_match.stake
-            }, room=match_id)  # Send to old match room
-            
-            # Give clients time to join the new match room
-            time.sleep(0.5)
-            
-            # Finally start the match
             socketio.emit('match_started', {
                 'match_id': new_match_id,
-                'start_time': new_match.started_at.isoformat(),
-                'rematch': True,
                 'creator_id': new_creator_id,
                 'joiner_id': new_joiner_id,
-                'stake': new_match.stake
-            }, room=new_match_id)  # Send to new match room
+                'stake': new_match.stake,
+                'rematch': True,
+                'time_limit': 10,
+                'start_time': new_match.started_at.isoformat()
+            }, room=match_id)  # Send to old match room
+
+            # Join both players to the new match room
+            socket_id = request.sid
+            leave_room(match_id)
+            join_room(new_match_id)
+
+            # Notify about match start in the new room
+            socketio.emit('match_started', {
+                'match_id': new_match_id,
+                'creator_id': new_creator_id,
+                'joiner_id': new_joiner_id,
+                'stake': new_match.stake,
+                'rematch': True,
+                'time_limit': 10
+            }, room=new_match_id)
+            
+            # Clean up old match
+            db.session.delete(match)
+            db.session.commit()
+            
     except Exception as e:
         logger.exception("Error in rematch_request handler")
 
@@ -810,168 +762,40 @@ def on_rematch_declined(data):
             logger.error(f"Match {match_id} not found")
             return
         
+        # Reset ready states
+        match.creator_ready = False
+        match.joiner_ready = False
+        db.session.commit()
+        
+        # Notify others that a player declined rematch
         socketio.emit('rematch_declined', {}, room=match_id)
         logger.info(f"Rematch declined for match {match_id} by {session_id}")
     except Exception as e:
         logger.exception("Error in rematch_declined handler")
 
-# Start cleanup thread
-def cleanup_thread_func():
-    with app.app_context():
-        while True:
-            try:
-                cleanup_stale_matches()
-            except Exception as e:
-                logger.exception("Error in cleanup thread")
-            time.sleep(10)  # Run every 10 seconds
-
-cleanup_thread = threading.Thread(target=cleanup_thread_func, daemon=True)
-cleanup_thread.start()
-
-@socketio.on('rematch_accepted')
-def on_rematch_accepted(data):
-    try:
-        session_id = session.get('session_id')
-        match_id = data.get('match_id')
-        
-        if not session_id or not match_id:
-            logger.error(f"Invalid session or match ID in rematch_accepted: {session_id}, {match_id}")
-            return
-        
-        match = get_match(match_id)
-        if not match:
-            logger.error(f"Match {match_id} not found")
-            return
-        
-        # Create new match with same stake but random creator
-        new_creator_id = random.choice([match.creator_id, match.joiner_id])
-        new_joiner_id = match.joiner_id if new_creator_id == match.creator_id else match.creator_id
-        
-        new_match_id = secrets.token_hex(4)
-        new_match = Match(
-            id=new_match_id,
-            creator_id=new_creator_id,
-            joiner_id=new_joiner_id,
-            stake=match.stake,
-            status='waiting',
-            creator_ready=False,
-            joiner_ready=False
-        )
-        
-        # Update player references
-        new_creator = Player.query.filter_by(session_id=new_creator_id).first()
-        new_joiner = Player.query.filter_by(session_id=new_joiner_id).first()
-        new_creator.current_match_id = new_match_id
-        new_joiner.current_match_id = new_match_id
-        
-        db.session.add(new_match)
-        db.session.commit()
-        
-        # Join both players to the new match room
-        join_room(new_match_id)
-        
-        # Update player ready state
-        if session_id == new_creator_id:
-            new_match.creator_ready = True
-        else:
-            new_match.joiner_ready = True
-        db.session.commit()
-        
-        # Notify others that a player accepted rematch
-        socketio.emit('rematch_accepted_by_player', {
-            'player': 'creator' if session_id == new_creator_id else 'joiner',
-            'match_id': new_match_id
-        }, room=match_id)  # Send to old match room
-        
-        # Start the match if both players have accepted
-        if new_match.creator_ready and new_match.joiner_ready:
-            new_match.status = 'playing'
-            new_match.started_at = datetime.now(UTC)
-            new_match.creator_move = None
-            new_match.joiner_move = None
-            db.session.commit()
-            
-            # Set up timer for move timeout
-            def handle_timeout():
-                with app.app_context():
-                    try:
-                        handle_match_timeout(new_match_id)
-                    except Exception as e:
-                        logger.exception(f"Error in match timeout handler for match {new_match_id}")
-            
-            # Cancel any existing timer
-            if new_match_id in match_timers and match_timers[new_match_id]:
-                match_timers[new_match_id].cancel()
-            
-            # Start new timer
-            match_timers[new_match_id] = Timer(10, handle_timeout)  # 10 seconds for move timeout
-            match_timers[new_match_id].start()
-            
-            logger.info(f"Rematch started: {new_match_id}")
-            
-            # Notify both players about the new match
-            socketio.emit('rematch_started', {
-                'match_id': new_match_id,
-                'creator_id': new_creator_id,
-                'joiner_id': new_joiner_id,
-                'stake': new_match.stake
-            }, room=match_id)  # Send to old match room
-            
-            # Then start the match
-            socketio.emit('match_started', {
-                'match_id': new_match_id,
-                'start_time': new_match.started_at.isoformat(),
-                'rematch': True
-            }, room=new_match_id)  # Send to new match room
-    except Exception as e:
-        logger.exception("Error in rematch_accepted handler")
-
-
 @socketio.on('disconnect')
 def on_disconnect():
     try:
         session_id = session.get('session_id')
-        if not session_id:
-            return
+        if session_id:
+            # Find any matches this player is part of
+            player = Player.query.filter_by(session_id=session_id).first()
+            if player and player.current_match_id:
+                match = get_match(player.current_match_id)
+                if match:
+                    # If match is in waiting state, clean it up
+                    if match.status == 'waiting':
+                        db.session.delete(match)
+                    # If match is playing, handle timeout
+                    elif match.status == 'playing':
+                        handle_match_timeout(match.id)
+                    # Reset player's match reference
+                    player.current_match_id = None
+                    db.session.commit()
         
-        player = Player.query.filter_by(session_id=session_id).first()
-        if not player or not player.current_match_id:
-            return
-        
-        match = get_match(player.current_match_id)
-        if not match:
-            return
-        
-        # If match is in waiting state, clean it up
-        if match.status == 'waiting':
-            logger.info(f"Player {session_id} disconnected from waiting match {match.id}")
-            try:
-                if match.creator_id:
-                    creator = Player.query.filter_by(session_id=match.creator_id).first()
-                    if creator:
-                        creator.current_match_id = None
-                if match.joiner_id:
-                    joiner = Player.query.filter_by(session_id=match.joiner_id).first()
-                    if joiner:
-                        joiner.current_match_id = None
-                db.session.delete(match)
-                db.session.commit()
-                logger.info(f"Cleaned up match {match.id} after player disconnect")
-            except Exception as e:
-                logger.exception(f"Error cleaning up match {match.id} after disconnect")
-                db.session.rollback()
-        
-        # If match is in playing state, handle timeout
-        elif match.status == 'playing':
-            logger.info(f"Player {session_id} disconnected from playing match {match.id}")
-            handle_match_timeout(match.id)
+        logger.info(f"Client disconnected: {session_id}")
     except Exception as e:
         logger.exception("Error handling disconnect")
 
 if __name__ == '__main__':
-    socketio.run(app,
-                host='0.0.0.0',
-                port=int(os.getenv('PORT', 5000)),
-                allow_unsafe_werkzeug=True,  # Allow WebSocket connections
-                log_output=True,  # Enable logging
-                debug=app.config['DEBUG'])
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000)
