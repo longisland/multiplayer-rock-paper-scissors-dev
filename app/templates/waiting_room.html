@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="waiting-room">
+    <h2>Waiting Room</h2>
+    <div id="match-status"></div>
+    
+    <div id="create-match-section">
+        <button id="create-match-btn" class="btn btn-primary">Create New Match</button>
+    </div>
+
+    <div id="open-matches-section">
+        <h3>Open Matches</h3>
+        <div id="open-matches-list"></div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const createMatchBtn = document.getElementById('create-match-btn');
+    const openMatchesList = document.getElementById('open-matches-list');
+    const matchStatus = document.getElementById('match-status');
+
+    createMatchBtn.addEventListener('click', async () => {
+        const response = await fetch('/create-match', { method: 'POST' });
+        const data = await response.json();
+        if (data.match_id) {
+            pollMatchStatus(data.match_id);
+        }
+    });
+
+    async function updateOpenMatches() {
+        const response = await fetch('/open-matches');
+        const matches = await response.json();
+        openMatchesList.innerHTML = matches.map(match => `
+            <div class="match-item">
+                <span>Match #${match.id}</span>
+                <button onclick="joinMatch(${match.id})" class="btn btn-secondary">Join</button>
+            </div>
+        `).join('');
+    }
+
+    async function joinMatch(matchId) {
+        const response = await fetch(`/join-match/${matchId}`, { method: 'POST' });
+        const data = await response.json();
+        if (data.success) {
+            pollMatchStatus(matchId);
+        }
+    }
+
+    async function pollMatchStatus(matchId) {
+        matchStatus.innerHTML = 'Waiting for opponent...';
+        const interval = setInterval(async () => {
+            const response = await fetch(`/match/${matchId}`);
+            const match = await response.json();
+            
+            if (match.status === 'in_progress') {
+                clearInterval(interval);
+                window.location.href = `/game/${matchId}`;
+            }
+        }, 1000);
+    }
+
+    // Update open matches list periodically
+    setInterval(updateOpenMatches, 2000);
+    updateOpenMatches();
+});
+</script>
+
+<style>
+.waiting-room {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.match-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#match-status {
+    text-align: center;
+    margin: 20px 0;
+    font-weight: bold;
+}
+</style>
+{% endblock %}
