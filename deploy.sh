@@ -53,7 +53,7 @@ GIT_COMMIT=$GIT_COMMIT docker-compose build --no-cache web
 
 # Start the services
 echo "Starting services..."
-docker-compose up -d
+GIT_COMMIT=$GIT_COMMIT docker-compose up -d
 
 # Check if the correct version is running
 if ! check_version "$GIT_COMMIT"; then
