@@ -15,8 +15,8 @@ check_version() {
         
         # Try to get version info
         if response=$(curl -s http://localhost:5000/api/version); then
-            actual_commit=$(echo $response | grep -o '"git_commit":"[^"]*' | cut -d'"' -f4)
-            build_time=$(echo $response | grep -o '"build_time":"[^"]*' | cut -d'"' -f4)
+            actual_commit=$(echo "$response" | python3 -c "import sys, json; print(json.load(sys.stdin).get('git_commit', ''))")
+            build_time=$(echo "$response" | python3 -c "import sys, json; print(json.load(sys.stdin).get('build_time', ''))")
             
             if [ "$actual_commit" = "$expected_commit" ]; then
                 echo "Version check passed!"
