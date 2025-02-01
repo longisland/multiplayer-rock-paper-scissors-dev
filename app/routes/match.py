@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, render_template, redirect, url_for
+from flask_socketio import emit, join_room, leave_room
 from app.game.match_manager import MatchManager
 import uuid
 
@@ -37,3 +38,29 @@ def get_match_status(match_id):
     if not match:
         return jsonify({'error': 'Match not found'}), 404
     return jsonify(match.to_dict())
+
+def register_socket_events(socketio):
+    @socketio.on('join')
+    def on_join(data):
+        match_id = data.get('match_id')
+        if match_id:
+            join_room(str(match_id))
+            emit('user_joined', {'match_id': match_id}, room=str(match_id))
+
+    @socketio.on('leave')
+    def on_leave(data):
+        match_id = data.get('match_id')
+        if match_id:
+            leave_room(str(match_id))
+            emit('user_left', {'match_id': match_id}, room=str(match_id))
+
+    @socketio.on('make_move')
+    def on_move(data):
+        match_id = data.get('match_id')
+        player_id = data.get('player_id')
+        move = data.get('move')
+        
+        if match_id and player_id and move:
+            success = MatchManager.make_move(match_id, player_id, move)
+            if success:
+                emit('move_made', {'player_id': player_id}, room=str(match_id))
