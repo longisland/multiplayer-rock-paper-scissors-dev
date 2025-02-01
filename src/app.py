@@ -296,11 +296,20 @@ def on_rematch_accepted(data):
             }, room=match_id)
             return
 
-        if match.add_rematch_ready(session_id):
-            socketio.emit('rematch_accepted_by_player', {
-                'player': match.get_player_role(session_id)
-            }, room=match_id)
+        # Add player to rematch_ready and get their role
+        player_role = match.add_rematch_ready(session_id)
+        if not player_role:
+            logger.error(f"Player {session_id} not part of match {match_id}")
+            return
 
+        # Get the other player's ID and emit event to their room
+        other_player_id = match.get_other_player(session_id)
+        if other_player_id:
+            socketio.emit('rematch_accepted_by_player', {
+                'player': player_role
+            }, room=other_player_id)
+
+        # If both players are ready, create rematch
         if match.is_rematch_ready():
             new_match = match_service.create_rematch(match_id)
             if new_match:

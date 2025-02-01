@@ -86,10 +86,20 @@ class Match:
         self.rematch_ready = set()  # Reset rematch_ready when match finishes
 
     def add_rematch_ready(self, player_id):
+        """Add a player to the rematch_ready set and return their role."""
         if player_id not in [self.creator, self.joiner]:
-            return False
+            return None
         self.rematch_ready.add(player_id)
-        return True
+        return 'creator' if player_id == self.creator else 'joiner'
 
     def is_rematch_ready(self):
+        """Check if both players are ready for rematch."""
         return len(self.rematch_ready) == 2
+
+    def get_other_player(self, player_id):
+        """Get the other player's ID."""
+        if player_id == self.creator:
+            return self.joiner
+        elif player_id == self.joiner:
+            return self.creator
+        return None

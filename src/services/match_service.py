@@ -76,14 +76,17 @@ class MatchService:
         match_id = secrets.token_hex(4)
         new_match = Match(match_id, new_creator, old_match.stake)
         new_match.joiner = new_joiner
-        new_match.status = 'waiting'
-        new_match.creator_ready = False
-        new_match.joiner_ready = False
+        new_match.status = 'playing'  # Start in playing state
+        new_match.creator_ready = True  # Both players are automatically ready
+        new_match.joiner_ready = True
 
         # Update match and player states
         self.matches[match_id] = new_match
         self.players[new_creator].current_match = match_id
         self.players[new_joiner].current_match = match_id
+
+        # Start the match immediately
+        new_match.start_match()
 
         return new_match
 
