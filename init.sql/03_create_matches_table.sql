@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS matches (
+    id SERIAL PRIMARY KEY,
+    player1_id VARCHAR(50) NOT NULL,
+    player2_id VARCHAR(50),
+    status VARCHAR(20) DEFAULT 'waiting',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
