@@ -200,12 +200,17 @@ def init_routes(app, socketio):
             timer.start()
             match_timers[match.id] = timer
             
+            # Join both players to the match room
+            socketio.server.enter_room(match.creator_id, str(match_id))
+            socketio.server.enter_room(session_id, str(match_id))
+            
             # Notify all players in the match
             socketio.emit('match_started', {
                 'match_id': match_id,
                 'creator_id': match.creator_id,
                 'joiner_id': session_id,
-                'status': 'playing'
+                'status': 'playing',
+                'time_limit': 30
             }, room=str(match_id))
             
             logger.info(f"Player {session_id} joined match {match_id}")
@@ -315,6 +320,7 @@ def init_routes(app, socketio):
                 logger.error(f"Player {session_id} not part of match {match_id}")
                 return
             
+            # Join the room and notify others
             join_room(str(match_id))  # Convert match_id to string for room name
             logger.info(f"Player {session_id} joined room for match {match_id}")
             
@@ -322,18 +328,32 @@ def init_routes(app, socketio):
             emit('user_joined', {
                 'match_id': match_id,
                 'player_id': session_id,
-                'is_creator': session_id == match.creator_id
+                'is_creator': session_id == match.creator_id,
+                'status': match.status
             }, room=str(match_id))
             
-            # If the match is already in playing state, notify the joining player
+            # If the match is already in playing state, notify all players
             if match.status == 'playing':
                 emit('match_started', {
                     'match_id': match_id,
                     'creator_id': match.creator_id,
                     'joiner_id': match.joiner_id,
-                    'status': 'playing'
+                    'status': 'playing',
+                    'time_limit': 30
                 }, room=str(match_id))
-                logger.info(f"Notified player {session_id} about ongoing match {match_id}")
+                logger.info(f"Notified players about ongoing match {match_id}")
+                
+                # If moves have been made, notify about them
+                if match.creator_move:
+                    emit('move_made', {
+                        'player_id': match.creator_id,
+                        'is_creator': True
+                    }, room=str(match_id))
+                if match.joiner_move:
+                    emit('move_made', {
+                        'player_id': match.joiner_id,
+                        'is_creator': False
+                    }, room=str(match_id))
         except Exception as e:
             logger.exception("Error in join handler")
 
