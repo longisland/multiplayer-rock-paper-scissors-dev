@@ -43,16 +43,38 @@ def register_socket_events(socketio):
     @socketio.on('join')
     def on_join(data):
         match_id = data.get('match_id')
+        player_id = data.get('player_id')
         if match_id:
             join_room(str(match_id))
-            emit('user_joined', {'match_id': match_id}, room=str(match_id))
+            match = MatchManager.get_match(match_id)
+            if match:
+                emit('user_joined', {
+                    'match_id': match_id,
+                    'player_id': player_id,
+                    'status': match.status,
+                    'player1_id': match.player1_id,
+                    'player2_id': match.player2_id
+                }, room=str(match_id))
+                # If both players are in and the game is in playing state, notify about game start
+                if match.status == 'playing' and match.player1_id and match.player2_id:
+                    emit('match_started', {
+                        'match_id': match_id,
+                        'time_limit': 30,
+                        'player1_id': match.player1_id,
+                        'player2_id': match.player2_id,
+                        'status': match.status
+                    }, room=str(match_id))
 
     @socketio.on('leave')
     def on_leave(data):
         match_id = data.get('match_id')
+        player_id = data.get('player_id')
         if match_id:
             leave_room(str(match_id))
-            emit('user_left', {'match_id': match_id}, room=str(match_id))
+            emit('user_left', {
+                'match_id': match_id,
+                'player_id': player_id
+            }, room=str(match_id))
 
     @socketio.on('make_move')
     def on_move(data):
@@ -63,4 +85,11 @@ def register_socket_events(socketio):
         if match_id and player_id and move:
             success = MatchManager.make_move(match_id, player_id, move)
             if success:
-                emit('move_made', {'player_id': player_id}, room=str(match_id))
+                match = MatchManager.get_match(match_id)
+                emit('move_made', {
+                    'match_id': match_id,
+                    'player_id': player_id,
+                    'status': match.status,
+                    'creator_move': match.creator_move if match.status == 'finished' else None,
+                    'joiner_move': match.joiner_move if match.status == 'finished' else None
+                }, room=str(match_id))

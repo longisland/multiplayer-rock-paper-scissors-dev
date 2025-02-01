@@ -19,6 +19,7 @@ class MatchManager:
         match = Match.query.get(match_id)
         if match and match.status == 'waiting' and not match.player2_id:
             match.player2_id = player2_id
+            match.status = 'playing'  # Set status to playing immediately
             db.session.commit()
             # Start the match timer when second player joins
             start_match_timer(match_id)

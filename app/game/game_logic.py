@@ -40,7 +40,6 @@ def start_match_timer(match_id):
         return
 
     match.started_at = datetime.now(UTC)
-    match.status = 'playing'
     db.session.commit()
 
     # Create a timer for 30 seconds
@@ -48,8 +47,14 @@ def start_match_timer(match_id):
     timer.start()
     match_timers[match_id] = timer
 
-    # Notify clients that the match has started
-    socketio.emit('match_started', {'match_id': match_id, 'time_limit': 30}, room=match_id)
+    # Notify clients that the match has started with match details
+    socketio.emit('match_started', {
+        'match_id': match_id,
+        'time_limit': 30,
+        'player1_id': match.player1_id,
+        'player2_id': match.player2_id,
+        'status': match.status
+    }, room=str(match_id))
 
 def calculate_and_emit_result(match_id):
     """Calculate and emit the match result."""
