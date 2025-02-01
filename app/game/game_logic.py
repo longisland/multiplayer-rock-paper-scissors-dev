@@ -137,40 +137,50 @@ def cleanup_stale_matches(app):
     try:
         with app.app_context():
             # Find matches that have been in 'playing' state for more than 30 seconds
-            cutoff_time = datetime.now(UTC) - timedelta(seconds=30)
-            stale_matches = Match.query.filter(
-                Match.status.in_(['playing', 'waiting'])
+            playing_cutoff = datetime.now(UTC) - timedelta(seconds=30)
+            waiting_cutoff = datetime.now(UTC) - timedelta(minutes=5)
+
+            # Clean up stale playing matches
+            stale_playing = Match.query.filter(
+                Match.status == 'playing',
+                Match.started_at < playing_cutoff
             ).all()
-            
-            # Filter matches manually to handle naive datetimes
-            stale_matches = [
-                match for match in stale_matches
-                if match.started_at and (
-                    match.started_at.replace(tzinfo=UTC) if match.started_at.tzinfo is None
-                    else match.started_at
-                ) < cutoff_time
-            ]
-            
-            for match in stale_matches:
-                logger.info(f"Cleaning up stale match {match.id}")
-                if match.status == 'playing':
-                    handle_match_timeout(match.id)
-                else:
-                    # For waiting matches, just clean up and reset player states
-                    try:
-                        if match.creator_id:
-                            creator = Player.query.filter_by(session_id=match.creator_id).first()
-                            if creator and creator.current_match_id == match.id:
-                                creator.current_match_id = None
-                        if match.joiner_id:
-                            joiner = Player.query.filter_by(session_id=match.joiner_id).first()
-                            if joiner and joiner.current_match_id == match.id:
-                                joiner.current_match_id = None
-                        db.session.delete(match)
-                        db.session.commit()
-                        logger.info(f"Cleaned up waiting match {match.id}")
-                    except Exception as e:
-                        logger.exception(f"Error cleaning up waiting match {match.id}")
-                        db.session.rollback()
+
+            # Clean up stale waiting matches
+            stale_waiting = Match.query.filter(
+                Match.status == 'waiting',
+                Match.created_at < waiting_cutoff
+            ).all()
+
+            # Handle stale playing matches
+            for match in stale_playing:
+                logger.info(f"Cleaning up stale playing match {match.id}")
+                handle_match_timeout(match.id)
+
+            # Handle stale waiting matches
+            for match in stale_waiting:
+                logger.info(f"Cleaning up stale waiting match {match.id}")
+                try:
+                    match.status = 'finished'
+                    match.finished_at = datetime.now(UTC)
+                    if match.creator_id:
+                        creator = Player.query.filter_by(session_id=match.creator_id).first()
+                        if creator:
+                            creator.current_match_id = None
+                    if match.joiner_id:
+                        joiner = Player.query.filter_by(session_id=match.joiner_id).first()
+                        if joiner:
+                            joiner.current_match_id = None
+                    db.session.commit()
+                    # Notify clients about the match being cancelled
+                    socketio.emit('match_cancelled', {
+                        'match_id': match.id,
+                        'reason': 'timeout'
+                    }, room=str(match.id))
+                    logger.info(f"Cleaned up waiting match {match.id}")
+                except Exception as e:
+                    logger.exception(f"Error cleaning up waiting match {match.id}")
+                    db.session.rollback()
+
     except Exception as e:
         logger.exception("Error cleaning up stale matches")
