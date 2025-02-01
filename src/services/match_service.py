@@ -1,5 +1,5 @@
-import secrets
 import random
+import secrets
 from ..models.match import Match
 from ..models.player import Player
 from ..config import Config
@@ -73,9 +73,17 @@ class MatchService:
         new_joiner = old_match.joiner if new_creator == old_match.creator else old_match.creator
 
         # Create new match
-        new_match = self.create_match(new_creator, old_match.stake)
+        match_id = secrets.token_hex(4)
+        new_match = Match(match_id, new_creator, old_match.stake)
         new_match.joiner = new_joiner
-        self.players[new_joiner].current_match = new_match.id
+        new_match.status = 'waiting'
+        new_match.creator_ready = False
+        new_match.joiner_ready = False
+
+        # Update match and player states
+        self.matches[match_id] = new_match
+        self.players[new_creator].current_match = match_id
+        self.players[new_joiner].current_match = match_id
 
         return new_match
 
