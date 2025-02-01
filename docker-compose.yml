@@ -35,6 +35,7 @@ services:
     volumes:
       - rps_game_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./migrations:/app/migrations
     ports:
       - "5433:5432"
     healthcheck:

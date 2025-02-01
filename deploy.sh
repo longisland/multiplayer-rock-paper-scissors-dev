@@ -61,6 +61,19 @@ GIT_COMMIT=$GIT_COMMIT docker-compose build --no-cache web
 echo "Starting services..."
 GIT_COMMIT=$GIT_COMMIT docker-compose up -d
 
+# Wait for database to be ready
+echo "Waiting for database to be ready..."
+sleep 10
+
+# Apply database migrations
+echo "Applying database migrations..."
+for migration in migrations/*.sql; do
+    if [ -f "$migration" ]; then
+        echo "Applying migration: $migration"
+        docker exec rps-game-db-1 psql -U postgres -d rps_game -f "/app/migrations/$migration"
+    fi
+done
+
 # Check if the correct version is running
 if ! check_version "$GIT_COMMIT"; then
     echo "Deployment failed: Version check failed"
