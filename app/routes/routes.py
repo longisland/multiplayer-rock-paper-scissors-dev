@@ -170,6 +170,7 @@ def init_routes(app, socketio):
                 logger.error(f"Match not available. Status: {match.status}")
                 return jsonify({'error': 'Match not available'}), 400
             
+            # Check if player has enough coins
             if player.coins < match.stake:
                 logger.error(f"Insufficient coins. Has: {player.coins}, Needs: {match.stake}")
                 return jsonify({'error': 'Insufficient coins'}), 400
@@ -196,7 +197,7 @@ def init_routes(app, socketio):
             # Set up match timeout
             if match.id in match_timers and match_timers[match.id]:
                 match_timers[match.id].cancel()
-            timer = Timer(30.0, handle_match_timeout, args=[match.id])
+            timer = Timer(10.0, handle_match_timeout, args=[match.id])
             timer.start()
             match_timers[match.id] = timer
             
@@ -210,7 +211,7 @@ def init_routes(app, socketio):
                 'creator_id': match.creator_id,
                 'joiner_id': session_id,
                 'status': 'playing',
-                'time_limit': 30
+                'time_limit': 10
             }, room=str(match_id))
             
             logger.info(f"Player {session_id} joined match {match_id}")
@@ -339,7 +340,7 @@ def init_routes(app, socketio):
                     'creator_id': match.creator_id,
                     'joiner_id': match.joiner_id,
                     'status': 'playing',
-                    'time_limit': 30
+                    'time_limit': 10
                 }, room=str(match_id))
                 logger.info(f"Notified players about ongoing match {match_id}")
                 
