@@ -42,18 +42,19 @@ def start_match_timer(match_id):
     match.started_at = datetime.now(UTC)
     db.session.commit()
 
-    # Create a timer for 30 seconds
-    timer = Timer(30.0, handle_match_timeout, args=[match_id])
+    # Create a timer for 10 seconds
+    timer = Timer(10.0, handle_match_timeout, args=[match_id])
     timer.start()
     match_timers[match_id] = timer
 
     # Notify clients that the match has started with match details
     socketio.emit('match_started', {
         'match_id': match_id,
-        'time_limit': 30,
-        'player1_id': match.player1_id,
-        'player2_id': match.player2_id,
-        'status': match.status
+        'time_limit': 10,
+        'player1_id': match.creator_id,
+        'player2_id': match.joiner_id,
+        'status': match.status,
+        'stake': match.stake
     }, room=str(match_id))
 
 def calculate_and_emit_result(match_id):
@@ -68,6 +69,46 @@ def calculate_and_emit_result(match_id):
         match.result = result
         match.status = 'finished'
         match.finished_at = datetime.now(UTC)
+
+        # Get player objects
+        creator = Player.query.filter_by(session_id=match.creator_id).first()
+        joiner = Player.query.filter_by(session_id=match.joiner_id).first()
+
+        if not creator or not joiner:
+            logger.error(f"Players not found for match {match_id}")
+            return
+
+        # Calculate winnings and update player stats
+        stake = match.stake
+        if result == 'draw':
+            # Return stakes to both players
+            creator.coins += stake
+            joiner.coins += stake
+            creator.draws += 1
+            joiner.draws += 1
+        elif result == 'player1':
+            # Creator wins
+            winnings = stake * 2
+            creator.coins += winnings
+            creator.wins += 1
+            creator.total_coins_won += stake
+            joiner.losses += 1
+            joiner.total_coins_lost += stake
+            match.winner = creator.session_id
+        else:
+            # Joiner wins
+            winnings = stake * 2
+            joiner.coins += winnings
+            joiner.wins += 1
+            joiner.total_coins_won += stake
+            creator.losses += 1
+            creator.total_coins_lost += stake
+            match.winner = joiner.session_id
+
+        # Clear current match references
+        creator.current_match_id = None
+        joiner.current_match_id = None
+
         db.session.commit()
 
         # Clean up the timer if it exists
@@ -79,8 +120,21 @@ def calculate_and_emit_result(match_id):
         socketio.emit('match_result', {
             'result': result,
             'creator_move': match.creator_move,
-            'joiner_move': match.joiner_move
-        }, room=match_id)
+            'joiner_move': match.joiner_move,
+            'creator_stats': {
+                'coins': creator.coins,
+                'wins': creator.wins,
+                'losses': creator.losses,
+                'draws': creator.draws
+            },
+            'joiner_stats': {
+                'coins': joiner.coins,
+                'wins': joiner.wins,
+                'losses': joiner.losses,
+                'draws': joiner.draws
+            },
+            'stake': stake
+        }, room=str(match_id))
 
 def handle_match_timeout(match_id):
     try:

@@ -51,10 +51,28 @@ The application will be available at http://localhost:5000
 
 ## Version Tracking
 
-The application includes version tracking to ensure you're running the correct code:
+The application uses semantic versioning based on git tags. The version number is automatically generated from:
 
+- The latest git tag (e.g., v1.2.3)
+- Number of commits since the tag
+- Current commit hash
+
+For example:
+- If you're on tag v1.2.3: version = "v1.2.3"
+- If you're 2 commits after v1.2.3 with commit abc123: version = "v1.2.3.post2+abc123"
+
+To create a new version:
+```bash
+# Create a new version tag
+git tag -a v1.2.3 -m "Version 1.2.3"
+
+# Push the tag
+git push origin v1.2.3
+```
+
+Check the current version:
 - Access `/api/version` endpoint to see:
-  - Application version
+  - Application version (auto-generated from git)
   - Build time
   - Git commit hash
 
