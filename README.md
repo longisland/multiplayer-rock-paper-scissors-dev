@@ -1,41 +1,58 @@
-# RPS-Web: Rock Paper Scissors Web App
+# Multiplayer Rock Paper Scissors - Stable Version
 
-A simple multiplayer Rock Paper Scissors web application with virtual coins.
+This is the stable version of the Multiplayer Rock Paper Scissors game. For development and latest features, please check the development repository at [multiplayer-rock-paper-scissors-dev](https://github.com/longisland/multiplayer-rock-paper-scissors-dev).
 
 ## Features
 
-- Anonymous multiplayer gameplay
-- Virtual coin system (100 coins on start)
-- Create and join matches with custom stakes
-- Mobile-friendly interface
-- Real-time updates using WebSocket
+- Multiplayer gameplay with real-time updates
+- Player registration and session management
+- Match creation and joining
+- Player statistics tracking
+- Rematch functionality
+- Persistent storage with Redis
+- Automatic match cleanup on disconnection
 
-## Quick Start
+## Requirements
 
-1. Install dependencies:
+- Python 3.8+
+- Redis server
+- Flask and Flask-SocketIO
+- Eventlet
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/longisland/multiplayer-rock-paper-scissors.git
+cd multiplayer-rock-paper-scissors
+```
+
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Run the application:
+3. Make sure Redis server is running:
+```bash
+systemctl start redis-server
+```
+
+4. Run the application:
 ```bash
 python app.py
 ```
 
-3. Open your browser and visit: `http://localhost:5000`
+## Configuration
 
-## How to Play
+The application can be configured through environment variables:
 
-1. When you first visit the site, you'll get 100 virtual coins
-2. Create a match by setting a stake amount
-3. Other players can join your match
-4. Choose Rock, Paper, or Scissors when the game starts
-5. Winner gets the stake from the loser
-6. In case of a draw, both players keep their coins
+- `REDIS_URL`: Redis server URL (default: redis://localhost:6379/0)
+- `PORT`: Application port (default: 3001)
 
-## Technical Details
+## Contributing
 
-- Backend: Flask + Flask-SocketIO
-- Frontend: HTML5, CSS3, Vanilla JavaScript
-- Storage: In-memory (no database required)
-- WebSocket for real-time updates
+For contributions, please use the development repository at [multiplayer-rock-paper-scissors-dev](https://github.com/longisland/multiplayer-rock-paper-scissors-dev).
+
+## License
+
+MIT License
