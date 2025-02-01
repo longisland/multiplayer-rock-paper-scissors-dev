@@ -68,25 +68,22 @@ class MatchService:
         if not old_match:
             return None
 
-        # Randomly choose new creator and joiner
-        new_creator = random.choice([old_match.creator, old_match.joiner])
-        new_joiner = old_match.joiner if new_creator == old_match.creator else old_match.creator
+        # Keep the same creator and joiner for better UX
+        new_creator = old_match.creator
+        new_joiner = old_match.joiner
 
         # Create new match
         match_id = secrets.token_hex(4)
         new_match = Match(match_id, new_creator, old_match.stake)
         new_match.joiner = new_joiner
-        new_match.status = 'playing'  # Start in playing state
-        new_match.creator_ready = True  # Both players are automatically ready
-        new_match.joiner_ready = True
+        new_match.status = 'waiting'  # Start in waiting state
+        new_match.creator_ready = True  # Creator is automatically ready
+        new_match.joiner_ready = False  # Joiner needs to confirm
 
         # Update match and player states
         self.matches[match_id] = new_match
         self.players[new_creator].current_match = match_id
         self.players[new_joiner].current_match = match_id
-
-        # Start the match immediately
-        new_match.start_match()
 
         return new_match
 

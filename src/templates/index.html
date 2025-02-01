@@ -846,6 +846,7 @@
                 console.log('Rematch started:', data);
                 currentMatchId = data.match_id;
                 isCreator = data.is_creator;
+                lastMatchStake = data.stake;
                 
                 // Stop rematch timer
                 stopRematchTimer();
@@ -866,16 +867,17 @@
                     rematchTimer = null;
                 }
                 
-                // Show waiting screen
-                showScreen('waitingScreen');
+                // Join the new match room
+                socket.emit('join_match_room', { match_id: currentMatchId });
                 
-                // Join the match room
-                socket.emit('join_match_room', { match_id: data.match_id });
-                
-                // Signal ready after a short delay
-                setTimeout(() => {
-                    socket.emit('ready_for_match', { match_id: data.match_id });
-                }, 1000);
+                // If creator, show waiting screen; if joiner, show play screen
+                if (isCreator) {
+                    showScreen('waitingScreen');
+                } else {
+                    socket.emit('ready_for_match', { match_id: currentMatchId });
+                    showScreen('playScreen');
+                    startMoveTimer();
+                }
             });
 
             // Initial state update
