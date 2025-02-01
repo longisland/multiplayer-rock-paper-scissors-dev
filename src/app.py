@@ -296,12 +296,12 @@ def on_rematch_accepted(data):
             }, room=match_id)
             return
 
-        match.rematch_ready.add(session_id)
-        socketio.emit('rematch_accepted_by_player', {
-            'player': match.get_player_role(session_id)
-        }, room=match_id)
+        if match.add_rematch_ready(session_id):
+            socketio.emit('rematch_accepted_by_player', {
+                'player': match.get_player_role(session_id)
+            }, room=match_id)
 
-        if len(match.rematch_ready) == 2:
+        if match.is_rematch_ready():
             new_match = match_service.create_rematch(match_id)
             if new_match:
                 # Notify players about the new match

@@ -83,3 +83,13 @@ class Match:
     def set_result(self, result_data):
         self.result = result_data
         self.status = 'finished'
+        self.rematch_ready = set()  # Reset rematch_ready when match finishes
+
+    def add_rematch_ready(self, player_id):
+        if player_id not in [self.creator, self.joiner]:
+            return False
+        self.rematch_ready.add(player_id)
+        return True
+
+    def is_rematch_ready(self):
+        return len(self.rematch_ready) == 2
