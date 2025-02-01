@@ -4,8 +4,25 @@ from .game_logic import start_match_timer, calculate_and_emit_result
 
 class MatchManager:
     @staticmethod
-    def create_match(player1_id):
-        match = Match(player1_id=player1_id, status='waiting')
+    def create_match(player1_id, stake=10):
+        # Check if player has enough coins
+        player = Player.query.filter_by(session_id=player1_id).first()
+        if not player:
+            player = Player(session_id=player1_id)
+            db.session.add(player)
+            db.session.commit()
+
+        if player.coins < stake:
+            return None
+
+        # Deduct stake from player's coins
+        player.coins -= stake
+        match = Match(
+            creator_id=player1_id,
+            status='waiting',
+            stake=stake
+        )
+        player.current_match_id = match.id
         db.session.add(match)
         db.session.commit()
         return match
@@ -17,14 +34,29 @@ class MatchManager:
     @staticmethod
     def join_match(match_id, player2_id):
         match = Match.query.get(match_id)
-        if match and match.status == 'waiting' and not match.player2_id:
-            match.player2_id = player2_id
-            match.status = 'playing'  # Set status to playing immediately
+        if not match or match.status != 'waiting' or match.joiner_id:
+            return False
+
+        # Check if player has enough coins
+        player = Player.query.filter_by(session_id=player2_id).first()
+        if not player:
+            player = Player(session_id=player2_id)
+            db.session.add(player)
             db.session.commit()
-            # Start the match timer when second player joins
-            start_match_timer(match_id)
-            return True
-        return False
+
+        if player.coins < match.stake:
+            return False
+
+        # Deduct stake from player's coins
+        player.coins -= match.stake
+        match.joiner_id = player2_id
+        match.status = 'playing'
+        player.current_match_id = match.id
+        db.session.commit()
+
+        # Start the match timer when second player joins
+        start_match_timer(match_id)
+        return True
 
     @staticmethod
     def get_match(match_id):
