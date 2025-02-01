@@ -13,21 +13,21 @@ class MatchManager:
         if player1.coins < stake:
             return None
 
-        # Deduct stake from player\"s balance
+        # Deduct stake from player balance
         player1.coins -= stake
-        match = Match(creator_id=player1_id, status=\"waiting\", stake=stake)
+        match = Match(creator_id=player1_id, status="waiting", stake=stake)
         db.session.add(match)
         db.session.commit()
         return match
 
     @staticmethod
     def get_open_matches():
-        return Match.query.filter_by(status=\"waiting\").all()
+        return Match.query.filter_by(status="waiting").all()
 
     @staticmethod
     def join_match(match_id, player2_id):
         match = Match.query.get(match_id)
-        if not match or match.status != \"waiting\" or match.joiner_id:
+        if not match or match.status != "waiting" or match.joiner_id:
             return False
 
         # Get player objects
@@ -39,10 +39,10 @@ class MatchManager:
         if player2.coins < match.stake:
             return False
 
-        # Deduct stake from player\"s balance
+        # Deduct stake from player balance
         player2.coins -= match.stake
         match.joiner_id = player2_id
-        match.status = \"playing\"  # Set status to playing immediately
+        match.status = "playing"  # Set status to playing immediately
         db.session.commit()
 
         # Start the match timer when second player joins
@@ -56,7 +56,7 @@ class MatchManager:
     @staticmethod
     def make_move(match_id, player_id, move):
         match = Match.query.get(match_id)
-        if not match or match.status != \"playing\":
+        if not match or match.status != "playing":
             return False
 
         # Record the move for the appropriate player
