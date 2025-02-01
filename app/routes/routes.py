@@ -187,8 +187,26 @@ def init_routes(app, socketio):
             
             # Update match and player state
             match.joiner_id = session_id
+            match.joiner_ready = True  # Set joiner as ready
+            match.status = 'playing'  # Set status to playing
+            match.started_at = datetime.now(UTC)  # Set start time
             player.current_match_id = match_id
             db.session.commit()
+            
+            # Set up match timeout
+            if match.id in match_timers and match_timers[match.id]:
+                match_timers[match.id].cancel()
+            timer = Timer(30.0, handle_match_timeout, args=[match.id])
+            timer.start()
+            match_timers[match.id] = timer
+            
+            # Notify all players in the match
+            socketio.emit('match_started', {
+                'match_id': match_id,
+                'creator_id': match.creator_id,
+                'joiner_id': session_id,
+                'status': 'playing'
+            }, room=str(match_id))
             
             logger.info(f"Player {session_id} joined match {match_id}")
             return jsonify({'success': True})
@@ -297,24 +315,25 @@ def init_routes(app, socketio):
                 logger.error(f"Player {session_id} not part of match {match_id}")
                 return
             
-            join_room(match_id)
+            join_room(str(match_id))  # Convert match_id to string for room name
             logger.info(f"Player {session_id} joined room for match {match_id}")
             
-            # If both players are ready, start the match
-            if match.creator_ready and match.joiner_ready and match.status == 'waiting':
-                match.status = 'playing'
-                match.started_at = datetime.now(UTC)
-                db.session.commit()
-                
-                # Set up match timeout
-                if match.id in match_timers and match_timers[match.id]:
-                    match_timers[match.id].cancel()
-                timer = Timer(10.0, handle_match_timeout, args=[match.id])
-                timer.start()
-                match_timers[match.id] = timer
-                
-                emit('match_started', room=match_id)
-                logger.info(f"Match {match_id} started")
+            # Notify about the join
+            emit('user_joined', {
+                'match_id': match_id,
+                'player_id': session_id,
+                'is_creator': session_id == match.creator_id
+            }, room=str(match_id))
+            
+            # If the match is already in playing state, notify the joining player
+            if match.status == 'playing':
+                emit('match_started', {
+                    'match_id': match_id,
+                    'creator_id': match.creator_id,
+                    'joiner_id': match.joiner_id,
+                    'status': 'playing'
+                }, room=str(match_id))
+                logger.info(f"Notified player {session_id} about ongoing match {match_id}")
         except Exception as e:
             logger.exception("Error in join handler")
 
