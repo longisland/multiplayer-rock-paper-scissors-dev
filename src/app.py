@@ -313,17 +313,23 @@ def on_rematch_accepted(data):
         if match.is_rematch_ready():
             new_match = match_service.create_rematch(match_id)
             if new_match:
+                # Make both players join the new match room
+                join_room(new_match.id, sid=match.creator)
+                join_room(new_match.id, sid=match.joiner)
+
                 # Notify players about the new match
                 socketio.emit('rematch_started', {
                     'match_id': new_match.id,
                     'is_creator': True,
-                    'stake': new_match.stake
+                    'stake': new_match.stake,
+                    'status': new_match.status
                 }, room=new_match.creator)
 
                 socketio.emit('rematch_started', {
                     'match_id': new_match.id,
                     'is_creator': False,
-                    'stake': new_match.stake
+                    'stake': new_match.stake,
+                    'status': new_match.status
                 }, room=new_match.joiner)
 
                 logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
