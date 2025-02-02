@@ -87,6 +87,10 @@ class MatchService:
         new_match.status = 'waiting'  # Start in waiting state
         new_match.creator_ready = False  # Both players need to ready up again
         new_match.joiner_ready = False
+        new_match.moves = {}  # Ensure moves are cleared
+        new_match.result = None  # Ensure result is cleared
+        new_match.rematch_ready = set()  # Reset rematch state
+        new_match.start_time = None  # Reset start time
 
         # Update match and player states
         self.matches[match_id] = new_match

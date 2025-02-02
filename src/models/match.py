@@ -71,6 +71,7 @@ class Match:
         self.rematch_ready = set()  # Reset rematch state
         self.creator_ready = True  # Reset ready states
         self.joiner_ready = True
+        self.result = None  # Clear previous result
 
     def make_move(self, player_id, move):
         if player_id not in [self.creator, self.joiner]:
