@@ -43,7 +43,13 @@ class MatchService:
         if match.status != 'waiting' or match.joiner is not None:
             return None
 
+        # Check if both players have enough coins
+        if not (self.players[match.creator].has_enough_coins(match.stake) and
+                self.players[joiner_id].has_enough_coins(match.stake)):
+            return None
+
         match.joiner = joiner_id
+        match.joiner_ready = False  # Reset joiner ready state
         self.players[joiner_id].current_match = match_id
         return match
 
@@ -55,6 +61,7 @@ class MatchService:
         for mid, match in self.matches.items():
             if (match.status == 'waiting' and 
                 match.creator != player_id and 
+                match.joiner is None and
                 self.players[match.creator].has_enough_coins(match.stake) and
                 self.players[player_id].has_enough_coins(match.stake)):
                 open_matches.append({
@@ -66,9 +73,17 @@ class MatchService:
     def handle_match_timeout(self, match_id):
         from flask import current_app
         from .game_service import GameService
+        import logging
+
+        logger = logging.getLogger('rps_game')
+        logger.info(f"Match timeout handler called for match {match_id}")
 
         match = self.matches.get(match_id)
-        if not match or match.status != 'playing':
+        if not match:
+            logger.warning(f"Match {match_id} not found")
+            return
+        if match.status != 'playing':
+            logger.warning(f"Match {match_id} not in playing state (status: {match.status})")
             return
 
         # Track which moves were auto-generated
@@ -78,16 +93,19 @@ class MatchService:
         if match.creator not in match.moves:
             match.moves[match.creator] = random.choice(['rock', 'paper', 'scissors'])
             auto_moves.append('creator')
+            logger.info(f"Auto-move for creator in match {match_id}: {match.moves[match.creator]}")
 
         if match.joiner not in match.moves:
             match.moves[match.joiner] = random.choice(['rock', 'paper', 'scissors'])
             auto_moves.append('joiner')
+            logger.info(f"Auto-move for joiner in match {match_id}: {match.moves[match.joiner]}")
 
         # Get the socketio instance from the app
         socketio = current_app.extensions['socketio']
 
         # Notify about auto moves
         for role in auto_moves:
+            logger.info(f"Emitting auto-move for {role} in match {match_id}")
             socketio.emit('move_made', {
                 'player': role,
                 'auto': True
@@ -95,8 +113,10 @@ class MatchService:
 
         # Calculate match result if both moves are now made
         if match.are_both_moves_made():
+            logger.info(f"Both moves made in match {match_id}, calculating result")
             result = GameService.calculate_match_result(match, self.players)
             socketio.emit('match_result', result, room=match.id)
+            logger.info(f"Match {match_id} result: {result}")
 
         return match
 
