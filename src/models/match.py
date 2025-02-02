@@ -68,6 +68,7 @@ class Match:
         self.status = 'playing'
         self.start_time = time.time()
         self.moves = {}
+        self.rematch_ready = set()  # Reset rematch_ready when match starts
 
     def make_move(self, player_id, move):
         if player_id not in [self.creator, self.joiner]:
@@ -103,3 +104,12 @@ class Match:
         elif player_id == self.joiner:
             return self.creator
         return None
+
+    def can_rematch(self, players):
+        """Check if both players have enough coins for a rematch."""
+        if not self.creator or not self.joiner:
+            return False
+        if self.creator not in players or self.joiner not in players:
+            return False
+        return (players[self.creator].has_enough_coins(self.stake) and 
+                players[self.joiner].has_enough_coins(self.stake))

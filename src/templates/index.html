@@ -736,7 +736,8 @@
                 
                 // Reset rematch button state
                 rematchBtn.disabled = false;
-                rematchBtn.classList.remove('animate__pulse', 'animate__infinite');
+                rematchBtn.classList.remove('animate__pulse', 'animate__infinite', 'animate__headShake');
+                rematchBtn.style.color = '';
                 rematchBtn.innerHTML = `
                     <span class="btn-icon">🔄</span>
                     Rematch (<span id="rematchTimer">15</span>s)
@@ -752,7 +753,6 @@
                     
                     // Start rematch timer
                     const updateTimer = () => {
-                        timeLeft--;
                         // Get the timer display element again as it might have been recreated
                         const timerDisplay = document.getElementById('rematchTimer');
                         if (timerDisplay) {
@@ -765,8 +765,9 @@
                             rematchBtn.style.color = 'var(--danger-color)';
                         }
                         
-                        if (timeLeft <= 0) {
-                            clearInterval(rematchTimer);
+                        timeLeft--;
+                        if (timeLeft < 0) {
+                            stopRematchTimer();
                             if (rematchBtn) {
                                 rematchBtn.classList.remove('animate__headShake');
                                 rematchBtn.style.display = 'none';
@@ -783,8 +784,6 @@
                         }
                     };
                     
-                    // Initial timer update
-                    updateTimer();
                     // Start interval
                     rematchTimer = setInterval(updateTimer, 1000);
                     
@@ -792,6 +791,8 @@
                     rematchBtn.onclick = () => {
                         socket.emit('rematch_accepted', { match_id: currentMatchId });
                         rematchBtn.disabled = true;
+                        rematchBtn.classList.remove('animate__headShake', 'animate__pulse', 'animate__infinite');
+                        rematchBtn.style.color = '';
                         rematchBtn.innerHTML = `
                             <span class="btn-icon">🔄</span>
                             Waiting for opponent...
@@ -799,8 +800,10 @@
                         if (rematchStatus) {
                             rematchStatus.textContent = 'Waiting for opponent to accept rematch...';
                         }
+                        stopRematchTimer();
                     };
                 } else {
+                    rematchBtn.style.display = 'none';
                     if (rematchStatus) {
                         rematchStatus.textContent = 'Not enough coins for rematch';
                     }
@@ -855,15 +858,13 @@
                 const rematchStatus = document.getElementById('rematchStatus');
                 if (rematchBtn) {
                     rematchBtn.style.display = 'none';
+                    rematchBtn.disabled = false;
+                    rematchBtn.classList.remove('animate__headShake', 'animate__pulse', 'animate__infinite');
+                    rematchBtn.style.color = '';
                 }
                 if (rematchStatus) {
                     rematchStatus.textContent = '';
-                }
-                
-                // Clear any existing timers
-                if (rematchTimer) {
-                    clearInterval(rematchTimer);
-                    rematchTimer = null;
+                    rematchStatus.classList.remove('animate__fadeOut');
                 }
                 
                 // Show waiting screen

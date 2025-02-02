@@ -68,6 +68,14 @@ class MatchService:
         if not old_match:
             return None
 
+        # Check if both players have enough coins
+        if not old_match.can_rematch(self.players):
+            return None
+
+        # Check if both players have accepted rematch
+        if not old_match.is_rematch_ready():
+            return None
+
         # Randomly choose new creator and joiner
         new_creator = random.choice([old_match.creator, old_match.joiner])
         new_joiner = old_match.joiner if new_creator == old_match.creator else old_match.creator
@@ -76,8 +84,8 @@ class MatchService:
         match_id = secrets.token_hex(4)
         new_match = Match(match_id, new_creator, old_match.stake)
         new_match.joiner = new_joiner
-        new_match.status = 'playing'  # Start in playing state
-        new_match.creator_ready = True  # Both players are automatically ready
+        new_match.status = 'waiting'  # Start in waiting state
+        new_match.creator_ready = True  # Both players need to ready up again
         new_match.joiner_ready = True
 
         # Update match and player states
@@ -85,8 +93,12 @@ class MatchService:
         self.players[new_creator].current_match = match_id
         self.players[new_joiner].current_match = match_id
 
-        # Start the match immediately
+        # Start the match
         new_match.start_match()
+        new_match.start_timer(Config.MATCH_TIMEOUT, self.handle_match_timeout)
+
+        # Cleanup old match
+        self.cleanup_match(old_match_id)
 
         return new_match
 
