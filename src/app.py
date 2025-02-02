@@ -31,7 +31,7 @@ with app.app_context():
 # Configure Flask-SocketIO
 socketio = SocketIO(
     app,
-    async_mode=None,  # Let Flask-SocketIO choose the best mode
+    async_mode='threading',
     cors_allowed_origins='*',
     logger=True,
     engineio_logger=True,
@@ -39,7 +39,9 @@ socketio = SocketIO(
     ping_interval=25,
     max_http_buffer_size=1000000,
     manage_session=False,  # Let Flask manage the sessions
-    always_connect=True  # Always allow connections
+    always_connect=True,  # Always allow connections
+    websocket=True,  # Force WebSocket transport
+    allow_upgrades=True  # Allow transport upgrades
 )
 
 # Initialize services
