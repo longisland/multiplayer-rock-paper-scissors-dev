@@ -219,16 +219,25 @@ def make_move():
 def handle_connect():
     try:
         session_id = session.get('session_id')
-        if session_id:
-            join_room(session_id)
-            logger.info(f"Socket connected for session {session_id}")
+        if not session_id:
+            logger.error("No session ID found")
+            return
 
-            player = match_service.get_player(session_id)
-            if player.current_match:
-                match = match_service.get_match(player.current_match)
-                if match:
+        join_room(session_id)
+        logger.info(f"Socket connected for session {session_id}")
+
+        player = match_service.get_player(session_id)
+        if player.current_match:
+            match = match_service.get_match(player.current_match)
+            if match:
+                # Check if the match is still valid for this player
+                if match.creator == session_id or match.joiner == session_id:
                     join_room(match.id)
                     logger.info(f"Player {session_id} joined match room {match.id}")
+                else:
+                    # Clear invalid match reference
+                    player.current_match = None
+                    logger.warning(f"Cleared invalid match reference for player {session_id}")
     except Exception as e:
         logger.exception("Error in socket connect handler")
 

@@ -75,17 +75,45 @@ class MatchService:
         return self.matches.get(match_id)
 
     def get_open_matches(self, player_id):
+        import logging
+        logger = logging.getLogger('rps_game')
+
         open_matches = []
         for mid, match in self.matches.items():
-            if (match.status == 'waiting' and 
-                match.creator != player_id and 
-                match.joiner is None and
-                self.players[match.creator].has_enough_coins(match.stake) and
-                self.players[player_id].has_enough_coins(match.stake)):
+            try:
+                if match.status != 'waiting':
+                    continue
+
+                if match.creator == player_id:
+                    continue
+
+                if match.joiner is not None:
+                    continue
+
+                creator = self.players[match.creator]
+                player = self.players[player_id]
+
+                if not creator.has_enough_coins(match.stake):
+                    logger.warning(f"Creator {match.creator} has insufficient coins for match {mid}")
+                    continue
+
+                if not player.has_enough_coins(match.stake):
+                    logger.warning(f"Player {player_id} has insufficient coins for match {mid}")
+                    continue
+
+                if player.current_match:
+                    logger.warning(f"Player {player_id} already in match {player.current_match}")
+                    continue
+
                 open_matches.append({
                     'id': mid,
                     'stake': match.stake
                 })
+                logger.info(f"Found open match {mid} for player {player_id}")
+            except Exception as e:
+                logger.exception(f"Error processing match {mid}")
+                continue
+
         return open_matches
 
     def handle_match_timeout(self, match_id):
