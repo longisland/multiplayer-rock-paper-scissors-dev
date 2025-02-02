@@ -43,6 +43,25 @@ class MatchService:
         if match.status != 'waiting' or match.joiner is not None:
             return None
 
+        # Check if both players have enough coins
+        if not (self.players[match.creator].has_enough_coins(match.stake) and 
+                self.players[joiner_id].has_enough_coins(match.stake)):
+            return None
+
+        # Deduct stakes from both players
+        creator_user = User.query.filter_by(username=match.creator).first()
+        joiner_user = User.query.filter_by(username=joiner_id).first()
+        
+        creator_user.coins -= match.stake
+        joiner_user.coins -= match.stake
+        
+        # Update in-memory state
+        self.players[match.creator].coins = creator_user.coins
+        self.players[joiner_id].coins = joiner_user.coins
+        
+        # Commit changes
+        db.session.commit()
+
         match.joiner = joiner_id
         self.players[joiner_id].current_match = match_id
         return match

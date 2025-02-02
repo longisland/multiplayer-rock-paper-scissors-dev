@@ -51,7 +51,7 @@ class GameService:
             # Log state before return
             logger.info(f"Before draw return - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
             
-            # Return stakes
+            # Return stakes since they were already deducted
             creator_user.coins += match.stake
             joiner_user.coins += match.stake
             
@@ -73,12 +73,9 @@ class GameService:
             # Log state before win
             logger.info(f"Before win payout - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
             
-            # Winner gets their stake back plus opponent's stake
-            creator_user.coins += match.stake  # Get own stake back
-            logger.info(f"After stake return - Creator coins: {creator_user.coins} (+{match.stake})")
-            
-            creator_user.coins += match.stake  # Get opponent's stake
-            logger.info(f"After win payout - Creator coins: {creator_user.coins} (+{match.stake})")
+            # Winner gets double the stake (their stake + opponent's stake)
+            creator_user.coins += (match.stake * 2)  # Get total pot
+            logger.info(f"After win payout - Creator coins: {creator_user.coins} (+{match.stake * 2})")
             
             creator_user.total_coins_won += match.stake
             joiner_user.total_coins_lost += match.stake
@@ -101,12 +98,9 @@ class GameService:
             # Log state before win
             logger.info(f"Before win payout - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
             
-            # Winner gets their stake back plus opponent's stake
-            joiner_user.coins += match.stake  # Get own stake back
-            logger.info(f"After stake return - Joiner coins: {joiner_user.coins} (+{match.stake})")
-            
-            joiner_user.coins += match.stake  # Get opponent's stake
-            logger.info(f"After win payout - Joiner coins: {joiner_user.coins} (+{match.stake})")
+            # Winner gets double the stake (their stake + opponent's stake)
+            joiner_user.coins += (match.stake * 2)  # Get total pot
+            logger.info(f"After win payout - Joiner coins: {joiner_user.coins} (+{match.stake * 2})")
             
             joiner_user.total_coins_won += match.stake
             creator_user.total_coins_lost += match.stake
