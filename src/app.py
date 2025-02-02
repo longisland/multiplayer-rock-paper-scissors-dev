@@ -284,8 +284,43 @@ def on_ready_for_match(data):
             return
 
         match = match_service.get_match(match_id)
-        if not match or match.status != 'waiting':
-            logger.error(f"Match {match_id} not found or not in waiting state")
+        if not match:
+            logger.error(f"Match {match_id} not found")
+            return
+
+        if match.status != 'waiting':
+            logger.error(f"Match {match_id} not in waiting state (status: {match.status})")
+            return
+
+        # Check if player is part of the match
+        if session_id != match.creator and session_id != match.joiner:
+            logger.error(f"Player {session_id} not part of match {match_id}")
+            return
+
+        # Check if both players are still connected
+        creator = match_service.get_player(match.creator)
+        if not creator or creator.current_match != match_id:
+            logger.error(f"Creator {match.creator} not connected to match {match_id}")
+            return
+
+        joiner = match_service.get_player(match.joiner) if match.joiner else None
+        if match.joiner and (not joiner or joiner.current_match != match_id):
+            logger.error(f"Joiner {match.joiner} not connected to match {match_id}")
+            return
+
+        # Check if both players have enough coins
+        if not creator.has_enough_coins(match.stake):
+            logger.error(f"Creator has insufficient coins. Has: {creator.coins}, Needs: {match.stake}")
+            socketio.emit('match_error', {
+                'error': 'Creator has insufficient coins'
+            }, room=match_id)
+            return
+
+        if joiner and not joiner.has_enough_coins(match.stake):
+            logger.error(f"Joiner has insufficient coins. Has: {joiner.coins}, Needs: {match.stake}")
+            socketio.emit('match_error', {
+                'error': 'Joiner has insufficient coins'
+            }, room=match_id)
             return
 
         # Mark player as ready
@@ -295,33 +330,21 @@ def on_ready_for_match(data):
         elif session_id == match.joiner:
             match.joiner_ready = True
             logger.info(f"Joiner {session_id} ready in match {match_id}")
-        else:
-            logger.error(f"Player {session_id} not part of match {match_id}")
-            return
 
         # Start match if both players are ready
         if match.creator_ready and match.joiner_ready:
-            creator = match_service.get_player(match.creator)
-            joiner = match_service.get_player(match.joiner)
+            match.start_match()
+            def timeout_handler(match_id):
+                with app.app_context():
+                    match_service.handle_match_timeout(match_id)
+            match.start_timer(Config.MATCH_TIMEOUT, timeout_handler)
 
-            if creator.has_enough_coins(match.stake) and joiner.has_enough_coins(match.stake):
-                match.start_match()
-                def timeout_handler(match_id):
-                    with app.app_context():
-                        match_service.handle_match_timeout(match_id)
-                match.start_timer(Config.MATCH_TIMEOUT, timeout_handler)
+            socketio.emit('match_started', {
+                'match_id': match_id,
+                'start_time': match.start_time
+            }, room=match_id)
 
-                socketio.emit('match_started', {
-                    'match_id': match_id,
-                    'start_time': match.start_time
-                }, room=match_id)
-
-                logger.info(f"Match {match_id} started")
-            else:
-                logger.error(f"Insufficient coins for match {match_id}")
-                socketio.emit('match_error', {
-                    'error': 'Insufficient coins'
-                }, room=match_id)
+            logger.info(f"Match {match_id} started")
     except Exception as e:
         logger.exception("Error in ready_for_match handler")
 
