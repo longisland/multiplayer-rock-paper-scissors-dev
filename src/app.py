@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_session import Session
+import redis
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from .config import Config
 from .services.match_service import MatchService
@@ -15,6 +17,12 @@ logger = setup_logger()
 # Initialize Flask app
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Configure Redis session interface
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_REDIS'] = redis.from_url(Config.REDIS_URL)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
+Session(app)
 
 # Initialize database
 db.init_app(app)
