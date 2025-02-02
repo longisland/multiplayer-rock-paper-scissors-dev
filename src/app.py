@@ -16,6 +16,9 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = Config.SECRET_KEY
 app.config['DEBUG'] = Config.DEBUG
 app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = '/app/flask_session'
+app.config['SESSION_FILE_THRESHOLD'] = 100
+app.config['SESSION_FILE_MODE'] = 0o600
 
 # Initialize Flask-Session
 Session(app)
