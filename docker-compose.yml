@@ -10,7 +10,7 @@ services:
       - FLASK_ENV=production
       - HOST=0.0.0.0
       - PORT=5000
-      - REDIS_URL=redis://redis:6380/0
+      - REDIS_URL=redis://redis:6379/0
       - DATABASE_URL=postgresql://rps_user:rps_password@postgres:5432/rps_db
       - SQLALCHEMY_DATABASE_URI=postgresql://rps_user:rps_password@postgres:5432/rps_db
       - SQLALCHEMY_TRACK_MODIFICATIONS=false
