@@ -31,6 +31,7 @@ class Match:
         self.stats = MatchStats()
         self.result = None
         self.rematch_ready = set()
+        self.session_ids = {creator_id}  # Track all session IDs involved in the match
 
     def to_dict(self):
         return {
