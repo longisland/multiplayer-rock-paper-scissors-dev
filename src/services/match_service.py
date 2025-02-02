@@ -75,6 +75,13 @@ class MatchService:
         if match.joiner not in match.moves:
             match.moves[match.joiner] = random.choice(['rock', 'paper', 'scissors'])
 
+        # Calculate and set match result since both moves are now made
+        from .game_service import GameService
+        result_data = GameService.calculate_match_result(match, self.players)
+        
+        # Cancel the timer since we've handled the timeout
+        match.cancel_timer()
+        
         return match
 
     def create_rematch(self, old_match_id):
