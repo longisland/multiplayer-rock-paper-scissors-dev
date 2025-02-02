@@ -68,10 +68,12 @@ class GameService:
             players[match.creator].record_win()
             players[match.joiner].record_loss()
             
-            # Winner gets both stakes
-            creator_user.coins += (match.stake * 2)
+            # Winner gets their stake back plus opponent's stake
+            creator_user.coins += match.stake  # Get own stake back
+            creator_user.coins += match.stake  # Get opponent's stake
             creator_user.total_coins_won += match.stake
             joiner_user.total_coins_lost += match.stake
+            logger.info(f"Creator won: +{match.stake} (own stake) +{match.stake} (opponent stake)")
             
             # Update stats
             creator_user.wins += 1
@@ -88,10 +90,12 @@ class GameService:
             players[match.joiner].record_win()
             players[match.creator].record_loss()
             
-            # Winner gets both stakes
-            joiner_user.coins += (match.stake * 2)
+            # Winner gets their stake back plus opponent's stake
+            joiner_user.coins += match.stake  # Get own stake back
+            joiner_user.coins += match.stake  # Get opponent's stake
             joiner_user.total_coins_won += match.stake
             creator_user.total_coins_lost += match.stake
+            logger.info(f"Joiner won: +{match.stake} (own stake) +{match.stake} (opponent stake)")
             
             # Update stats
             joiner_user.wins += 1
