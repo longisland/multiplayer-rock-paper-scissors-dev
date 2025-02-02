@@ -81,9 +81,12 @@ class Match:
         return len(self.moves) == 2
 
     def set_result(self, result_data):
+        if self.status == 'finished':
+            return False  # Already processed
         self.result = result_data
         self.status = 'finished'
         self.rematch_ready = set()  # Reset rematch_ready when match finishes
+        return True
 
     def add_rematch_ready(self, player_id):
         """Add a player to the rematch_ready set and return their role."""

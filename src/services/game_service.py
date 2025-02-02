@@ -21,17 +21,17 @@ class GameService:
 
     @staticmethod
     def calculate_match_result(match, players):
+        from ..utils.logger import setup_logger
+        logger = setup_logger()
+
         creator_move = match.moves[match.creator]
         joiner_move = match.moves[match.joiner]
         result = GameService.calculate_winner(creator_move, joiner_move)
 
-        # Update match stats
-        match.stats.rounds += 1
-        
         # Get users from database
         creator_user = User.query.filter_by(username=match.creator).first()
         joiner_user = User.query.filter_by(username=match.joiner).first()
-        
+
         # Create game history record
         game_history = GameHistory(
             player1_id=creator_user.id,
@@ -42,58 +42,90 @@ class GameService:
         )
         
         if result == 'draw':
+            # In case of draw, return stakes to both players
+            logger.info("Match result: Draw")
             match.stats.draws += 1
             players[match.creator].record_draw()
             players[match.joiner].record_draw()
+            
+            # Log state before return
+            logger.info(f"Before draw return - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
+            
+            # Return stakes
+            creator_user.coins += match.stake
+            joiner_user.coins += match.stake
+            
+            logger.info(f"After draw return - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins} (each +{match.stake})")
+            
+            # Update stats
             creator_user.draws += 1
             creator_user.total_games += 1
             joiner_user.draws += 1
             joiner_user.total_games += 1
+
         elif result == 'player1':
+            # Creator wins
+            logger.info("Match result: Creator wins")
             match.stats.creator_wins += 1
             players[match.creator].record_win()
             players[match.joiner].record_loss()
             
-            # Update coins in one place and sync
-            creator_user.coins += match.stake
-            joiner_user.coins -= match.stake
-            players[match.creator].coins = creator_user.coins
-            players[match.joiner].coins = joiner_user.coins
+            # Log state before win
+            logger.info(f"Before win payout - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
+            
+            # Winner gets their stake back plus opponent's stake
+            creator_user.coins += match.stake  # Get own stake back
+            logger.info(f"After stake return - Creator coins: {creator_user.coins} (+{match.stake})")
+            
+            creator_user.coins += match.stake  # Get opponent's stake
+            logger.info(f"After win payout - Creator coins: {creator_user.coins} (+{match.stake})")
+            
+            creator_user.total_coins_won += match.stake
+            joiner_user.total_coins_lost += match.stake
             
             # Update stats
-            players[match.creator].stats.total_coins_won += match.stake
-            players[match.joiner].stats.total_coins_lost += match.stake
-            
             creator_user.wins += 1
             creator_user.total_games += 1
             joiner_user.losses += 1
             joiner_user.total_games += 1
+            
             game_history.winner_id = creator_user.id
+
         else:
+            # Joiner wins
+            logger.info("Match result: Joiner wins")
             match.stats.joiner_wins += 1
             players[match.joiner].record_win()
             players[match.creator].record_loss()
             
-            # Update coins in one place and sync
-            joiner_user.coins += match.stake
-            creator_user.coins -= match.stake
-            players[match.joiner].coins = joiner_user.coins
-            players[match.creator].coins = creator_user.coins
+            # Log state before win
+            logger.info(f"Before win payout - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
+            
+            # Winner gets their stake back plus opponent's stake
+            joiner_user.coins += match.stake  # Get own stake back
+            logger.info(f"After stake return - Joiner coins: {joiner_user.coins} (+{match.stake})")
+            
+            joiner_user.coins += match.stake  # Get opponent's stake
+            logger.info(f"After win payout - Joiner coins: {joiner_user.coins} (+{match.stake})")
+            
+            joiner_user.total_coins_won += match.stake
+            creator_user.total_coins_lost += match.stake
             
             # Update stats
-            players[match.joiner].stats.total_coins_won += match.stake
-            players[match.creator].stats.total_coins_lost += match.stake
-            
             joiner_user.wins += 1
             joiner_user.total_games += 1
             creator_user.losses += 1
             creator_user.total_games += 1
-            game_history.winner_id = joiner_user.id
             
-        # Save changes to database
-        db.session.add(game_history)
-        db.session.commit()
+            game_history.winner_id = joiner_user.id
 
+        # Sync in-memory state
+        players[match.creator].coins = creator_user.coins
+        players[match.joiner].coins = joiner_user.coins
+
+        # Log final state
+        logger.info(f"After result - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
+            
         # Prepare result data
         result_data = {
             'winner': result,
@@ -107,5 +139,13 @@ class GameService:
                           players[match.joiner].has_enough_coins(match.stake))
         }
 
-        match.set_result(result_data)
+        # Only save if this is the first time processing the result
+        if match.set_result(result_data):
+            # Save changes to database
+            db.session.add(game_history)
+            db.session.commit()
+            logger.info("Match result saved to database")
+        else:
+            logger.info("Match result already processed, skipping database update")
+
         return result_data

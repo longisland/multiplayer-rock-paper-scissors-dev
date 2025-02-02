@@ -15,6 +15,8 @@ class User(db.Model):
     wins = db.Column(db.Integer, default=0)
     losses = db.Column(db.Integer, default=0)
     draws = db.Column(db.Integer, default=0)
+    total_coins_won = db.Column(db.Integer, default=0)
+    total_coins_lost = db.Column(db.Integer, default=0)
 
     def to_dict(self):
         return {
@@ -24,7 +26,9 @@ class User(db.Model):
             'total_games': self.total_games,
             'wins': self.wins,
             'losses': self.losses,
-            'draws': self.draws
+            'draws': self.draws,
+            'total_coins_won': self.total_coins_won,
+            'total_coins_lost': self.total_coins_lost
         }
 
 class GameHistory(db.Model):

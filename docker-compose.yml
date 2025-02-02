@@ -10,7 +10,7 @@ services:
       - FLASK_ENV=production
       - HOST=0.0.0.0
       - PORT=5000
-      - REDIS_URL=redis://redis:6380/0
+      - REDIS_URL=redis://redis:6379/0
       - DATABASE_URL=postgresql://rps_user:rps_password@postgres:5432/rps_db
       - SQLALCHEMY_DATABASE_URI=postgresql://rps_user:rps_password@postgres:5432/rps_db
       - SQLALCHEMY_TRACK_MODIFICATIONS=false
@@ -69,7 +69,12 @@ services:
       -c max_connections=200
       -c checkpoint_timeout=600
       -c synchronous_commit=off
+      -c archive_mode=on
+      -c archive_command='test ! -f /backup/%f && cp %p /backup/%f'
+      -c archive_timeout=60
 
 volumes:
   redis_data:
+    name: rps-game_redis_data
   postgres_data:
+    name: rps-game_postgres_data
