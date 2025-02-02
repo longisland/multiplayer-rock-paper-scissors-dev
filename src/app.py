@@ -18,7 +18,7 @@ app.config['DEBUG'] = Config.DEBUG
 # Configure Flask-SocketIO
 socketio = SocketIO(
     app,
-    async_mode='threading',
+    async_mode='gevent',
     cors_allowed_origins='*',
     logger=True,
     engineio_logger=True,
