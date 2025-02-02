@@ -131,14 +131,32 @@ def join_match():
             return jsonify({'error': 'Match ID required'}), 400
 
         match = match_service.get_match(match_id)
-        if not match or match.status != 'waiting':
-            logger.error(f"Invalid match or not waiting: {match_id}")
+        if not match:
+            logger.error(f"Match not found: {match_id}")
+            return jsonify({'error': 'Match not found'}), 400
+
+        if match.status != 'waiting':
+            logger.error(f"Match not in waiting state: {match_id} (status: {match.status})")
             return jsonify({'error': 'Match not available'}), 400
+
+        if match.joiner is not None:
+            logger.error(f"Match already has a joiner: {match_id}")
+            return jsonify({'error': 'Match already has a joiner'}), 400
+
+        if match.creator == session_id:
+            logger.error(f"Cannot join own match: {match_id}")
+            return jsonify({'error': 'Cannot join own match'}), 400
 
         player = match_service.get_player(session_id)
         if not player.has_enough_coins(match.stake):
             logger.error(f"Insufficient coins. Has: {player.coins}, Needs: {match.stake}")
             return jsonify({'error': 'Insufficient coins'}), 400
+
+        # Check if creator still has enough coins
+        creator = match_service.get_player(match.creator)
+        if not creator.has_enough_coins(match.stake):
+            logger.error(f"Creator has insufficient coins. Has: {creator.coins}, Needs: {match.stake}")
+            return jsonify({'error': 'Creator has insufficient coins'}), 400
 
         # Clear any existing match
         if player.current_match and player.current_match != match_id:
