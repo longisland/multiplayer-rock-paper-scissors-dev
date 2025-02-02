@@ -327,13 +327,6 @@ def on_rematch_accepted(data):
 
                 logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
 
-                # Join both players to the new match room
-                try:
-                    join_room(new_match.id, sid=match.creator)
-                    join_room(new_match.id, sid=match.joiner)
-                except Exception as e:
-                    logger.warning(f"Failed to join match room: {e}")
-
                 # Signal ready for both players
                 new_match.creator_ready = True
                 new_match.joiner_ready = True

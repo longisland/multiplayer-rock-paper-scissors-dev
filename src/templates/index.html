@@ -577,69 +577,69 @@
 
             socket.on('match_started', (data) => {
                 console.log('Match started event received:', data);
-                if (data.match_id === currentMatchId) {
-                    // Reset game state
-                    matches[currentMatchId] = {
-                        status: 'playing',
-                        start_time: data.start_time,
-                        moves: {}  // Reset moves
-                    };
-                    
-                    // Show play screen with animation
-                    const playScreen = document.getElementById('playScreen');
-                    playScreen.classList.add('animate__animated', 'animate__fadeIn');
-                    showScreen('playScreen');
-                    
-                    // Reset timer
-                    const timerElement = document.getElementById('moveTimer');
-                    const timerRing = document.querySelector('.timer-ring');
-                    if (timerElement) {
-                        timerElement.textContent = '10';
-                        timerElement.classList.remove('animate__headShake', 'animate__bounceOut');
-                        timerElement.style.color = 'var(--warning-color)';
+                currentMatchId = data.match_id;  // Always update current match ID
+
+                // Reset game state
+                matches[currentMatchId] = {
+                    status: 'playing',
+                    start_time: data.start_time,
+                    moves: {}  // Reset moves
+                };
+                
+                // Show play screen with animation
+                const playScreen = document.getElementById('playScreen');
+                playScreen.classList.add('animate__animated', 'animate__fadeIn');
+                showScreen('playScreen');
+                
+                // Reset timer
+                const timerElement = document.getElementById('moveTimer');
+                const timerRing = document.querySelector('.timer-ring');
+                if (timerElement) {
+                    timerElement.textContent = '10';
+                    timerElement.classList.remove('animate__headShake', 'animate__bounceOut');
+                    timerElement.style.color = 'var(--warning-color)';
+                }
+                if (timerRing) {
+                    timerRing.style.setProperty('--progress', '100%');
+                }
+                
+                // Reset and show move buttons with animation
+                document.querySelectorAll('.move-btn').forEach((btn, index) => {
+                    btn.disabled = false;
+                    btn.style.visibility = 'visible';
+                    btn.classList.remove('animate__fadeOut');
+                    setTimeout(() => {
+                        btn.classList.add('animate__bounceIn');
+                    }, index * 200);
+                });
+                
+                // Reset status messages with animation
+                const messages = [
+                    document.getElementById('playerMoveStatus'),
+                    document.getElementById('opponentMoveStatus')
+                ];
+                messages.forEach(msg => {
+                    if (msg) {
+                        msg.classList.add('animate__animated', 'animate__fadeIn');
+                        msg.textContent = msg.id === 'playerMoveStatus' ? 
+                            'Waiting for your move...' : 'Waiting for opponent to move...';
                     }
-                    if (timerRing) {
-                        timerRing.style.setProperty('--progress', '100%');
-                    }
-                    
-                    // Reset and show move buttons with animation
-                    document.querySelectorAll('.move-btn').forEach((btn, index) => {
-                        btn.disabled = false;
-                        btn.style.visibility = 'visible';
-                        btn.classList.remove('animate__fadeOut');
-                        setTimeout(() => {
-                            btn.classList.add('animate__bounceIn');
-                        }, index * 200);
-                    });
-                    
-                    // Reset status messages with animation
-                    const messages = [
-                        document.getElementById('playerMoveStatus'),
-                        document.getElementById('opponentMoveStatus')
-                    ];
-                    messages.forEach(msg => {
-                        if (msg) {
-                            msg.classList.add('animate__animated', 'animate__fadeIn');
-                            msg.textContent = msg.id === 'playerMoveStatus' ? 
-                                'Waiting for your move...' : 'Waiting for opponent to move...';
-                        }
-                    });
-                    
-                    // Start timer
-                    stopMoveTimer();  // Stop any existing timer
-                    startMoveTimer();
-                    
-                    // If this is a rematch, show a message
-                    if (data.rematch) {
-                        const notification = document.createElement('div');
-                        notification.className = 'notification animate__animated animate__fadeIn';
-                        notification.textContent = 'Rematch started!';
-                        document.querySelector('.container').appendChild(notification);
-                        setTimeout(() => {
-                            notification.classList.add('animate__fadeOut');
-                            setTimeout(() => notification.remove(), 1000);
-                        }, 2000);
-                    }
+                });
+                
+                // Start timer
+                stopMoveTimer();  // Stop any existing timer
+                startMoveTimer();
+                
+                // If this is a rematch, show a message
+                if (data.rematch) {
+                    const notification = document.createElement('div');
+                    notification.className = 'notification animate__animated animate__fadeIn';
+                    notification.textContent = 'Rematch started!';
+                    document.querySelector('.container').appendChild(notification);
+                    setTimeout(() => {
+                        notification.classList.add('animate__fadeOut');
+                        setTimeout(() => notification.remove(), 1000);
+                    }, 2000);
                 }
             });
 
