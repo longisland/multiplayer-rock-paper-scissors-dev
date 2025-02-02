@@ -27,5 +27,5 @@ ENV PORT=5000
 # Expose port
 EXPOSE 5000
 
-# Run the application
-CMD ["python", "-m", "src.app"]
+# Run the application with gunicorn and eventlet worker
+CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "--bind", "0.0.0.0:5000", "src.app:app"]
