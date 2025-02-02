@@ -581,7 +581,8 @@
                     // Reset game state
                     matches[currentMatchId] = {
                         status: 'playing',
-                        start_time: data.start_time
+                        start_time: data.start_time,
+                        moves: {}  // Reset moves
                     };
                     
                     // Show play screen with animation
@@ -589,8 +590,17 @@
                     playScreen.classList.add('animate__animated', 'animate__fadeIn');
                     showScreen('playScreen');
                     
-                    // Start timer
-                    startMoveTimer();
+                    // Reset timer
+                    const timerElement = document.getElementById('moveTimer');
+                    const timerRing = document.querySelector('.timer-ring');
+                    if (timerElement) {
+                        timerElement.textContent = '10';
+                        timerElement.classList.remove('animate__headShake', 'animate__bounceOut');
+                        timerElement.style.color = 'var(--warning-color)';
+                    }
+                    if (timerRing) {
+                        timerRing.style.setProperty('--progress', '100%');
+                    }
                     
                     // Reset and show move buttons with animation
                     document.querySelectorAll('.move-btn').forEach((btn, index) => {
@@ -614,6 +624,10 @@
                                 'Waiting for your move...' : 'Waiting for opponent to move...';
                         }
                     });
+                    
+                    // Start timer
+                    stopMoveTimer();  // Stop any existing timer
+                    startMoveTimer();
                     
                     // If this is a rematch, show a message
                     if (data.rematch) {
@@ -866,9 +880,37 @@
                     rematchStatus.textContent = '';
                     rematchStatus.classList.remove('animate__fadeOut');
                 }
+
+                // Reset move buttons
+                document.querySelectorAll('.move-btn').forEach(btn => {
+                    btn.disabled = false;
+                    btn.classList.remove('animate__fadeOut');
+                });
+
+                // Reset move status
+                const playerMoveStatus = document.getElementById('playerMoveStatus');
+                const opponentMoveStatus = document.getElementById('opponentMoveStatus');
+                if (playerMoveStatus) {
+                    playerMoveStatus.textContent = 'Waiting for your move...';
+                }
+                if (opponentMoveStatus) {
+                    opponentMoveStatus.textContent = 'Waiting for opponent to move...';
+                }
+
+                // Reset timer
+                const timerElement = document.getElementById('moveTimer');
+                const timerRing = document.querySelector('.timer-ring');
+                if (timerElement) {
+                    timerElement.textContent = '10';
+                    timerElement.classList.remove('animate__headShake', 'animate__bounceOut');
+                    timerElement.style.color = 'var(--warning-color)';
+                }
+                if (timerRing) {
+                    timerRing.style.setProperty('--progress', '100%');
+                }
                 
-                // Show waiting screen
-                showScreen('waitingScreen');
+                // Show play screen
+                showScreen('playScreen');
                 
                 // Join the match room
                 socket.emit('join_match_room', { match_id: data.match_id });

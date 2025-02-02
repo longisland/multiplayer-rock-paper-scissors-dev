@@ -68,6 +68,8 @@ class Match:
         self.status = 'playing'
         self.start_time = time.time()
         self.moves = {}
+        self.timer = None  # Reset timer
+        self.result = None  # Reset result
 
     def make_move(self, player_id, move):
         if player_id not in [self.creator, self.joiner]:

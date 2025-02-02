@@ -343,7 +343,12 @@ def on_rematch_accepted(data):
                 socketio.emit('match_started', {
                     'match_id': new_match.id,
                     'start_time': new_match.start_time
-                }, room=new_match.id)
+                }, room=new_match.creator)
+
+                socketio.emit('match_started', {
+                    'match_id': new_match.id,
+                    'start_time': new_match.start_time
+                }, room=new_match.joiner)
 
                 # Cleanup old match after everything is set up
                 match_service.cleanup_match(match_id)
