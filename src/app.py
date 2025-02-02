@@ -327,6 +327,9 @@ def on_rematch_accepted(data):
                 }, room=new_match.joiner)
 
                 logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
+
+                # Cleanup old match after notifying players
+                match_service.cleanup_match(match_id)
     except Exception as e:
         logger.exception("Error in rematch_accepted handler")
 

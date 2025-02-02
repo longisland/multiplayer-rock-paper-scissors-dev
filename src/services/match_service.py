@@ -97,9 +97,6 @@ class MatchService:
         new_match.start_match()
         new_match.start_timer(Config.MATCH_TIMEOUT, self.handle_match_timeout)
 
-        # Cleanup old match
-        self.cleanup_match(old_match_id)
-
         return new_match
 
     def cleanup_match(self, match_id):
