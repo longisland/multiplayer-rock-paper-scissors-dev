@@ -28,5 +28,5 @@ ENV PORT=5000
 # Expose port
 EXPOSE 5000
 
-# Run the application with gunicorn and sync worker
-CMD ["gunicorn", "--worker-class", "sync", "-w", "1", "--bind", "0.0.0.0:5000", "src.app:app"]
+# Run the application directly with Flask
+CMD ["python", "-m", "src.app"]
