@@ -160,7 +160,10 @@
             upgrade: false,
             reconnection: true,
             reconnectionAttempts: 5,
-            reconnectionDelay: 1000
+            reconnectionDelay: 1000,
+            path: '/socket.io',
+            forceNew: true,  // Force a new connection
+            autoConnect: true  // Auto-connect on creation
         });
 
         socket.on('connect', () => {
@@ -259,12 +262,21 @@
                     if (data.current_match.status === 'waiting') {
                         if (!document.getElementById('waitingScreen').classList.contains('active')) {
                             showScreen('waitingScreen');
+                            stopMoveTimer();  // Stop any running timers
                         }
                     } else if (data.current_match.status === 'playing') {
                         if (!document.getElementById('playScreen').classList.contains('active') &&
                             !document.getElementById('resultScreen').classList.contains('active')) {
                             showScreen('playScreen');
                             startMoveTimer();  // Start the move timer when entering play screen
+                            
+                            // Update move status
+                            const playerMoveStatus = document.getElementById('playerMoveStatus');
+                            const opponentMoveStatus = document.getElementById('opponentMoveStatus');
+                            if (playerMoveStatus && opponentMoveStatus) {
+                                playerMoveStatus.textContent = 'Waiting for your move...';
+                                opponentMoveStatus.textContent = 'Waiting for opponent to move...';
+                            }
                         }
                     }
                 } else {
@@ -272,6 +284,16 @@
                     if (!document.getElementById('lobbyScreen').classList.contains('active')) {
                         showScreen('lobbyScreen');
                         stopMoveTimer();  // Stop any running timers
+                        
+                        // Reset match-related elements
+                        const createMatchForm = document.getElementById('createMatchForm');
+                        const stakeInput = document.getElementById('stakeInput');
+                        if (createMatchForm) {
+                            createMatchForm.style.display = 'none';
+                        }
+                        if (stakeInput) {
+                            stakeInput.value = '';
+                        }
                     }
                 }
             } catch (error) {
