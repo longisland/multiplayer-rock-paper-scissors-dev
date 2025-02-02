@@ -110,9 +110,29 @@ def create_match():
         if player.current_match:
             match_service.cleanup_match(player.current_match)
 
-        match = match_service.create_match(session_id, stake)
+        result = match_service.create_match(session_id, stake)
+        if 'error' in result:
+            logger.error(f"Error creating match: {result['error']}")
+            return jsonify({'error': result['error']}), 400
+
+        match = result['match']
         logger.info(f"Match created: {match.id} by {session_id}")
-        return jsonify({'match_id': match.id})
+        
+        # If auto-matched, notify both players
+        if result.get('auto_matched'):
+            socketio.emit('match_joined', {
+                'match_id': match.id,
+                'stake': match.stake
+            }, room=match.creator)
+            socketio.emit('match_joined', {
+                'match_id': match.id,
+                'stake': match.stake
+            }, room=match.joiner)
+            
+        return jsonify({
+            'match_id': match.id,
+            'auto_matched': result.get('auto_matched', False)
+        })
     except Exception as e:
         logger.exception("Error creating match")
         return jsonify({'error': 'Internal server error'}), 500
@@ -144,12 +164,24 @@ def join_match():
         if player.current_match and player.current_match != match_id:
             match_service.cleanup_match(player.current_match)
 
-        match = match_service.join_match(match_id, session_id)
-        if not match:
-            logger.error(f"Failed to join match: {match_id}")
-            return jsonify({'error': 'Failed to join match'}), 400
+        result = match_service.join_match(match_id, session_id)
+        if 'error' in result:
+            logger.error(f"Failed to join match: {result['error']}")
+            return jsonify({'error': result['error']}), 400
 
+        match = result['match']
         logger.info(f"Player {session_id} joined match {match_id}")
+
+        # Notify both players
+        socketio.emit('match_joined', {
+            'match_id': match.id,
+            'stake': match.stake
+        }, room=match.creator)
+        socketio.emit('match_joined', {
+            'match_id': match.id,
+            'stake': match.stake
+        }, room=match.joiner)
+
         return jsonify({'success': True})
     except Exception as e:
         logger.exception("Error joining match")
@@ -325,47 +357,47 @@ def on_rematch_accepted(data):
 
         # Only proceed if both players have accepted
         if len(match.rematch_ready) == 2:
-            # Create new match with same stake but keep original creator
-            new_match = match_service.create_match(match.creator, match.stake)
-            if new_match:
-                # Update joiner
-                match_service.join_match(new_match.id, match.joiner)
+            # Create rematch
+            result = match_service.create_rematch(match_id)
+            if 'error' in result:
+                logger.error(f"Failed to create rematch: {result['error']}")
+                socketio.emit('rematch_declined', {
+                    'error': result['error']
+                }, room=match_id)
+                return
 
-                # Notify both players
-                socketio.emit('rematch_started', {
-                    'match_id': new_match.id,
-                    'is_creator': True,
-                    'stake': new_match.stake
-                }, room=match.creator)
+            new_match = result['match']
+            logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
 
-                socketio.emit('rematch_started', {
-                    'match_id': new_match.id,
-                    'is_creator': False,
-                    'stake': new_match.stake
-                }, room=match.joiner)
+            # Notify both players
+            socketio.emit('rematch_started', {
+                'match_id': new_match.id,
+                'is_creator': True,
+                'stake': new_match.stake
+            }, room=match.creator)
 
-                logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
+            socketio.emit('rematch_started', {
+                'match_id': new_match.id,
+                'is_creator': False,
+                'stake': new_match.stake
+            }, room=match.joiner)
 
-                # Join both players to the new match room
-                join_room(new_match.id, sid=match.creator)
-                join_room(new_match.id, sid=match.joiner)
+            # Join both players to the new match room
+            join_room(new_match.id, sid=match.creator)
+            join_room(new_match.id, sid=match.joiner)
 
-                # Signal ready for both players
-                new_match.creator_ready = True
-                new_match.joiner_ready = True
+            # Start the match
+            new_match.start_match()
+            new_match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
 
-                # Start the match
-                new_match.start_match()
-                new_match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
+            # Notify both players that the match has started
+            socketio.emit('match_started', {
+                'match_id': new_match.id,
+                'start_time': new_match.start_time
+            }, room=new_match.id)
 
-                # Notify both players that the match has started
-                socketio.emit('match_started', {
-                    'match_id': new_match.id,
-                    'start_time': new_match.start_time
-                }, room=new_match.id)
-
-                # Cleanup old match after everything is set up
-                match_service.cleanup_match(match_id)
+            # Cleanup old match after everything is set up
+            match_service.cleanup_match(match_id)
     except Exception as e:
         logger.exception("Error in rematch_accepted handler")
 

@@ -29,23 +29,44 @@ class MatchService:
         return self.players[session_id]
 
     def create_match(self, creator_id, stake):
+        # Check if creator has enough coins
+        if not self.players[creator_id].has_enough_coins(stake):
+            return {'error': 'Not enough coins to create match'}
+
+        # Check for existing match with same stake
+        for mid, match in self.matches.items():
+            if (match.status == 'waiting' and 
+                match.stake == stake and 
+                match.creator != creator_id and
+                self.players[match.creator].has_enough_coins(stake)):
+                # Auto-join existing match
+                result = self.join_match(mid, creator_id)
+                if 'match' in result:
+                    return {'match': result['match'], 'auto_matched': True}
+                continue
+
+        # Create new match if no auto-match found
         match_id = secrets.token_hex(4)
         match = Match(match_id, creator_id, stake)
         self.matches[match_id] = match
         self.players[creator_id].current_match = match_id
-        return match
+        return {'match': match, 'auto_matched': False}
 
     def join_match(self, match_id, joiner_id):
         if match_id not in self.matches:
-            return None
+            return {'error': 'Match not found'}
 
         match = self.matches[match_id]
         if match.status != 'waiting' or match.joiner is not None:
-            return None
+            return {'error': 'Game is no longer available'}
+
+        # Check if player has enough coins
+        if not self.players[joiner_id].has_enough_coins(match.stake):
+            return {'error': 'Not enough coins to join the match'}
 
         match.joiner = joiner_id
         self.players[joiner_id].current_match = match_id
-        return match
+        return {'match': match}
 
     def get_match(self, match_id):
         return self.matches.get(match_id)
@@ -80,15 +101,17 @@ class MatchService:
     def create_rematch(self, old_match_id):
         old_match = self.matches.get(old_match_id)
         if not old_match:
-            return None
+            return {'error': 'Original match not found'}
 
         # Check if both players have enough coins
-        if not old_match.can_rematch(self.players):
-            return None
+        if not self.players[old_match.creator].has_enough_coins(old_match.stake):
+            return {'error': f'Player {old_match.creator} does not have enough coins for rematch'}
+        if not self.players[old_match.joiner].has_enough_coins(old_match.stake):
+            return {'error': f'Player {old_match.joiner} does not have enough coins for rematch'}
 
         # Check if both players have accepted rematch
         if not old_match.is_rematch_ready():
-            return None
+            return {'error': 'Both players must accept rematch'}
 
         # Randomly choose new creator and joiner
         new_creator = random.choice([old_match.creator, old_match.joiner])
@@ -111,7 +134,7 @@ class MatchService:
         new_match.start_match()
         new_match.start_timer(Config.MATCH_TIMEOUT, self.handle_match_timeout)
 
-        return new_match
+        return {'match': new_match}
 
     def cleanup_match(self, match_id):
         if match_id in self.matches:
