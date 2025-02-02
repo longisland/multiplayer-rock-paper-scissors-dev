@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_session import Session
 import secrets
 
 from .config import Config
@@ -14,6 +15,10 @@ logger = setup_logger()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = Config.SECRET_KEY
 app.config['DEBUG'] = Config.DEBUG
+app.config['SESSION_TYPE'] = 'filesystem'
+
+# Initialize Flask-Session
+Session(app)
 
 # Configure Flask-SocketIO
 socketio = SocketIO(
@@ -25,7 +30,7 @@ socketio = SocketIO(
     ping_timeout=60,
     ping_interval=25,
     max_http_buffer_size=1000000,
-    manage_session=False  # Let Flask manage the sessions
+    manage_session=True  # Let SocketIO manage the sessions
 )
 
 # Initialize services
