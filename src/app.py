@@ -295,35 +295,41 @@ def on_rematch_accepted(data):
             }, room=match_id)
             return
 
-        # Add player to rematch_ready and get their role
-        player_role = match.add_rematch_ready(session_id)
-        if not player_role:
-            logger.error(f"Player {session_id} not part of match {match_id}")
-            return
+        # Initialize rematch_ready if not exists
+        if not hasattr(match, 'rematch_ready'):
+            match.rematch_ready = set()
 
-        # Get the other player's ID and emit event to their room
-        other_player_id = match.get_other_player(session_id)
-        if other_player_id:
-            socketio.emit('rematch_accepted_by_player', {
-                'player': player_role
-            }, room=other_player_id)
+        # Add this player to ready set
+        match.rematch_ready.add(session_id)
 
-        # If both players are ready, create rematch
-        if match.is_rematch_ready():
-            new_match = match_service.create_rematch(match_id)
+        # Get player role and notify other player
+        player_role = 'creator' if session_id == match.creator else 'joiner'
+        other_player_id = match.joiner if session_id == match.creator else match.creator
+        
+        socketio.emit('rematch_accepted_by_player', {
+            'player': player_role
+        }, room=other_player_id)
+
+        # Only proceed if both players have accepted
+        if len(match.rematch_ready) == 2:
+            # Create new match with same stake but keep original creator
+            new_match = match_service.create_match(match.creator, match.stake)
             if new_match:
-                # Notify players about the new match
+                # Update joiner
+                match_service.join_match(new_match.id, match.joiner)
+
+                # Notify both players
                 socketio.emit('rematch_started', {
                     'match_id': new_match.id,
                     'is_creator': True,
                     'stake': new_match.stake
-                }, room=new_match.creator)
+                }, room=match.creator)
 
                 socketio.emit('rematch_started', {
                     'match_id': new_match.id,
                     'is_creator': False,
                     'stake': new_match.stake
-                }, room=new_match.joiner)
+                }, room=match.joiner)
 
                 logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
 
