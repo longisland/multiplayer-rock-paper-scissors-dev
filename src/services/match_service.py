@@ -31,6 +31,7 @@ class MatchService:
 
         match.joiner = joiner_id
         match.session_ids.add(joiner_id)  # Add joiner's session ID
+        match.player_sessions[joiner_id] = joiner_id  # Map joiner ID to session ID
         self.players[joiner_id].current_match = match_id
         return match
 
@@ -93,10 +94,11 @@ class MatchService:
         new_match.rematch_ready = set()  # Reset rematch state
         new_match.start_time = None  # Reset start time
         new_match.session_ids = old_match.session_ids.copy()  # Copy session IDs from old match
+        new_match.player_sessions = old_match.player_sessions.copy()  # Copy player-session mapping
 
         # Update match and player states
         self.matches[match_id] = new_match
-        for session_id in new_match.session_ids:
+        for player_id, session_id in new_match.player_sessions.items():
             if session_id in self.players:
                 self.players[session_id].current_match = match_id
 
