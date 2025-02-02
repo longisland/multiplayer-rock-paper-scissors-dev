@@ -2,7 +2,9 @@ import random
 import secrets
 from ..models.match import Match
 from ..models.player import Player
+from ..models.database import db, User, GameHistory
 from ..config import Config
+from datetime import datetime
 
 class MatchService:
     def __init__(self):
@@ -11,7 +13,19 @@ class MatchService:
 
     def get_player(self, session_id):
         if session_id not in self.players:
-            self.players[session_id] = Player(session_id, Config.INITIAL_COINS)
+            # Check if user exists in database
+            user = User.query.filter_by(username=session_id).first()
+            if not user:
+                user = User(username=session_id, coins=Config.INITIAL_COINS)
+                db.session.add(user)
+                db.session.commit()
+            
+            # Create in-memory player
+            self.players[session_id] = Player(session_id, user.coins)
+            self.players[session_id].stats.wins = user.wins
+            self.players[session_id].stats.losses = user.losses
+            self.players[session_id].stats.draws = user.draws
+            self.players[session_id].stats.total_games = user.total_games
         return self.players[session_id]
 
     def create_match(self, creator_id, stake):

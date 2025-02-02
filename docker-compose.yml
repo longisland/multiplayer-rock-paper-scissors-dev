@@ -11,8 +11,10 @@ services:
       - HOST=0.0.0.0
       - PORT=5000
       - REDIS_URL=redis://redis:6380/0
+      - DATABASE_URL=postgresql://rps_user:rps_password@postgres:5432/rps_db
     depends_on:
       - redis
+      - postgres
     restart: unless-stopped
 
   redis:
@@ -23,5 +25,18 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=rps_user
+      - POSTGRES_PASSWORD=rps_password
+      - POSTGRES_DB=rps_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
 volumes:
   redis_data:
+  postgres_data:

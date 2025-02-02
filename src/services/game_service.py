@@ -1,4 +1,6 @@
 import random
+from ..models.database import db, User, GameHistory
+from datetime import datetime
 
 class GameService:
     @staticmethod
@@ -25,22 +27,58 @@ class GameService:
 
         # Update match stats
         match.stats.rounds += 1
+        
+        # Get users from database
+        creator_user = User.query.filter_by(username=match.creator).first()
+        joiner_user = User.query.filter_by(username=match.joiner).first()
+        
+        # Create game history record
+        game_history = GameHistory(
+            player1_id=creator_user.id,
+            player2_id=joiner_user.id,
+            player1_choice=creator_move,
+            player2_choice=joiner_move,
+            bet_amount=match.stake
+        )
+        
         if result == 'draw':
             match.stats.draws += 1
             players[match.creator].record_draw()
             players[match.joiner].record_draw()
+            creator_user.draws += 1
+            creator_user.total_games += 1
+            joiner_user.draws += 1
+            joiner_user.total_games += 1
         elif result == 'player1':
             match.stats.creator_wins += 1
             players[match.creator].record_win()
             players[match.creator].add_coins(match.stake)
             players[match.joiner].record_loss()
             players[match.joiner].add_coins(-match.stake)
+            creator_user.wins += 1
+            creator_user.coins += match.stake
+            creator_user.total_games += 1
+            joiner_user.losses += 1
+            joiner_user.coins -= match.stake
+            joiner_user.total_games += 1
+            game_history.winner_id = creator_user.id
         else:
             match.stats.joiner_wins += 1
             players[match.joiner].record_win()
             players[match.joiner].add_coins(match.stake)
             players[match.creator].record_loss()
             players[match.creator].add_coins(-match.stake)
+            joiner_user.wins += 1
+            joiner_user.coins += match.stake
+            joiner_user.total_games += 1
+            creator_user.losses += 1
+            creator_user.coins -= match.stake
+            creator_user.total_games += 1
+            game_history.winner_id = joiner_user.id
+            
+        # Save changes to database
+        db.session.add(game_history)
+        db.session.commit()
 
         # Prepare result data
         result_data = {

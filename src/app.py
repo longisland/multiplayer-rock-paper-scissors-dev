@@ -1,19 +1,25 @@
 from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import secrets
+from datetime import datetime
 
 from .config import Config
 from .services.match_service import MatchService
 from .services.game_service import GameService
 from .utils.logger import setup_logger
+from .models.database import db, User, GameHistory
 
 # Configure logging
 logger = setup_logger()
 
 # Initialize Flask app
 app = Flask(__name__)
-app.config['SECRET_KEY'] = Config.SECRET_KEY
-app.config['DEBUG'] = Config.DEBUG
+app.config.from_object(Config)
+
+# Initialize database
+db.init_app(app)
+with app.app_context():
+    db.create_all()
 
 # Configure Flask-SocketIO
 socketio = SocketIO(
