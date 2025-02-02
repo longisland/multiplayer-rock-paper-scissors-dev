@@ -22,6 +22,9 @@ app.config['SESSION_REDIS'] = redis.from_url('redis://redis:6379/0')
 # Initialize Flask-Session
 Session(app)
 
+# Configure Redis
+redis_client = redis.from_url('redis://redis:6379/0')
+
 # Configure Flask-SocketIO
 socketio = SocketIO(
     app,
@@ -32,7 +35,8 @@ socketio = SocketIO(
     ping_timeout=60,
     ping_interval=25,
     max_http_buffer_size=1000000,
-    manage_session=True  # Let SocketIO manage the sessions
+    manage_session=True,  # Let SocketIO manage the sessions
+    message_queue='redis://redis:6379/0'  # Use Redis for message queue
 )
 
 # Initialize services
