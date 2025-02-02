@@ -31,14 +31,15 @@ with app.app_context():
 # Configure Flask-SocketIO
 socketio = SocketIO(
     app,
-    async_mode='threading',
+    async_mode='eventlet',  # Use eventlet instead of threading
     cors_allowed_origins='*',
     logger=True,
     engineio_logger=True,
     ping_timeout=60,
     ping_interval=25,
     max_http_buffer_size=1000000,
-    manage_session=False  # Let Flask manage the sessions
+    manage_session=False,  # Let Flask manage the sessions
+    always_connect=True  # Always allow connections
 )
 
 # Initialize services
