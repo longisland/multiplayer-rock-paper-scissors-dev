@@ -76,16 +76,6 @@ if data['current_match']:
     new_match_id = data['current_match']['id']
     print(f'New match ID: {new_match_id}')
 
-    # Join match room
-    print('Joining match room...')
-    sio1.emit('join_match_room', {'match_id': new_match_id})
-    sio2.emit('join_match_room', {'match_id': new_match_id})
-
-    # Signal ready
-    print('Signaling ready...')
-    sio1.emit('ready_for_match', {'match_id': new_match_id})
-    sio2.emit('ready_for_match', {'match_id': new_match_id})
-
     # Wait for match to start
     time.sleep(1)
 
