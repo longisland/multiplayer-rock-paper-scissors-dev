@@ -217,15 +217,22 @@
                 const matchList = document.getElementById('matchList');
                 if (matchList) {
                     matchList.innerHTML = '';
-                    data.open_matches.forEach(match => {
-                        const matchDiv = document.createElement('div');
-                        matchDiv.className = 'match-item animate__animated animate__fadeIn';
-                        matchDiv.innerHTML = `
-                            <span>Stake: <span class="coin-icon">🪙</span>${match.stake}</span>
-                            <button class="btn" onclick="joinMatch('${match.id}')">Join Match</button>
-                        `;
-                        matchList.appendChild(matchDiv);
-                    });
+                    if (data.open_matches && data.open_matches.length > 0) {
+                        data.open_matches.forEach(match => {
+                            const matchDiv = document.createElement('div');
+                            matchDiv.className = 'match-item animate__animated animate__fadeIn';
+                            matchDiv.innerHTML = `
+                                <span>Stake: <span class="coin-icon">🪙</span>${match.stake}</span>
+                                <button class="btn" onclick="joinMatch('${match.id}')">Join Match</button>
+                            `;
+                            matchList.appendChild(matchDiv);
+                        });
+                    } else {
+                        const noMatchesDiv = document.createElement('div');
+                        noMatchesDiv.className = 'no-matches animate__animated animate__fadeIn';
+                        noMatchesDiv.textContent = 'No open matches available';
+                        matchList.appendChild(noMatchesDiv);
+                    }
                 }
 
                 // Handle current match state
