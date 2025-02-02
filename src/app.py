@@ -365,8 +365,9 @@ def on_rematch_declined(data):
         logger.exception("Error in rematch_declined handler")
 
 if __name__ == '__main__':
+    import eventlet
+    eventlet.monkey_patch()
     socketio.run(app, 
                 host=Config.HOST,
                 port=Config.PORT,
-                debug=Config.DEBUG,
-                allow_unsafe_werkzeug=True)
+                debug=Config.DEBUG)
