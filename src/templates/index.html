@@ -165,14 +165,27 @@
 
         socket.on('connect', () => {
             console.log('Socket connected:', socket.id);
+            updateGameState();  // Update game state when socket connects
         });
 
         socket.on('connect_error', (error) => {
             console.error('Socket connection error:', error);
+            // Show error message to user
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message animate__animated animate__fadeIn';
+            errorDiv.textContent = 'Connection error. Retrying...';
+            document.body.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
         });
 
         socket.on('disconnect', () => {
             console.log('Socket disconnected');
+            // Show disconnected message to user
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message animate__animated animate__fadeIn';
+            errorDiv.textContent = 'Disconnected. Reconnecting...';
+            document.body.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
         });
 
         socket.on('reconnect', (attemptNumber) => {
@@ -180,6 +193,7 @@
             if (currentMatchId) {
                 socket.emit('join_match_room', { match_id: currentMatchId });
             }
+            updateGameState();  // Update game state after reconnection
         });
 
         // Game state management
@@ -239,6 +253,7 @@
                 if (data.current_match) {
                     currentMatchId = data.current_match.id;
                     isCreator = data.current_match.is_creator;
+                    lastMatchStake = data.current_match.stake;
 
                     // Show appropriate screen based on match status
                     if (data.current_match.status === 'waiting') {
@@ -249,7 +264,14 @@
                         if (!document.getElementById('playScreen').classList.contains('active') &&
                             !document.getElementById('resultScreen').classList.contains('active')) {
                             showScreen('playScreen');
+                            startMoveTimer();  // Start the move timer when entering play screen
                         }
+                    }
+                } else {
+                    // No current match, show lobby screen
+                    if (!document.getElementById('lobbyScreen').classList.contains('active')) {
+                        showScreen('lobbyScreen');
+                        stopMoveTimer();  // Stop any running timers
                     }
                 }
             } catch (error) {
