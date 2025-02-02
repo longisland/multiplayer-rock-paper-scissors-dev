@@ -108,10 +108,6 @@ class GameService:
         # Log final state
         logger.info(f"After result - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
             
-        # Save changes to database
-        db.session.add(game_history)
-        db.session.commit()
-
         # Prepare result data
         result_data = {
             'winner': result,
@@ -125,5 +121,13 @@ class GameService:
                           players[match.joiner].has_enough_coins(match.stake))
         }
 
-        match.set_result(result_data)
+        # Only save if this is the first time processing the result
+        if match.set_result(result_data):
+            # Save changes to database
+            db.session.add(game_history)
+            db.session.commit()
+            logger.info("Match result saved to database")
+        else:
+            logger.info("Match result already processed, skipping database update")
+
         return result_data
