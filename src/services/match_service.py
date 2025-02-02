@@ -64,16 +64,38 @@ class MatchService:
         return open_matches
 
     def handle_match_timeout(self, match_id):
+        from ..app import socketio, game_service  # Import here to avoid circular imports
+        
         match = self.matches.get(match_id)
         if not match or match.status != 'playing':
             return
 
+        # Track which players got auto moves
+        auto_moves = []
+
         # Assign random moves to players who haven't made a move
         if match.creator not in match.moves:
-            match.moves[match.creator] = random.choice(['rock', 'paper', 'scissors'])
+            move = random.choice(['rock', 'paper', 'scissors'])
+            match.moves[match.creator] = move
+            auto_moves.append('creator')
+            socketio.emit('move_made', {
+                'player': 'creator',
+                'auto': True
+            }, room=match.id)
 
         if match.joiner not in match.moves:
-            match.moves[match.joiner] = random.choice(['rock', 'paper', 'scissors'])
+            move = random.choice(['rock', 'paper', 'scissors'])
+            match.moves[match.joiner] = move
+            auto_moves.append('joiner')
+            socketio.emit('move_made', {
+                'player': 'joiner',
+                'auto': True
+            }, room=match.id)
+
+        # If any auto moves were made, calculate the result
+        if auto_moves and match.are_both_moves_made():
+            result = game_service.calculate_match_result(match, self.players)
+            socketio.emit('match_result', result, room=match.id)
 
         return match
 

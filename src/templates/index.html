@@ -293,6 +293,8 @@
                         btn.disabled = true;
                         btn.classList.add('animate__animated', 'animate__fadeOut');
                     });
+                    // Let the server handle the timeout - it will make a random move
+                    document.getElementById('playerMoveStatus').textContent = 'Time is up! Random move will be made...';
                 }
             }
             
@@ -633,6 +635,9 @@
                 console.log('Move made event received:', data);
                 const isOpponent = (data.player === 'creator' && !isCreator) || 
                                  (data.player === 'joiner' && isCreator);
+                const isPlayer = (data.player === 'creator' && isCreator) || 
+                               (data.player === 'joiner' && !isCreator);
+                
                 if (isOpponent) {
                     const status = document.getElementById('opponentMoveStatus');
                     if (status) {
@@ -640,6 +645,13 @@
                         status.textContent = data.auto ? 
                             'Opponent move was random (timeout)' : 
                             'Opponent made their move';
+                    }
+                }
+                if (isPlayer && data.auto) {
+                    const status = document.getElementById('playerMoveStatus');
+                    if (status) {
+                        status.classList.add('animate__animated', 'animate__fadeIn');
+                        status.textContent = 'Your move was random (timeout)';
                     }
                 }
             });
