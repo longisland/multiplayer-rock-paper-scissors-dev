@@ -293,6 +293,12 @@
                         btn.disabled = true;
                         btn.classList.add('animate__animated', 'animate__fadeOut');
                     });
+                    // Update player move status for auto-move
+                    const playerStatus = document.getElementById('playerMoveStatus');
+                    if (playerStatus) {
+                        playerStatus.textContent = 'Random move will be made (timeout)';
+                        playerStatus.classList.add('animate__animated', 'animate__fadeIn');
+                    }
                 }
             }
             
