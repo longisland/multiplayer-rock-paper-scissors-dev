@@ -68,7 +68,6 @@ class Match:
         self.status = 'playing'
         self.start_time = time.time()
         self.moves = {}
-        self.rematch_ready = set()  # Reset rematch_ready when match starts
 
     def make_move(self, player_id, move):
         if player_id not in [self.creator, self.joiner]:

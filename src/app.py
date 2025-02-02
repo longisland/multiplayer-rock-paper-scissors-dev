@@ -328,7 +328,25 @@ def on_rematch_accepted(data):
 
                 logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
 
-                # Cleanup old match after notifying players
+                # Join both players to the new match room
+                join_room(new_match.id, room=new_match.creator)
+                join_room(new_match.id, room=new_match.joiner)
+
+                # Signal ready for both players
+                new_match.creator_ready = True
+                new_match.joiner_ready = True
+
+                # Start the match
+                new_match.start_match()
+                new_match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
+
+                # Notify both players that the match has started
+                socketio.emit('match_started', {
+                    'match_id': new_match.id,
+                    'start_time': new_match.start_time
+                }, room=new_match.id)
+
+                # Cleanup old match after everything is set up
                 match_service.cleanup_match(match_id)
     except Exception as e:
         logger.exception("Error in rematch_accepted handler")
