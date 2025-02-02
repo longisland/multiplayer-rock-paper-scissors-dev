@@ -13,6 +13,7 @@ services:
       - REDIS_URL=redis://redis:6380/0
       - DATABASE_URL=postgresql://rps_user:rps_password@postgres:5432/rps_db
       - SQLALCHEMY_DATABASE_URI=postgresql://rps_user:rps_password@postgres:5432/rps_db
+      - SQLALCHEMY_TRACK_MODIFICATIONS=false
       - POSTGRES_USER=rps_user
       - POSTGRES_PASSWORD=rps_password
       - POSTGRES_DB=rps_db

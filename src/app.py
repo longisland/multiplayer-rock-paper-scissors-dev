@@ -19,7 +19,14 @@ app.config.from_object(Config)
 # Initialize database
 db.init_app(app)
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+    except Exception as e:
+        print(f"Error creating database tables: {e}")
+        # Wait for PostgreSQL to be ready
+        import time
+        time.sleep(10)
+        db.create_all()
 
 # Configure Flask-SocketIO
 socketio = SocketIO(
