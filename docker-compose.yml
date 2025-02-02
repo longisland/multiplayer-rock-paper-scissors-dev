@@ -44,10 +44,18 @@ services:
       - POSTGRES_USER=rps_user
       - POSTGRES_PASSWORD=rps_password
       - POSTGRES_DB=rps_db
+      - POSTGRES_INITDB_ARGS=--data-checksums
     ports:
       - "5434:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - type: volume
+        source: postgres_data
+        target: /var/lib/postgresql/data
+        volume:
+          nocopy: true
+      - type: bind
+        source: ./postgres/backup
+        target: /backup
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U rps_user -d rps_db"]
       interval: 10s
@@ -55,6 +63,12 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    command: >
+      postgres
+      -c shared_buffers=256MB
+      -c max_connections=200
+      -c checkpoint_timeout=600
+      -c synchronous_commit=off
 
 volumes:
   redis_data:
