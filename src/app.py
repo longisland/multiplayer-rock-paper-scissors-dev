@@ -40,8 +40,10 @@ socketio = SocketIO(
     max_http_buffer_size=1000000,
     manage_session=False,  # Let Flask manage the sessions
     always_connect=True,  # Always allow connections
+    transports=['websocket', 'polling'],  # Allow both WebSocket and polling
     websocket=True,  # Force WebSocket transport
-    allow_upgrades=True  # Allow transport upgrades
+    allow_upgrades=True,  # Allow transport upgrades
+    path='/socket.io'  # Explicitly set the Socket.IO path
 )
 
 # Initialize services
