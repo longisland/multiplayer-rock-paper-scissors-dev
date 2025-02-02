@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_session import Session
 import secrets
+import redis
 
 from .config import Config
 from .services.match_service import MatchService
@@ -15,10 +16,8 @@ logger = setup_logger()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = Config.SECRET_KEY
 app.config['DEBUG'] = Config.DEBUG
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_FILE_DIR'] = '/app/flask_session'
-app.config['SESSION_FILE_THRESHOLD'] = 100
-app.config['SESSION_FILE_MODE'] = 0o600
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_REDIS'] = redis.from_url('redis://redis:6379/0')
 
 # Initialize Flask-Session
 Session(app)
