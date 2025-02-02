@@ -64,6 +64,9 @@ class MatchService:
         return open_matches
 
     def handle_match_timeout(self, match_id):
+        from flask import current_app
+        from .game_service import GameService
+
         match = self.matches.get(match_id)
         if not match or match.status != 'playing':
             return
@@ -80,19 +83,20 @@ class MatchService:
             match.moves[match.joiner] = random.choice(['rock', 'paper', 'scissors'])
             auto_moves.append('joiner')
 
+        # Get the socketio instance from the app
+        socketio = current_app.extensions['socketio']
+
         # Notify about auto moves
-        from flask_socketio import emit
         for role in auto_moves:
-            emit('move_made', {
+            socketio.emit('move_made', {
                 'player': role,
                 'auto': True
             }, room=match.id)
 
         # Calculate match result if both moves are now made
         if match.are_both_moves_made():
-            from .game_service import GameService
             result = GameService.calculate_match_result(match, self.players)
-            emit('match_result', result, room=match.id)
+            socketio.emit('match_result', result, room=match.id)
 
         return match
 

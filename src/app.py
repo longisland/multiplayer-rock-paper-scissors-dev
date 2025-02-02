@@ -267,7 +267,10 @@ def on_ready_for_match(data):
 
             if creator.has_enough_coins(match.stake) and joiner.has_enough_coins(match.stake):
                 match.start_match()
-                match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
+                def timeout_handler(match_id):
+                    with app.app_context():
+                        match_service.handle_match_timeout(match_id)
+                match.start_timer(Config.MATCH_TIMEOUT, timeout_handler)
 
                 socketio.emit('match_started', {
                     'match_id': match_id,
@@ -356,7 +359,10 @@ def on_rematch_accepted(data):
 
                 # Start the match
                 new_match.start_match()
-                new_match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
+                def timeout_handler(match_id):
+                    with app.app_context():
+                        match_service.handle_match_timeout(match_id)
+                new_match.start_timer(Config.MATCH_TIMEOUT, timeout_handler)
 
                 # Notify both players that the match has started
                 socketio.emit('match_started', {
