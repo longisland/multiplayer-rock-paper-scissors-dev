@@ -54,10 +54,9 @@ class GameService:
             players[match.creator].record_win()
             players[match.joiner].record_loss()
             
-            # Update coins and stats
-            creator_user.coins += match.stake
+            # Winner gets the pot (2x stake)
+            creator_user.coins += match.pot
             creator_user.total_coins_won += match.stake
-            joiner_user.coins -= match.stake
             joiner_user.total_coins_lost += match.stake
             
             # Sync in-memory state
@@ -70,10 +69,9 @@ class GameService:
             players[match.joiner].record_win()
             players[match.creator].record_loss()
             
-            # Update coins and stats
-            joiner_user.coins += match.stake
+            # Winner gets the pot (2x stake)
+            joiner_user.coins += match.pot
             joiner_user.total_coins_won += match.stake
-            creator_user.coins -= match.stake
             creator_user.total_coins_lost += match.stake
             
             # Sync in-memory state
