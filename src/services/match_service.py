@@ -36,21 +36,39 @@ class MatchService:
         return match
 
     def join_match(self, match_id, joiner_id):
+        import logging
+        logger = logging.getLogger('rps_game')
+
         if match_id not in self.matches:
+            logger.error(f"Match {match_id} not found")
             return None
 
         match = self.matches[match_id]
-        if match.status != 'waiting' or match.joiner is not None:
+        if match.status != 'waiting':
+            logger.error(f"Match {match_id} not in waiting state (status: {match.status})")
+            return None
+
+        if match.joiner is not None:
+            logger.error(f"Match {match_id} already has a joiner")
+            return None
+
+        if match.creator == joiner_id:
+            logger.error(f"Cannot join own match: {match_id}")
             return None
 
         # Check if both players have enough coins
-        if not (self.players[match.creator].has_enough_coins(match.stake) and
-                self.players[joiner_id].has_enough_coins(match.stake)):
+        if not self.players[match.creator].has_enough_coins(match.stake):
+            logger.error(f"Creator has insufficient coins. Has: {self.players[match.creator].coins}, Needs: {match.stake}")
+            return None
+
+        if not self.players[joiner_id].has_enough_coins(match.stake):
+            logger.error(f"Joiner has insufficient coins. Has: {self.players[joiner_id].coins}, Needs: {match.stake}")
             return None
 
         match.joiner = joiner_id
         match.joiner_ready = False  # Reset joiner ready state
         self.players[joiner_id].current_match = match_id
+        logger.info(f"Player {joiner_id} joined match {match_id}")
         return match
 
     def get_match(self, match_id):

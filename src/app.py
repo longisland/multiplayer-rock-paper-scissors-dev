@@ -243,8 +243,20 @@ def on_join_match_room(data):
             return
 
         match = match_service.get_match(match_id)
-        if not match or match.status != 'waiting':
-            logger.error(f"Match {match_id} not found or not in waiting state")
+        if not match:
+            logger.error(f"Match {match_id} not found")
+            return
+
+        if match.status != 'waiting':
+            logger.error(f"Match {match_id} not in waiting state (status: {match.status})")
+            return
+
+        if match.joiner is not None and match.joiner != session_id:
+            logger.error(f"Match {match_id} already has a joiner")
+            return
+
+        if match.creator != session_id and match.joiner != session_id:
+            logger.error(f"Player {session_id} not part of match {match_id}")
             return
 
         join_room(match_id)
