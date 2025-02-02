@@ -584,6 +584,18 @@
                         start_time: data.start_time
                     };
                     
+                    // Reset move status
+                    document.getElementById('playerMoveStatus').textContent = 'Waiting for your move...';
+                    document.getElementById('opponentMoveStatus').textContent = 'Waiting for opponent to move...';
+                    
+                    // Reset timer
+                    const timerElement = document.getElementById('moveTimer');
+                    if (timerElement) {
+                        timerElement.textContent = '10';
+                        timerElement.style.color = 'var(--warning-color)';
+                        timerElement.classList.remove('animate__headShake', 'animate__bounceOut');
+                    }
+                    
                     // Show play screen with animation
                     const playScreen = document.getElementById('playScreen');
                     playScreen.classList.add('animate__animated', 'animate__fadeIn');
@@ -596,6 +608,7 @@
                     document.querySelectorAll('.move-btn').forEach((btn, index) => {
                         btn.disabled = false;
                         btn.style.visibility = 'visible';
+                        btn.classList.remove('animate__fadeOut');
                         btn.classList.remove('animate__fadeOut');
                         setTimeout(() => {
                             btn.classList.add('animate__bounceIn');
@@ -877,10 +890,7 @@
                 document.getElementById('playerMoveStatus').textContent = 'Waiting for your move...';
                 document.getElementById('opponentMoveStatus').textContent = 'Waiting for opponent to move...';
 
-                // Show play screen
-                showScreen('playScreen');
-                
-                // Show waiting screen
+                // Show waiting screen first
                 showScreen('waitingScreen');
                 
                 // Join the match room
