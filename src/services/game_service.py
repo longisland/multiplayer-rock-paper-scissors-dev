@@ -25,6 +25,18 @@ class GameService:
         joiner_move = match.moves[match.joiner]
         result = GameService.calculate_winner(creator_move, joiner_move)
 
+        # Deduct bets if not already deducted
+        if not match.bets_placed:
+            # Deduct stakes from both players
+            players[match.creator].add_coins(-match.stake)
+            players[match.joiner].add_coins(-match.stake)
+            creator_user = User.query.filter_by(username=match.creator).first()
+            joiner_user = User.query.filter_by(username=match.joiner).first()
+            creator_user.coins -= match.stake
+            joiner_user.coins -= match.stake
+            db.session.commit()
+            match.bets_placed = True
+
         # Update match stats
         match.stats.rounds += 1
         
@@ -52,27 +64,23 @@ class GameService:
         elif result == 'player1':
             match.stats.creator_wins += 1
             players[match.creator].record_win()
-            players[match.creator].add_coins(match.stake)
+            players[match.creator].add_coins(match.stake * 2)  # Winner gets both stakes
             players[match.joiner].record_loss()
-            players[match.joiner].add_coins(-match.stake)
             creator_user.wins += 1
-            creator_user.coins += match.stake
+            creator_user.coins += match.stake * 2  # Winner gets both stakes
             creator_user.total_games += 1
             joiner_user.losses += 1
-            joiner_user.coins -= match.stake
             joiner_user.total_games += 1
             game_history.winner_id = creator_user.id
         else:
             match.stats.joiner_wins += 1
             players[match.joiner].record_win()
-            players[match.joiner].add_coins(match.stake)
+            players[match.joiner].add_coins(match.stake * 2)  # Winner gets both stakes
             players[match.creator].record_loss()
-            players[match.creator].add_coins(-match.stake)
             joiner_user.wins += 1
-            joiner_user.coins += match.stake
+            joiner_user.coins += match.stake * 2  # Winner gets both stakes
             joiner_user.total_games += 1
             creator_user.losses += 1
-            creator_user.coins -= match.stake
             creator_user.total_games += 1
             game_history.winner_id = joiner_user.id
             

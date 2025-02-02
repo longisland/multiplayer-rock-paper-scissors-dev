@@ -68,6 +68,7 @@ class Match:
         self.status = 'playing'
         self.start_time = time.time()
         self.moves = {}
+        self.bets_placed = False  # Track if bets have been placed
 
     def make_move(self, player_id, move):
         if player_id not in [self.creator, self.joiner]:
