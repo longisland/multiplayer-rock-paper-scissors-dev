@@ -351,16 +351,18 @@ def on_rematch_accepted(data):
                 new_match.start_match()
                 new_match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
 
-                # Join both players to the new match room
-                join_room(new_match.id, room=new_match.creator)
-                join_room(new_match.id, room=new_match.joiner)
-
                 # Notify both players that the match has started
                 socketio.emit('match_started', {
                     'match_id': new_match.id,
                     'start_time': new_match.start_time,
                     'rematch': True
-                }, room=new_match.id)
+                }, room=new_match.creator)
+
+                socketio.emit('match_started', {
+                    'match_id': new_match.id,
+                    'start_time': new_match.start_time,
+                    'rematch': True
+                }, room=new_match.joiner)
 
                 # Cleanup old match after everything is set up
                 match_service.cleanup_match(match_id)
