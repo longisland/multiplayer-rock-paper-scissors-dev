@@ -9,8 +9,10 @@ This is the development version of the Multiplayer Rock Paper Scissors game. For
 - Match creation and joining
 - Player statistics tracking
 - Rematch functionality
-- Persistent storage with Redis
+- Persistent user data and game history with PostgreSQL
+- Real-time game state with Redis
 - Automatic match cleanup on disconnection
+- Transaction support for game results
 
 ## Project Structure
 
@@ -35,9 +37,11 @@ This is the development version of the Multiplayer Rock Paper Scissors game. For
 ## Requirements
 
 - Python 3.8+
-- Redis server
+- PostgreSQL 15+ (for persistent storage)
+- Redis server (for real-time features)
 - Docker and Docker Compose (for containerized deployment)
 - Flask and Flask-SocketIO
+- SQLAlchemy and Flask-SQLAlchemy
 - Eventlet
 
 ## Local Development
@@ -104,11 +108,22 @@ Note: The `--force-recreate` flag ensures that the containers are recreated with
 
 The application can be configured through environment variables:
 
+### Database Configuration
+- `DATABASE_URL`: PostgreSQL database URL (default: postgresql://rps_user:rps_password@localhost:5432/rps_db)
+- `SQLALCHEMY_DATABASE_URI`: Same as DATABASE_URL, used by Flask-SQLAlchemy
+- `POSTGRES_USER`: PostgreSQL user (default: rps_user)
+- `POSTGRES_PASSWORD`: PostgreSQL password (default: rps_password)
+- `POSTGRES_DB`: PostgreSQL database name (default: rps_db)
+
+### Redis Configuration
 - `REDIS_URL`: Redis server URL (default: redis://localhost:6379/0)
+
+### Application Configuration
 - `PORT`: Application port (default: 5000)
 - `HOST`: Host to bind to (default: 0.0.0.0)
 - `DEBUG`: Enable debug mode (default: True)
 - `SECRET_KEY`: Flask secret key (auto-generated if not provided)
+- `SQLALCHEMY_TRACK_MODIFICATIONS`: SQLAlchemy event system (default: False)
 
 ## Contributing
 
