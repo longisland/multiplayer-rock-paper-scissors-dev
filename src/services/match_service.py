@@ -78,6 +78,16 @@ class MatchService:
         import logging
         logger = logging.getLogger('rps_game')
 
+        # Check if player exists and is not in another match
+        player = self.players.get(player_id)
+        if not player:
+            logger.warning(f"Player {player_id} not found")
+            return []
+
+        if player.current_match:
+            logger.debug(f"Player {player_id} already in match {player.current_match}")
+            return []
+
         open_matches = []
         for mid, match in list(self.matches.items()):  # Use list() to avoid modification during iteration
             try:
@@ -98,16 +108,6 @@ class MatchService:
                 if not creator or creator.current_match != mid:
                     logger.warning(f"Creator {match.creator} not connected to match {mid}")
                     self.cleanup_match(mid)
-                    continue
-
-                # Check if player exists and is not in another match
-                player = self.players.get(player_id)
-                if not player:
-                    logger.warning(f"Player {player_id} not found")
-                    continue
-
-                if player.current_match:
-                    logger.debug(f"Player {player_id} already in match {player.current_match}")
                     continue
 
                 # Check if both players have enough coins
