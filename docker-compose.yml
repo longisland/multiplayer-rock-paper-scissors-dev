@@ -69,6 +69,9 @@ services:
       -c max_connections=200
       -c checkpoint_timeout=600
       -c synchronous_commit=off
+      -c archive_mode=on
+      -c archive_command='test ! -f /backup/%f && cp %p /backup/%f'
+      -c archive_timeout=60
 
 volumes:
   redis_data:
