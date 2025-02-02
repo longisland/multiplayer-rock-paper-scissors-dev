@@ -293,6 +293,11 @@
                         btn.disabled = true;
                         btn.classList.add('animate__animated', 'animate__fadeOut');
                     });
+                    
+                    // Notify server about timeout
+                    if (currentMatchId) {
+                        socket.emit('move_timeout', { match_id: currentMatchId });
+                    }
                 }
             }
             
