@@ -32,9 +32,6 @@ class GameService:
         creator_user = User.query.filter_by(username=match.creator).first()
         joiner_user = User.query.filter_by(username=match.joiner).first()
 
-        # Log initial state
-        logger.info(f"Before result - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}, Stake: {match.stake}")
-        
         # Create game history record
         game_history = GameHistory(
             player1_id=creator_user.id,
@@ -51,9 +48,14 @@ class GameService:
             players[match.creator].record_draw()
             players[match.joiner].record_draw()
             
+            # Log state before return
+            logger.info(f"Before draw return - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
+            
             # Return stakes
             creator_user.coins += match.stake
             joiner_user.coins += match.stake
+            
+            logger.info(f"After draw return - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins} (each +{match.stake})")
             
             # Update stats
             creator_user.draws += 1
@@ -68,12 +70,18 @@ class GameService:
             players[match.creator].record_win()
             players[match.joiner].record_loss()
             
+            # Log state before win
+            logger.info(f"Before win payout - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
+            
             # Winner gets their stake back plus opponent's stake
             creator_user.coins += match.stake  # Get own stake back
+            logger.info(f"After stake return - Creator coins: {creator_user.coins} (+{match.stake})")
+            
             creator_user.coins += match.stake  # Get opponent's stake
+            logger.info(f"After win payout - Creator coins: {creator_user.coins} (+{match.stake})")
+            
             creator_user.total_coins_won += match.stake
             joiner_user.total_coins_lost += match.stake
-            logger.info(f"Creator won: +{match.stake} (own stake) +{match.stake} (opponent stake)")
             
             # Update stats
             creator_user.wins += 1
@@ -90,12 +98,18 @@ class GameService:
             players[match.joiner].record_win()
             players[match.creator].record_loss()
             
+            # Log state before win
+            logger.info(f"Before win payout - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
+            
             # Winner gets their stake back plus opponent's stake
             joiner_user.coins += match.stake  # Get own stake back
+            logger.info(f"After stake return - Joiner coins: {joiner_user.coins} (+{match.stake})")
+            
             joiner_user.coins += match.stake  # Get opponent's stake
+            logger.info(f"After win payout - Joiner coins: {joiner_user.coins} (+{match.stake})")
+            
             joiner_user.total_coins_won += match.stake
             creator_user.total_coins_lost += match.stake
-            logger.info(f"Joiner won: +{match.stake} (own stake) +{match.stake} (opponent stake)")
             
             # Update stats
             joiner_user.wins += 1
