@@ -12,6 +12,7 @@ services:
       - PORT=5000
       - REDIS_URL=redis://redis:6380/0
       - DATABASE_URL=postgresql://rps_user:rps_password@postgres:5432/rps_db
+      - SQLALCHEMY_DATABASE_URI=postgresql://rps_user:rps_password@postgres:5432/rps_db
     depends_on:
       - redis
       - postgres
