@@ -81,6 +81,8 @@ docker-compose down
 
 ## Server Deployment
 
+### Initial Deployment
+
 1. SSH into the server:
 ```bash
 sshpass -p "TMPpass99" ssh root@165.227.160.131
@@ -91,18 +93,78 @@ sshpass -p "TMPpass99" ssh root@165.227.160.131
 cd /var/www/rps-game
 ```
 
-3. Pull the latest changes:
+3. Create required directories:
 ```bash
-git pull origin feature/project-restructure
+mkdir -p postgres/backup
 ```
 
-4. Rebuild and restart the containers:
+4. Pull the latest changes:
+```bash
+git pull origin main
+```
+
+5. Build and start the containers:
+```bash
+docker-compose up -d --build
+```
+
+### Redeployment with Data Preservation
+
+1. SSH into the server:
+```bash
+sshpass -p "TMPpass99" ssh root@165.227.160.131
+```
+
+2. Navigate to the project directory:
+```bash
+cd /var/www/rps-game
+```
+
+3. Create a backup of the current database:
+```bash
+docker-compose exec postgres pg_dump -U rps_user rps_db > postgres/backup/pre_deploy_backup.sql
+```
+
+4. Pull the latest changes:
+```bash
+git pull origin main
+```
+
+5. Rebuild and restart the containers:
 ```bash
 docker-compose down
 docker-compose up -d --build --force-recreate
 ```
 
+6. Wait for PostgreSQL to be ready (about 30 seconds), then restore data if needed:
+```bash
+docker-compose exec postgres psql -U rps_user -d rps_db < postgres/backup/pre_deploy_backup.sql
+```
+
 Note: The `--force-recreate` flag ensures that the containers are recreated with the latest code, avoiding any caching issues.
+
+### Data Persistence
+
+The application uses Docker volumes to persist data across deployments:
+
+- `postgres_data`: Stores PostgreSQL database files
+- `redis_data`: Stores Redis data
+- `postgres/backup`: Stores database backups
+
+Automatic backups are configured through:
+- PostgreSQL archiving (continuous)
+- Backup script (daily)
+- Pre-deployment backups
+
+To manually create a backup:
+```bash
+docker-compose exec postgres /backup/backup.sh
+```
+
+To restore from the latest backup:
+```bash
+docker-compose exec postgres /backup/restore.sh
+```
 
 ## Configuration
 
