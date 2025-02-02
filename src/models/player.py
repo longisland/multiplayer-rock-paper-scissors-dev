@@ -29,22 +29,15 @@ class Player:
 
     @property
     def stats(self):
-        self._ensure_user_exists(100)
-        return {
-            'wins': self._user.wins,
-            'losses': self._user.losses,
-            'draws': self._user.draws,
-            'total_games': self._user.total_games,
-            'total_coins_won': self._user.total_coins_won or 0,
-            'total_coins_lost': self._user.total_coins_lost or 0
-        }
+        """Return a PlayerStats-like object for compatibility"""
+        return self.to_stats_dict()
 
     def to_dict(self):
         self._ensure_user_exists(100)
         return {
             'coins': self._user.coins,
             'current_match': self.current_match,
-            'stats': self.stats
+            'stats': self.stats.to_dict()
         }
 
     def has_enough_coins(self, amount):
@@ -68,3 +61,23 @@ class Player:
         self._user.draws += 1
         self._user.total_games += 1
         db.session.commit()
+
+    def to_stats_dict(self):
+        """Return a dictionary with stats that matches the old PlayerStats interface"""
+        self._ensure_user_exists(100)
+        return type('PlayerStats', (), {
+            'wins': self._user.wins,
+            'losses': self._user.losses,
+            'draws': self._user.draws,
+            'total_games': self._user.total_games,
+            'total_coins_won': self._user.total_coins_won or 0,
+            'total_coins_lost': self._user.total_coins_lost or 0,
+            'to_dict': lambda: {
+                'wins': self._user.wins,
+                'losses': self._user.losses,
+                'draws': self._user.draws,
+                'total_games': self._user.total_games,
+                'total_coins_won': self._user.total_coins_won or 0,
+                'total_coins_lost': self._user.total_coins_lost or 0
+            }
+        })
