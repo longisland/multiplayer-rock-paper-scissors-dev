@@ -1,0 +1,79 @@
+diff --git a/src/app.py b/src/app.py
+index e2b1dc8..fa7a3e5 100644
+--- a/src/app.py
++++ b/src/app.py
+@@ -295,35 +295,41 @@ def on_rematch_accepted(data):
+             }, room=match_id)
+             return
+ 
+-        # Add player to rematch_ready and get their role
+-        player_role = match.add_rematch_ready(session_id)
+-        if not player_role:
+-            logger.error(f"Player {session_id} not part of match {match_id}")
+-            return
+-
+-        # Get the other player's ID and emit event to their room
+-        other_player_id = match.get_other_player(session_id)
+-        if other_player_id:
+-            socketio.emit('rematch_accepted_by_player', {
+-                'player': player_role
+-            }, room=other_player_id)
+-
+-        # If both players are ready, create rematch
+-        if match.is_rematch_ready():
+-            new_match = match_service.create_rematch(match_id)
++        # Initialize rematch_ready if not exists
++        if not hasattr(match, 'rematch_ready'):
++            match.rematch_ready = set()
++
++        # Add this player to ready set
++        match.rematch_ready.add(session_id)
++
++        # Get player role and notify other player
++        player_role = 'creator' if session_id == match.creator else 'joiner'
++        other_player_id = match.joiner if session_id == match.creator else match.creator
++        
++        socketio.emit('rematch_accepted_by_player', {
++            'player': player_role
++        }, room=other_player_id)
++
++        # Only proceed if both players have accepted
++        if len(match.rematch_ready) == 2:
++            # Create new match with same stake but keep original creator
++            new_match = match_service.create_match(match.creator, match.stake)
+             if new_match:
+-                # Notify players about the new match
++                # Update joiner
++                match_service.join_match(new_match.id, match.joiner)
++
++                # Notify both players
+                 socketio.emit('rematch_started', {
+                     'match_id': new_match.id,
+                     'is_creator': True,
+                     'stake': new_match.stake
+-                }, room=new_match.creator)
++                }, room=match.creator)
+ 
+                 socketio.emit('rematch_started', {
+                     'match_id': new_match.id,
+                     'is_creator': False,
+                     'stake': new_match.stake
+-                }, room=new_match.joiner)
++                }, room=match.joiner)
+ 
+                 logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
+ 
+diff --git a/src/config.py b/src/config.py
+index 52cf254..f547921 100644
+--- a/src/config.py
++++ b/src/config.py
+@@ -5,7 +5,7 @@ class Config:
+     SECRET_KEY = os.getenv('SECRET_KEY', secrets.token_hex(16))
+     DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+     HOST = os.getenv('HOST', '0.0.0.0')
+-    PORT = int(os.getenv('PORT', 5000))
++    PORT = int(os.getenv('PORT', 51443))
+     REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+     INITIAL_COINS = 100
+     MATCH_TIMEOUT = 10.0  # seconds
+\ No newline at end of file
