@@ -328,8 +328,11 @@ def on_rematch_accepted(data):
                 logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
 
                 # Join both players to the new match room
-                join_room(new_match.id, sid=match.creator)
-                join_room(new_match.id, sid=match.joiner)
+                try:
+                    join_room(new_match.id, sid=match.creator)
+                    join_room(new_match.id, sid=match.joiner)
+                except Exception as e:
+                    logger.warning(f"Failed to join match room: {e}")
 
                 # Signal ready for both players
                 new_match.creator_ready = True
@@ -342,18 +345,23 @@ def on_rematch_accepted(data):
                 # Notify both players that the match has started
                 socketio.emit('match_started', {
                     'match_id': new_match.id,
-                    'start_time': new_match.start_time
+                    'start_time': new_match.start_time,
+                    'rematch': True
                 }, room=new_match.creator)
 
                 socketio.emit('match_started', {
                     'match_id': new_match.id,
-                    'start_time': new_match.start_time
+                    'start_time': new_match.start_time,
+                    'rematch': True
                 }, room=new_match.joiner)
 
                 # Cleanup old match after everything is set up
                 match_service.cleanup_match(match_id)
     except Exception as e:
-        logger.exception("Error in rematch_accepted handler")
+        logger.exception(f"Error in rematch_accepted handler: {e}")
+        socketio.emit('match_error', {
+            'error': 'Failed to start rematch'
+        }, room=match_id)
 
 @socketio.on('rematch_declined')
 def on_rematch_declined(data):
