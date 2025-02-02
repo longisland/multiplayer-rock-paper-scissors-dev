@@ -201,6 +201,22 @@ def handle_connect():
     except Exception as e:
         logger.exception("Error in socket connect handler")
 
+@socketio.on('disconnect')
+def handle_disconnect():
+    try:
+        session_id = session.get('session_id')
+        if session_id:
+            player = match_service.get_player(session_id)
+            if player.current_match:
+                match = match_service.get_match(player.current_match)
+                if match:
+                    leave_room(match.id)
+                    logger.info(f"Player {session_id} left match room {match.id}")
+            leave_room(session_id)
+            logger.info(f"Socket disconnected for session {session_id}")
+    except Exception as e:
+        logger.exception("Error in socket disconnect handler")
+
 @socketio.on('join_match_room')
 def on_join_match_room(data):
     try:
@@ -335,18 +351,16 @@ def on_rematch_accepted(data):
                 new_match.start_match()
                 new_match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
 
+                # Join both players to the new match room
+                join_room(new_match.id, room=new_match.creator)
+                join_room(new_match.id, room=new_match.joiner)
+
                 # Notify both players that the match has started
                 socketio.emit('match_started', {
                     'match_id': new_match.id,
                     'start_time': new_match.start_time,
                     'rematch': True
-                }, room=new_match.creator)
-
-                socketio.emit('match_started', {
-                    'match_id': new_match.id,
-                    'start_time': new_match.start_time,
-                    'rematch': True
-                }, room=new_match.joiner)
+                }, room=new_match.id)
 
                 # Cleanup old match after everything is set up
                 match_service.cleanup_match(match_id)
