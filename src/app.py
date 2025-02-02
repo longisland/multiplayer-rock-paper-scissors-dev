@@ -329,8 +329,8 @@ def on_rematch_accepted(data):
                 logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
 
                 # Join both players to the new match room
-                join_room(new_match.id, room=new_match.creator)
-                join_room(new_match.id, room=new_match.joiner)
+                join_room(new_match.id, sid=match.creator)
+                join_room(new_match.id, sid=match.joiner)
 
                 # Signal ready for both players
                 new_match.creator_ready = True
