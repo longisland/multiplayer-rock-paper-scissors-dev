@@ -68,12 +68,31 @@ class MatchService:
         if not match or match.status != 'playing':
             return
 
+        # Track which moves were auto-generated
+        auto_moves = []
+
         # Assign random moves to players who haven't made a move
         if match.creator not in match.moves:
             match.moves[match.creator] = random.choice(['rock', 'paper', 'scissors'])
+            auto_moves.append('creator')
 
         if match.joiner not in match.moves:
             match.moves[match.joiner] = random.choice(['rock', 'paper', 'scissors'])
+            auto_moves.append('joiner')
+
+        # Notify about auto moves
+        from flask_socketio import emit
+        for role in auto_moves:
+            emit('move_made', {
+                'player': role,
+                'auto': True
+            }, room=match.id)
+
+        # Calculate match result if both moves are now made
+        if match.are_both_moves_made():
+            from .game_service import GameService
+            result = GameService.calculate_match_result(match, self.players)
+            emit('match_result', result, room=match.id)
 
         return match
 
