@@ -365,8 +365,8 @@ def on_rematch_declined(data):
         logger.exception("Error in rematch_declined handler")
 
 if __name__ == '__main__':
-    import eventlet
-    eventlet.monkey_patch()
+    from gevent import monkey
+    monkey.patch_all()
     socketio.run(app, 
                 host=Config.HOST,
                 port=Config.PORT,
