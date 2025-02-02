@@ -33,11 +33,8 @@ class Player:
         return self.coins >= amount
 
     def add_coins(self, amount):
-        self.coins += amount
-        if amount > 0:
-            self.stats.total_coins_won += amount
-        else:
-            self.stats.total_coins_lost += abs(amount)
+        """Deprecated: Use direct coin assignment and stats update instead"""
+        pass
 
     def record_win(self):
         self.stats.wins += 1
