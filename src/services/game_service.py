@@ -52,27 +52,41 @@ class GameService:
         elif result == 'player1':
             match.stats.creator_wins += 1
             players[match.creator].record_win()
-            players[match.creator].add_coins(match.stake)
             players[match.joiner].record_loss()
-            players[match.joiner].add_coins(-match.stake)
-            creator_user.wins += 1
+            
+            # Update coins in one place and sync
             creator_user.coins += match.stake
+            joiner_user.coins -= match.stake
+            players[match.creator].coins = creator_user.coins
+            players[match.joiner].coins = joiner_user.coins
+            
+            # Update stats
+            players[match.creator].stats.total_coins_won += match.stake
+            players[match.joiner].stats.total_coins_lost += match.stake
+            
+            creator_user.wins += 1
             creator_user.total_games += 1
             joiner_user.losses += 1
-            joiner_user.coins -= match.stake
             joiner_user.total_games += 1
             game_history.winner_id = creator_user.id
         else:
             match.stats.joiner_wins += 1
             players[match.joiner].record_win()
-            players[match.joiner].add_coins(match.stake)
             players[match.creator].record_loss()
-            players[match.creator].add_coins(-match.stake)
-            joiner_user.wins += 1
+            
+            # Update coins in one place and sync
             joiner_user.coins += match.stake
+            creator_user.coins -= match.stake
+            players[match.joiner].coins = joiner_user.coins
+            players[match.creator].coins = creator_user.coins
+            
+            # Update stats
+            players[match.joiner].stats.total_coins_won += match.stake
+            players[match.creator].stats.total_coins_lost += match.stake
+            
+            joiner_user.wins += 1
             joiner_user.total_games += 1
             creator_user.losses += 1
-            creator_user.coins -= match.stake
             creator_user.total_games += 1
             game_history.winner_id = joiner_user.id
             
