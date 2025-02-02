@@ -79,30 +79,45 @@ class MatchService:
         logger = logging.getLogger('rps_game')
 
         open_matches = []
-        for mid, match in self.matches.items():
+        for mid, match in list(self.matches.items()):  # Use list() to avoid modification during iteration
             try:
                 if match.status != 'waiting':
+                    logger.debug(f"Match {mid} not in waiting state (status: {match.status})")
                     continue
 
                 if match.creator == player_id:
+                    logger.debug(f"Match {mid} created by player {player_id}")
                     continue
 
                 if match.joiner is not None:
+                    logger.debug(f"Match {mid} already has joiner {match.joiner}")
                     continue
 
-                creator = self.players[match.creator]
-                player = self.players[player_id]
-
-                if not creator.has_enough_coins(match.stake):
-                    logger.warning(f"Creator {match.creator} has insufficient coins for match {mid}")
+                # Check if creator still exists and is connected
+                creator = self.players.get(match.creator)
+                if not creator or creator.current_match != mid:
+                    logger.warning(f"Creator {match.creator} not connected to match {mid}")
+                    self.cleanup_match(mid)
                     continue
 
-                if not player.has_enough_coins(match.stake):
-                    logger.warning(f"Player {player_id} has insufficient coins for match {mid}")
+                # Check if player exists and is not in another match
+                player = self.players.get(player_id)
+                if not player:
+                    logger.warning(f"Player {player_id} not found")
                     continue
 
                 if player.current_match:
-                    logger.warning(f"Player {player_id} already in match {player.current_match}")
+                    logger.debug(f"Player {player_id} already in match {player.current_match}")
+                    continue
+
+                # Check if both players have enough coins
+                if not creator.has_enough_coins(match.stake):
+                    logger.warning(f"Creator {match.creator} has insufficient coins for match {mid}")
+                    self.cleanup_match(mid)
+                    continue
+
+                if not player.has_enough_coins(match.stake):
+                    logger.debug(f"Player {player_id} has insufficient coins for match {mid}")
                     continue
 
                 open_matches.append({
