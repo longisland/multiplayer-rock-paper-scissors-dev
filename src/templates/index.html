@@ -866,6 +866,19 @@
                     rematchStatus.textContent = '';
                     rematchStatus.classList.remove('animate__fadeOut');
                 }
+
+                // Reset game state
+                stopMoveTimer();
+                document.querySelectorAll('.move-btn').forEach(btn => {
+                    btn.disabled = false;
+                    btn.classList.remove('animate__fadeOut');
+                });
+                document.getElementById('moveTimer').textContent = '10';
+                document.getElementById('playerMoveStatus').textContent = 'Waiting for your move...';
+                document.getElementById('opponentMoveStatus').textContent = 'Waiting for opponent to move...';
+
+                // Show play screen
+                showScreen('playScreen');
                 
                 // Show waiting screen
                 showScreen('waitingScreen');

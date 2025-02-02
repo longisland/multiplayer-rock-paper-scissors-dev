@@ -85,17 +85,13 @@ class MatchService:
         new_match = Match(match_id, new_creator, old_match.stake)
         new_match.joiner = new_joiner
         new_match.status = 'waiting'  # Start in waiting state
-        new_match.creator_ready = True  # Both players need to ready up again
-        new_match.joiner_ready = True
+        new_match.creator_ready = False  # Both players need to ready up again
+        new_match.joiner_ready = False
 
         # Update match and player states
         self.matches[match_id] = new_match
         self.players[new_creator].current_match = match_id
         self.players[new_joiner].current_match = match_id
-
-        # Start the match
-        new_match.start_match()
-        new_match.start_timer(Config.MATCH_TIMEOUT, self.handle_match_timeout)
 
         return new_match
 
