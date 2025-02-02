@@ -370,4 +370,5 @@ if __name__ == '__main__':
     socketio.run(app, 
                 host=Config.HOST,
                 port=Config.PORT,
-                debug=Config.DEBUG)
+                debug=Config.DEBUG,
+                allow_unsafe_werkzeug=True)
