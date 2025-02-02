@@ -64,16 +64,38 @@ class MatchService:
         return open_matches
 
     def handle_match_timeout(self, match_id):
+        from ..services.game_service import GameService
         match = self.matches.get(match_id)
         if not match or match.status != 'playing':
             return
 
+        # Track which players need auto moves
+        auto_moves = []
+
         # Assign random moves to players who haven't made a move
         if match.creator not in match.moves:
-            match.moves[match.creator] = random.choice(['rock', 'paper', 'scissors'])
+            move = random.choice(['rock', 'paper', 'scissors'])
+            match.moves[match.creator] = move
+            auto_moves.append(('creator', move))
 
         if match.joiner not in match.moves:
-            match.moves[match.joiner] = random.choice(['rock', 'paper', 'scissors'])
+            move = random.choice(['rock', 'paper', 'scissors'])
+            match.moves[match.joiner] = move
+            auto_moves.append(('joiner', move))
+
+        # If any auto moves were made, notify clients
+        from flask_socketio import emit
+        for role, move in auto_moves:
+            emit('move_made', {
+                'player': role,
+                'auto': True,
+                'move': move  # Include the move since it was automatic
+            }, room=match.id)
+
+        # Calculate and broadcast result if both moves are now made
+        if match.are_both_moves_made():
+            result = GameService.calculate_match_result(match, self.players)
+            emit('match_result', result, room=match.id)
 
         return match
 
