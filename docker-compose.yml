@@ -75,4 +75,6 @@ services:
 
 volumes:
   redis_data:
+    name: rps-game_redis_data
   postgres_data:
+    name: rps-game_postgres_data
