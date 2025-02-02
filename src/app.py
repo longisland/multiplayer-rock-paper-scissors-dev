@@ -274,17 +274,23 @@ def on_ready_for_match(data):
             joiner = match_service.get_player(match.joiner)
 
             if creator.has_enough_coins(match.stake) and joiner.has_enough_coins(match.stake):
-                # Deduct stakes from both players
+                # Log initial state
                 creator_user = User.query.filter_by(username=match.creator).first()
                 joiner_user = User.query.filter_by(username=match.joiner).first()
+                logger.info(f"Before stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}, Stake: {match.stake}")
                 
+                # Deduct stakes from both players
                 creator_user.coins -= match.stake
                 joiner_user.coins -= match.stake
-                db.session.commit()
-
+                
                 # Update in-memory state
                 creator.coins = creator_user.coins
                 joiner.coins = joiner_user.coins
+                
+                # Save changes
+                db.session.commit()
+                
+                logger.info(f"After stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
 
                 match.start_match()
                 match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)

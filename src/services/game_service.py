@@ -21,16 +21,19 @@ class GameService:
 
     @staticmethod
     def calculate_match_result(match, players):
+        from ..utils.logger import setup_logger
+        logger = setup_logger()
+
         creator_move = match.moves[match.creator]
         joiner_move = match.moves[match.joiner]
         result = GameService.calculate_winner(creator_move, joiner_move)
 
-        # Update match stats
-        match.stats.rounds += 1
-        
         # Get users from database
         creator_user = User.query.filter_by(username=match.creator).first()
         joiner_user = User.query.filter_by(username=match.joiner).first()
+
+        # Log initial state
+        logger.info(f"Before result - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}, Stake: {match.stake}")
         
         # Create game history record
         game_history = GameHistory(
@@ -42,43 +45,68 @@ class GameService:
         )
         
         if result == 'draw':
+            # In case of draw, return stakes to both players
+            logger.info("Match result: Draw")
             match.stats.draws += 1
             players[match.creator].record_draw()
             players[match.joiner].record_draw()
+            
+            # Return stakes
+            creator_user.coins += match.stake
+            joiner_user.coins += match.stake
+            
+            # Update stats
             creator_user.draws += 1
             creator_user.total_games += 1
             joiner_user.draws += 1
             joiner_user.total_games += 1
+
         elif result == 'player1':
+            # Creator wins
+            logger.info("Match result: Creator wins")
             match.stats.creator_wins += 1
             players[match.creator].record_win()
             players[match.joiner].record_loss()
             
-            # Winner gets the pot (2x stake)
-            creator_user.coins += match.pot
+            # Winner gets both stakes
+            creator_user.coins += (match.stake * 2)
             creator_user.total_coins_won += match.stake
             joiner_user.total_coins_lost += match.stake
             
-            # Sync in-memory state
-            players[match.creator].coins = creator_user.coins
-            players[match.joiner].coins = joiner_user.coins
+            # Update stats
+            creator_user.wins += 1
+            creator_user.total_games += 1
+            joiner_user.losses += 1
+            joiner_user.total_games += 1
             
             game_history.winner_id = creator_user.id
+
         else:
+            # Joiner wins
+            logger.info("Match result: Joiner wins")
             match.stats.joiner_wins += 1
             players[match.joiner].record_win()
             players[match.creator].record_loss()
             
-            # Winner gets the pot (2x stake)
-            joiner_user.coins += match.pot
+            # Winner gets both stakes
+            joiner_user.coins += (match.stake * 2)
             joiner_user.total_coins_won += match.stake
             creator_user.total_coins_lost += match.stake
             
-            # Sync in-memory state
-            players[match.joiner].coins = joiner_user.coins
-            players[match.creator].coins = creator_user.coins
+            # Update stats
+            joiner_user.wins += 1
+            joiner_user.total_games += 1
+            creator_user.losses += 1
+            creator_user.total_games += 1
             
             game_history.winner_id = joiner_user.id
+
+        # Sync in-memory state
+        players[match.creator].coins = creator_user.coins
+        players[match.joiner].coins = joiner_user.coins
+
+        # Log final state
+        logger.info(f"After result - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
             
         # Save changes to database
         db.session.add(game_history)

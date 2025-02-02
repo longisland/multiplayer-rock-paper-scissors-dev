@@ -22,7 +22,6 @@ class Match:
         self.creator = creator_id
         self.joiner = None
         self.stake = stake
-        self.pot = 0  # Will be set to 2x stake when match starts
         self.moves = {}
         self.status = 'waiting'  # waiting, playing, finished
         self.timer = None
@@ -69,7 +68,6 @@ class Match:
         self.status = 'playing'
         self.start_time = time.time()
         self.moves = {}
-        self.pot = self.stake * 2  # Total amount to be won
 
     def make_move(self, player_id, move):
         if player_id not in [self.creator, self.joiner]:
