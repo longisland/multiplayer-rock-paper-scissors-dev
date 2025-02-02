@@ -44,6 +44,7 @@ def index():
     if 'session_id' not in session:
         session_id = secrets.token_hex(8)
         session['session_id'] = session_id
+        session.modified = True
         match_service.get_player(session_id)  # Initialize player
         logger.info(f"Created new session: {session_id}")
     return render_template('index.html')
@@ -55,6 +56,7 @@ def get_state():
         if not session_id:
             session_id = secrets.token_hex(8)
             session['session_id'] = session_id
+            session.modified = True
             logger.info(f"Created new session: {session_id}")
 
         player = match_service.get_player(session_id)
@@ -69,15 +71,18 @@ def get_state():
                     'id': player.current_match,
                     'status': match.status,
                     'stake': match.stake,
-                    'is_creator': session_id == match.creator
+                    'is_creator': session_id == match.creator,
+                    'moves': match.moves.get(session_id)  # Include player's move if any
                 }
 
-        return jsonify({
+        response = jsonify({
             'coins': player.coins,
             'stats': player.stats.to_dict(),
             'open_matches': open_matches,
             'current_match': current_match
         })
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        return response
     except Exception as e:
         logger.exception("Error getting state")
         return jsonify({'error': 'Internal server error'}), 500
@@ -106,7 +111,13 @@ def create_match():
 
         match = match_service.create_match(session_id, stake)
         logger.info(f"Match created: {match.id} by {session_id}")
-        return jsonify({'match_id': match.id})
+        
+        # Update session
+        session.modified = True
+        
+        response = jsonify({'match_id': match.id})
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        return response
     except Exception as e:
         logger.exception("Error creating match")
         return jsonify({'error': 'Internal server error'}), 500
@@ -144,7 +155,13 @@ def join_match():
             return jsonify({'error': 'Failed to join match'}), 400
 
         logger.info(f"Player {session_id} joined match {match_id}")
-        return jsonify({'success': True})
+        
+        # Update session
+        session.modified = True
+        
+        response = jsonify({'success': True})
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        return response
     except Exception as e:
         logger.exception("Error joining match")
         return jsonify({'error': 'Internal server error'}), 500
@@ -176,6 +193,9 @@ def make_move():
             logger.error(f"Move already made or invalid player")
             return jsonify({'error': 'Invalid move'}), 400
 
+        # Update session
+        session.modified = True
+
         # Notify others that a move was made (without revealing the move)
         socketio.emit('move_made', {
             'player': match.get_player_role(session_id),
@@ -186,7 +206,9 @@ def make_move():
             result = game_service.calculate_match_result(match, match_service.players)
             socketio.emit('match_result', result, room=match.id)
 
-        return jsonify({'success': True})
+        response = jsonify({'success': True})
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        return response
     except Exception as e:
         logger.exception("Error making move")
         return jsonify({'error': 'Internal server error'}), 500
