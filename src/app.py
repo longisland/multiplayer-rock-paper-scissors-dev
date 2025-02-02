@@ -31,7 +31,7 @@ with app.app_context():
 # Configure Flask-SocketIO
 socketio = SocketIO(
     app,
-    async_mode='threading',
+    async_mode=None,  # Let Flask-SocketIO choose the best mode
     cors_allowed_origins='*',
     logger=True,
     engineio_logger=True,
