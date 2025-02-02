@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_session import Session
-from socketio.kombu import KombuManager
 import secrets
 import redis
 
@@ -38,8 +37,7 @@ socketio = SocketIO(
     ping_interval=25,
     max_http_buffer_size=1000000,
     manage_session=True,  # Let SocketIO manage the sessions
-    message_queue=redis_url,  # Use Redis for message queue
-    client_manager=KombuManager(redis_url)  # Use Redis for client management
+    message_queue=redis_url  # Use Redis for message queue
 )
 
 # Initialize services
