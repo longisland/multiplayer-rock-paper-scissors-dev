@@ -54,40 +54,32 @@ class GameService:
             players[match.creator].record_win()
             players[match.joiner].record_loss()
             
-            # Update coins in one place and sync
+            # Update coins and stats
             creator_user.coins += match.stake
+            creator_user.total_coins_won += match.stake
             joiner_user.coins -= match.stake
+            joiner_user.total_coins_lost += match.stake
+            
+            # Sync in-memory state
             players[match.creator].coins = creator_user.coins
             players[match.joiner].coins = joiner_user.coins
             
-            # Update stats
-            players[match.creator].stats.total_coins_won += match.stake
-            players[match.joiner].stats.total_coins_lost += match.stake
-            
-            creator_user.wins += 1
-            creator_user.total_games += 1
-            joiner_user.losses += 1
-            joiner_user.total_games += 1
             game_history.winner_id = creator_user.id
         else:
             match.stats.joiner_wins += 1
             players[match.joiner].record_win()
             players[match.creator].record_loss()
             
-            # Update coins in one place and sync
+            # Update coins and stats
             joiner_user.coins += match.stake
+            joiner_user.total_coins_won += match.stake
             creator_user.coins -= match.stake
+            creator_user.total_coins_lost += match.stake
+            
+            # Sync in-memory state
             players[match.joiner].coins = joiner_user.coins
             players[match.creator].coins = creator_user.coins
             
-            # Update stats
-            players[match.joiner].stats.total_coins_won += match.stake
-            players[match.creator].stats.total_coins_lost += match.stake
-            
-            joiner_user.wins += 1
-            joiner_user.total_games += 1
-            creator_user.losses += 1
-            creator_user.total_games += 1
             game_history.winner_id = joiner_user.id
             
         # Save changes to database

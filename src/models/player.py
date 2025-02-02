@@ -27,19 +27,24 @@ class Player:
         self._user.coins = value
         db.session.commit()
 
+    @property
+    def stats(self):
+        self._ensure_user_exists(100)
+        return {
+            'wins': self._user.wins,
+            'losses': self._user.losses,
+            'draws': self._user.draws,
+            'total_games': self._user.total_games,
+            'total_coins_won': self._user.total_coins_won or 0,
+            'total_coins_lost': self._user.total_coins_lost or 0
+        }
+
     def to_dict(self):
         self._ensure_user_exists(100)
         return {
             'coins': self._user.coins,
             'current_match': self.current_match,
-            'stats': {
-                'wins': self._user.wins,
-                'losses': self._user.losses,
-                'draws': self._user.draws,
-                'total_games': self._user.total_games,
-                'total_coins_won': self._user.total_coins_won or 0,
-                'total_coins_lost': self._user.total_coins_lost or 0
-            }
+            'stats': self.stats
         }
 
     def has_enough_coins(self, amount):
