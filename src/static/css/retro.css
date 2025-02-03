@@ -406,6 +406,51 @@ h1 {
     to { transform: rotate(360deg); }
 }
 
+@keyframes balanceDecrease {
+    0% { transform: scale(1); color: var(--warning-color); }
+    50% { transform: scale(1.2); color: var(--danger-color); }
+    100% { transform: scale(1); color: var(--warning-color); }
+}
+
+@keyframes balanceIncrease {
+    0% { transform: scale(1); color: var(--warning-color); }
+    50% { transform: scale(1.2); color: var(--success-color); }
+    100% { transform: scale(1); color: var(--warning-color); }
+}
+
+.balance-decrease {
+    animation: balanceDecrease 1s ease-in-out;
+}
+
+.balance-increase {
+    animation: balanceIncrease 1s ease-in-out;
+}
+
+.coin-change {
+    position: absolute;
+    font-size: 1.2em;
+    opacity: 0;
+    pointer-events: none;
+    animation: coinChange 1.5s ease-out forwards;
+}
+
+@keyframes coinChange {
+    0% {
+        opacity: 0;
+        transform: translateY(0);
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+}
+
 /* Mobile Responsive */
 @media (max-width: 600px) {
     body {

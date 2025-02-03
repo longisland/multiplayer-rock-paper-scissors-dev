@@ -31,6 +31,16 @@ class GameService:
 
         creator_move = match.moves[match.creator]
         joiner_move = match.moves[match.joiner]
+
+        # Handle auto-selected moves
+        creator_auto = creator_move == 'auto'
+        joiner_auto = joiner_move == 'auto'
+
+        if creator_auto:
+            creator_move = GameService.random_move()
+        if joiner_auto:
+            joiner_move = GameService.random_move()
+
         result = GameService.calculate_winner(creator_move, joiner_move)
 
         try:
@@ -75,32 +85,42 @@ class GameService:
                 match.stats.creator_wins += 1
                 game_history.winner_id = creator_user.id
                 
-                # Winner gets both stakes
-                creator_user.coins += 2 * match.stake
+                # Winner gets both stakes, but only normal winnings if not auto-selected
+                if creator_auto:
+                    creator_user.coins += match.stake  # Return stake only
+                else:
+                    creator_user.coins += 2 * match.stake  # Normal win
                 
                 # Update stats
                 creator_user.wins += 1
                 creator_user.total_games += 1
-                creator_user.total_coins_won += match.stake
+                if not creator_auto:
+                    creator_user.total_coins_won += match.stake
                 joiner_user.losses += 1
                 joiner_user.total_games += 1
-                joiner_user.total_coins_lost += match.stake
+                if not creator_auto:
+                    joiner_user.total_coins_lost += match.stake
 
             else:
                 logger.info("Match result: Joiner wins")
                 match.stats.joiner_wins += 1
                 game_history.winner_id = joiner_user.id
                 
-                # Winner gets both stakes
-                joiner_user.coins += 2 * match.stake
+                # Winner gets both stakes, but only normal winnings if not auto-selected
+                if joiner_auto:
+                    joiner_user.coins += match.stake  # Return stake only
+                else:
+                    joiner_user.coins += 2 * match.stake  # Normal win
                 
                 # Update stats
                 joiner_user.wins += 1
                 joiner_user.total_games += 1
-                joiner_user.total_coins_won += match.stake
+                if not joiner_auto:
+                    joiner_user.total_coins_won += match.stake
                 creator_user.losses += 1
                 creator_user.total_games += 1
-                creator_user.total_coins_lost += match.stake
+                if not joiner_auto:
+                    creator_user.total_coins_lost += match.stake
 
             # Sync in-memory state
             players[match.creator].coins = creator_user.coins
