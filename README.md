@@ -54,9 +54,9 @@ git clone https://github.com/longisland/multiplayer-rock-paper-scissors-dev.git
 cd multiplayer-rock-paper-scissors-dev
 ```
 
-2. Switch to the feature branch:
+2. Switch to the main branch:
 ```bash
-git checkout feature/fix-match-betting
+git checkout main
 ```
 
 3. Install dependencies:
@@ -74,27 +74,42 @@ Note: The application uses relative imports and must be run from the src directo
 
 ## Docker Deployment
 
-1. Switch to the feature branch:
+1. Switch to the main branch:
 ```bash
-git checkout feature/fix-match-betting
+git checkout main
 ```
 
-2. Build and start the containers:
+2. Create required directories and set permissions:
+```bash
+mkdir -p postgres/backup
+chmod 777 postgres/backup
+```
+
+3. Create external volumes for data persistence:
+```bash
+docker volume create --name=rps-game_postgres_data
+docker volume create --name=rps-game_redis_data
+```
+
+4. Build and start the containers:
 ```bash
 docker-compose up -d --build
 ```
 
-3. View logs:
+5. View logs:
 ```bash
 docker-compose logs -f
 ```
 
-4. Stop the containers:
+6. Stop the containers (preserves data in volumes):
 ```bash
 docker-compose down
 ```
 
-Note: The Docker deployment is configured to use relative imports and sets the correct PYTHONPATH and working directory.
+Note: 
+- The Docker deployment uses external volumes to ensure data persistence across deployments
+- The backup directory permissions are important for PostgreSQL archiving
+- The application uses relative imports and sets the correct PYTHONPATH
 
 ## Server Deployment
 
@@ -116,18 +131,26 @@ mkdir -p postgres/backup
 chmod 777 postgres/backup
 ```
 
-4. Switch to the feature branch and pull the latest changes:
+4. Create external volumes for data persistence:
 ```bash
-git checkout feature/fix-match-betting
-git pull origin feature/fix-match-betting
+docker volume create --name=rps-game_postgres_data
+docker volume create --name=rps-game_redis_data
 ```
 
-5. Build and start the containers:
+5. Switch to main branch and pull the latest changes:
+```bash
+git checkout main
+git pull origin main
+```
+
+6. Build and start the containers:
 ```bash
 docker-compose up -d --build
 ```
 
-Note: The backup directory permissions are important for PostgreSQL archiving to work correctly.
+Note: 
+- The backup directory permissions are important for PostgreSQL archiving
+- External volumes ensure data persistence across deployments
 
 ### Redeployment with Data Preservation
 
@@ -146,10 +169,10 @@ cd /var/www/rps-game
 docker-compose exec postgres pg_dump -U rps_user rps_db > postgres/backup/pre_deploy_backup.sql
 ```
 
-4. Switch to the feature branch and pull the latest changes:
+4. Switch to main branch and pull the latest changes:
 ```bash
-git checkout feature/fix-match-betting
-git pull origin feature/fix-match-betting
+git checkout main
+git pull origin main
 ```
 
 5. Rebuild and restart the containers:
@@ -164,8 +187,9 @@ docker-compose exec postgres psql -U rps_user -d rps_db < postgres/backup/pre_de
 ```
 
 Note: 
-- The `--force-recreate` flag ensures that the containers are recreated with the latest code, avoiding any caching issues.
-- The feature branch uses relative imports and requires specific PYTHONPATH configuration, which is handled by the Docker setup.
+- The `--force-recreate` flag ensures that the containers are recreated with the latest code
+- External volumes preserve data even when containers are recreated
+- Database backups provide additional data safety
 
 ### Data Persistence
 
@@ -221,9 +245,9 @@ The application can be configured through environment variables:
 
 ## Contributing
 
-1. Create a new branch from the feature branch:
+1. Create a new branch from the main branch:
 ```bash
-git checkout feature/fix-match-betting
+git checkout main
 git checkout -b feature/your-feature-name
 ```
 
@@ -238,9 +262,12 @@ git commit -m "Description of changes"
 git push origin feature/your-feature-name
 ```
 
-4. Create a Pull Request on GitHub targeting the feature/fix-match-betting branch.
+4. Create a Pull Request on GitHub targeting the main branch.
 
-Note: All new features should be based on the feature/fix-match-betting branch as it contains the latest project structure and betting system improvements.
+Note: 
+- All new features should be based on the main branch
+- Ensure your changes maintain data persistence with external volumes
+- Test your changes with both new and existing databases
 
 ## License
 
