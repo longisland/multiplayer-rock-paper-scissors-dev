@@ -1,0 +1,99 @@
+/* Betting-specific animations and styles */
+.coins.betting {
+    animation: bettingShake 0.5s ease-in-out;
+    color: var(--danger-color);
+}
+
+.coins.winning {
+    animation: winningPulse 1s ease-in-out;
+    color: var(--secondary-color);
+}
+
+.coins.losing {
+    animation: losingPulse 0.5s ease-in-out;
+    color: var(--danger-color);
+}
+
+.stake-preview.active {
+    animation: stakePreviewPulse 0.5s ease-in-out;
+}
+
+/* Coin balance change animation */
+.balance-change {
+    position: absolute;
+    font-size: 1.2em;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.balance-change.increase {
+    color: var(--secondary-color);
+    animation: balanceIncrease 1s ease-out forwards;
+}
+
+.balance-change.decrease {
+    color: var(--danger-color);
+    animation: balanceDecrease 1s ease-out forwards;
+}
+
+/* Betting animations */
+@keyframes bettingShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes winningPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@keyframes losingPulse {
+    0% { transform: scale(1); }
+    25% { transform: scale(0.9); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes stakePreviewPulse {
+    0% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-50%) scale(1.1); }
+    100% { transform: translateY(-50%) scale(1); }
+}
+
+@keyframes balanceIncrease {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+}
+
+@keyframes balanceDecrease {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+}
