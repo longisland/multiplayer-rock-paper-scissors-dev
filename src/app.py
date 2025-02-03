@@ -386,6 +386,27 @@ def on_rematch_accepted(data):
                 new_match.start_match()
                 new_match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
 
+                # Deduct stakes from both players
+                creator_user = User.query.filter_by(username=new_match.creator).first()
+                joiner_user = User.query.filter_by(username=new_match.joiner).first()
+                
+                if creator_user and joiner_user:
+                    # Log initial state
+                    logger.info(f"Before rematch stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}, Stake: {new_match.stake}")
+                    
+                    # Deduct stakes
+                    creator_user.coins -= new_match.stake
+                    joiner_user.coins -= new_match.stake
+                    
+                    # Update in-memory state
+                    match_service.players[new_match.creator].coins = creator_user.coins
+                    match_service.players[new_match.joiner].coins = joiner_user.coins
+                    
+                    # Save changes
+                    db.session.commit()
+                    
+                    logger.info(f"After rematch stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
+
                 # Notify both players that the match has started
                 socketio.emit('match_started', {
                     'match_id': new_match.id,
