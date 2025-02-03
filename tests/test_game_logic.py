@@ -11,31 +11,27 @@ class TestGameLogic(unittest.TestCase):
         self.game_service = GameService()
         self.match_service = MatchService()
         
-        # Create test users
+        # Create test users with initial balance of 100 coins
         self.creator_user = User(username='test_creator', coins=100)
         self.joiner_user = User(username='test_joiner', coins=100)
         
-        # Create test match
-        self.match = Match('test_match', 'test_creator', 10)  # stake = 10
+        # Create test match with stake of 10 coins
+        self.stake = 10
+        self.match = Match('test_match', 'test_creator', self.stake)
         self.match.joiner = 'test_joiner'
         
         # Store initial balances
-        self.initial_creator_balance = self.creator_user.coins
-        self.initial_joiner_balance = self.joiner_user.coins
-        self.stake = self.match.stake
+        self.initial_balance = 100  # Both players start with 100 coins
+        
+        # Deduct stakes at match start
+        self.creator_user.coins -= self.stake
+        self.joiner_user.coins -= self.stake
 
     def test_immediate_stake_deduction(self):
         """Test that stakes are immediately deducted at match start"""
-        # Start match
-        self.match.start_match()
-        
-        # Deduct stakes
-        self.creator_user.coins -= self.stake
-        self.joiner_user.coins -= self.stake
-        
-        # Verify balances
-        self.assertEqual(self.creator_user.coins, self.initial_creator_balance - self.stake)
-        self.assertEqual(self.joiner_user.coins, self.initial_joiner_balance - self.stake)
+        # Verify balances after stake deduction
+        self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
 
     def test_manual_win_creator(self):
         """Test creator winning with manual moves"""
@@ -55,11 +51,39 @@ class TestGameLogic(unittest.TestCase):
         self.assertEqual(result, 'player1')
         
         # Apply win rewards
-        self.creator_user.coins += 2 * self.stake  # Winner gets double stake
+        self.creator_user.coins += 2 * self.stake  # Winner gets both stakes
         
         # Verify final balances
-        self.assertEqual(self.creator_user.coins, self.initial_creator_balance + self.stake)
-        self.assertEqual(self.joiner_user.coins, self.initial_joiner_balance - self.stake)
+        # Creator: Initial (100) - Stake (10) + Double Stake (20) = 110
+        # Joiner: Initial (100) - Stake (10) = 90
+        self.assertEqual(self.creator_user.coins, self.initial_balance + self.stake)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
+
+    def test_manual_loss_creator(self):
+        """Test creator losing with manual moves"""
+        # Set moves
+        self.match.moves = {
+            'test_creator': 'scissors',
+            'test_joiner': 'rock'
+        }
+        
+        # Calculate result
+        result = self.game_service.calculate_winner(
+            self.match.moves['test_creator'],
+            self.match.moves['test_joiner']
+        )
+        
+        # Verify result
+        self.assertEqual(result, 'player2')
+        
+        # Apply win rewards to joiner
+        self.joiner_user.coins += 2 * self.stake  # Winner gets both stakes
+        
+        # Verify final balances
+        # Creator: Initial (100) - Stake (10) = 90
+        # Joiner: Initial (100) - Stake (10) + Double Stake (20) = 110
+        self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance + self.stake)
 
     def test_auto_win_creator(self):
         """Test creator winning with auto move"""
@@ -82,8 +106,36 @@ class TestGameLogic(unittest.TestCase):
         self.creator_user.coins += self.stake
         
         # Verify final balances
-        self.assertEqual(self.creator_user.coins, self.initial_creator_balance)
-        self.assertEqual(self.joiner_user.coins, self.initial_joiner_balance - self.stake)
+        # Creator: Initial (100) - Stake (10) + Stake (10) = 100
+        # Joiner: Initial (100) - Stake (10) = 90
+        self.assertEqual(self.creator_user.coins, self.initial_balance)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
+
+    def test_auto_loss_creator(self):
+        """Test creator losing with auto move"""
+        # Set moves
+        self.match.moves = {
+            'test_creator': 'auto',
+            'test_joiner': 'rock'
+        }
+        
+        # Calculate result (auto move becomes random)
+        result = self.game_service.calculate_winner(
+            'scissors',  # Simulating random auto move that loses
+            self.match.moves['test_joiner']
+        )
+        
+        # Verify result
+        self.assertEqual(result, 'player2')
+        
+        # Apply win rewards to joiner (manual win)
+        self.joiner_user.coins += 2 * self.stake
+        
+        # Verify final balances
+        # Creator: Initial (100) - Stake (10) = 90
+        # Joiner: Initial (100) - Stake (10) + Double Stake (20) = 110
+        self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance + self.stake)
 
     def test_manual_draw(self):
         """Test draw with manual moves"""
@@ -102,13 +154,14 @@ class TestGameLogic(unittest.TestCase):
         # Verify result
         self.assertEqual(result, 'draw')
         
-        # Apply draw rewards
+        # Apply draw rewards (both get stakes back)
         self.creator_user.coins += self.stake
         self.joiner_user.coins += self.stake
         
         # Verify final balances
-        self.assertEqual(self.creator_user.coins, self.initial_creator_balance)
-        self.assertEqual(self.joiner_user.coins, self.initial_joiner_balance)
+        # Both: Initial (100) - Stake (10) + Stake (10) = 100
+        self.assertEqual(self.creator_user.coins, self.initial_balance)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance)
 
     def test_auto_draw(self):
         """Test draw with auto moves"""
@@ -132,8 +185,9 @@ class TestGameLogic(unittest.TestCase):
         self.joiner_user.coins += self.stake
         
         # Verify final balances
-        self.assertEqual(self.creator_user.coins, self.initial_creator_balance)
-        self.assertEqual(self.joiner_user.coins, self.initial_joiner_balance)
+        # Both: Initial (100) - Stake (10) + Stake (10) = 100
+        self.assertEqual(self.creator_user.coins, self.initial_balance)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance)
 
     def test_mixed_draw(self):
         """Test draw with one manual and one auto move"""
@@ -157,12 +211,13 @@ class TestGameLogic(unittest.TestCase):
         self.joiner_user.coins += self.stake
         
         # Verify final balances
-        self.assertEqual(self.creator_user.coins, self.initial_creator_balance)
-        self.assertEqual(self.joiner_user.coins, self.initial_joiner_balance)
+        # Both: Initial (100) - Stake (10) + Stake (10) = 100
+        self.assertEqual(self.creator_user.coins, self.initial_balance)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance)
 
     def test_rematch_stake_verification(self):
         """Test that rematch is only allowed if both players have enough coins"""
-        # Set initial balances to exactly stake amount
+        # Set balances to exactly stake amount
         self.creator_user.coins = self.stake
         self.joiner_user.coins = self.stake
         

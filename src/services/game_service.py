@@ -76,14 +76,18 @@ class GameService:
                 bet_amount=match.stake
             )
             
+            # Log initial state
+            logger.info(f"Processing result - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}, Stake: {match.stake}")
+
             if result == 'draw':
                 logger.info("Match result: Draw")
                 match.stats.draws += 1
                 game_history.is_draw = True
                 
-                # In draw, both players get their stakes back regardless of auto/manual
+                # In draw, both players get their stakes back
                 creator_user.coins += match.stake
                 joiner_user.coins += match.stake
+                logger.info("Draw: returning stakes to both players")
                 
                 # Update stats
                 creator_user.draws += 1
@@ -112,6 +116,9 @@ class GameService:
                 creator_user.total_games += 1
                 joiner_user.losses += 1
                 joiner_user.total_games += 1
+                
+                # Log state after win
+                logger.info(f"After creator win - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
 
             else:
                 logger.info("Match result: Joiner wins")
@@ -134,6 +141,9 @@ class GameService:
                 joiner_user.total_games += 1
                 creator_user.losses += 1
                 creator_user.total_games += 1
+                
+                # Log state after win
+                logger.info(f"After joiner win - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
 
             # Sync in-memory state
             players[match.creator].coins = creator_user.coins
