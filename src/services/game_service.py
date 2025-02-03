@@ -5,6 +5,12 @@ from datetime import datetime
 class GameService:
     @staticmethod
     def calculate_winner(move1, move2):
+        # Handle auto moves by converting them to random moves
+        if move1 == 'auto':
+            move1 = random.choice(['rock', 'paper', 'scissors'])
+        if move2 == 'auto':
+            move2 = random.choice(['rock', 'paper', 'scissors'])
+
         if move1 == move2:
             return 'draw'
         if (
@@ -55,12 +61,16 @@ class GameService:
                 bet_amount=match.stake
             )
             
+            # Check if either move was auto-selected
+            creator_auto = match.moves[match.creator] == 'auto'
+            joiner_auto = match.moves[match.joiner] == 'auto'
+            
             if result == 'draw':
                 logger.info("Match result: Draw")
                 match.stats.draws += 1
                 game_history.is_draw = True
                 
-                # Return stakes to both players
+                # Return stakes to both players (only original stake)
                 creator_user.coins += match.stake
                 joiner_user.coins += match.stake
                 
@@ -75,32 +85,42 @@ class GameService:
                 match.stats.creator_wins += 1
                 game_history.winner_id = creator_user.id
                 
-                # Winner gets both stakes
-                creator_user.coins += 2 * match.stake
+                # Winner gets both stakes, but only original stake if auto-selected
+                if creator_auto:
+                    creator_user.coins += match.stake  # Return original stake only
+                else:
+                    creator_user.coins += 2 * match.stake  # Get both stakes
                 
                 # Update stats
                 creator_user.wins += 1
                 creator_user.total_games += 1
-                creator_user.total_coins_won += match.stake
+                if not creator_auto:
+                    creator_user.total_coins_won += match.stake
                 joiner_user.losses += 1
                 joiner_user.total_games += 1
-                joiner_user.total_coins_lost += match.stake
+                if not creator_auto:
+                    joiner_user.total_coins_lost += match.stake
 
             else:
                 logger.info("Match result: Joiner wins")
                 match.stats.joiner_wins += 1
                 game_history.winner_id = joiner_user.id
                 
-                # Winner gets both stakes
-                joiner_user.coins += 2 * match.stake
+                # Winner gets both stakes, but only original stake if auto-selected
+                if joiner_auto:
+                    joiner_user.coins += match.stake  # Return original stake only
+                else:
+                    joiner_user.coins += 2 * match.stake  # Get both stakes
                 
                 # Update stats
                 joiner_user.wins += 1
                 joiner_user.total_games += 1
-                joiner_user.total_coins_won += match.stake
+                if not joiner_auto:
+                    joiner_user.total_coins_won += match.stake
                 creator_user.losses += 1
                 creator_user.total_games += 1
-                creator_user.total_coins_lost += match.stake
+                if not joiner_auto:
+                    creator_user.total_coins_lost += match.stake
 
             # Sync in-memory state
             players[match.creator].coins = creator_user.coins

@@ -68,12 +68,12 @@ class MatchService:
         if not match or match.status != 'playing':
             return
 
-        # Assign random moves to players who haven't made a move
+        # Assign auto moves to players who haven't made a move
         if match.creator not in match.moves:
-            match.moves[match.creator] = random.choice(['rock', 'paper', 'scissors'])
+            match.moves[match.creator] = 'auto'  # Mark as auto-selected
 
         if match.joiner not in match.moves:
-            match.moves[match.joiner] = random.choice(['rock', 'paper', 'scissors'])
+            match.moves[match.joiner] = 'auto'  # Mark as auto-selected
 
         # Calculate and set match result since both moves are now made
         from .game_service import GameService

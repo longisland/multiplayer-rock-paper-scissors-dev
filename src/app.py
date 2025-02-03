@@ -274,6 +274,10 @@ def on_ready_for_match(data):
             joiner = match_service.get_player(match.joiner)
 
             if creator.has_enough_coins(match.stake) and joiner.has_enough_coins(match.stake):
+                # Start match first
+                match.start_match()
+                match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
+
                 # Log initial state
                 creator_user = User.query.filter_by(username=match.creator).first()
                 joiner_user = User.query.filter_by(username=match.joiner).first()
@@ -292,9 +296,7 @@ def on_ready_for_match(data):
                 
                 logger.info(f"After stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
 
-                match.start_match()
-                match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
-
+                # Notify players about match start
                 socketio.emit('match_started', {
                     'match_id': match_id,
                     'start_time': match.start_time
