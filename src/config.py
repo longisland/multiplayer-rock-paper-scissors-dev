@@ -12,3 +12,9 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     INITIAL_COINS = 100
     MATCH_TIMEOUT = 30.0  # seconds
+
+class TestConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    WTF_CSRF_ENABLED = False

@@ -26,15 +26,16 @@ Session(app)
 
 # Initialize database
 db.init_app(app)
-with app.app_context():
-    try:
-        db.create_all()
-    except Exception as e:
-        print(f"Error creating database tables: {e}")
-        # Wait for PostgreSQL to be ready
-        import time
-        time.sleep(10)
-        db.create_all()
+if not app.config.get('TESTING'):
+    with app.app_context():
+        try:
+            db.create_all()
+        except Exception as e:
+            print(f"Error creating database tables: {e}")
+            # Wait for PostgreSQL to be ready
+            import time
+            time.sleep(10)
+            db.create_all()
 
 # Configure Flask-SocketIO
 socketio = SocketIO(
@@ -273,39 +274,15 @@ def on_ready_for_match(data):
             creator = match_service.get_player(match.creator)
             joiner = match_service.get_player(match.joiner)
 
-            if creator.has_enough_coins(match.stake) and joiner.has_enough_coins(match.stake):
-                # Log initial state
-                creator_user = User.query.filter_by(username=match.creator).first()
-                joiner_user = User.query.filter_by(username=match.joiner).first()
-                logger.info(f"Before stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}, Stake: {match.stake}")
-                
-                # Deduct stakes from both players
-                creator_user.coins -= match.stake
-                joiner_user.coins -= match.stake
-                
-                # Update in-memory state
-                creator.coins = creator_user.coins
-                joiner.coins = joiner_user.coins
-                
-                # Save changes
-                db.session.commit()
-                
-                logger.info(f"After stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
+            match.start_match()
+            match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
 
-                match.start_match()
-                match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
+            socketio.emit('match_started', {
+                'match_id': match_id,
+                'start_time': match.start_time
+            }, room=match_id)
 
-                socketio.emit('match_started', {
-                    'match_id': match_id,
-                    'start_time': match.start_time
-                }, room=match_id)
-
-                logger.info(f"Match {match_id} started")
-            else:
-                logger.error(f"Insufficient coins for match {match_id}")
-                socketio.emit('match_error', {
-                    'error': 'Insufficient coins'
-                }, room=match_id)
+            logger.info(f"Match {match_id} started")
     except Exception as e:
         logger.exception("Error in ready_for_match handler")
 
