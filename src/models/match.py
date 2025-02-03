@@ -23,6 +23,7 @@ class Match:
         self.joiner = None
         self.stake = stake
         self.moves = {}
+        self.auto_moves = set()  # Track which moves were auto-selected
         self.status = 'waiting'  # waiting, playing, finished
         self.timer = None
         self.start_time = None

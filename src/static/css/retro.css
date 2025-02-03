@@ -59,6 +59,20 @@ h1 {
     align-items: center;
     justify-content: center;
     gap: 10px;
+    position: relative;
+}
+
+.coin-change {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.1);
+    animation-duration: 1s;
+    z-index: 10;
 }
 
 .coin-icon {

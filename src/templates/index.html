@@ -191,10 +191,29 @@
                 }
                 const data = await response.json();
                 
-                // Update coin balance and stats
+                // Update coin balance and stats with animation
                 const coinBalance = document.getElementById('coinBalance');
                 if (coinBalance) {
-                    coinBalance.textContent = data.coins;
+                    const oldBalance = parseInt(coinBalance.textContent);
+                    const newBalance = data.coins;
+                    if (oldBalance !== newBalance) {
+                        const diff = newBalance - oldBalance;
+                        const diffElement = document.createElement('span');
+                        diffElement.className = `coin-change animate__animated ${diff > 0 ? 'animate__bounceIn' : 'animate__fadeOutDown'}`;
+                        diffElement.style.color = diff > 0 ? 'var(--success-color)' : 'var(--danger-color)';
+                        diffElement.textContent = `${diff > 0 ? '+' : ''}${diff}`;
+                        coinBalance.parentElement.appendChild(diffElement);
+                        
+                        // Animate the balance change
+                        coinBalance.classList.add('animate__animated', diff > 0 ? 'animate__pulse' : 'animate__headShake');
+                        coinBalance.textContent = newBalance;
+                        
+                        // Remove animation classes and diff element after animation
+                        setTimeout(() => {
+                            coinBalance.classList.remove('animate__animated', 'animate__pulse', 'animate__headShake');
+                            diffElement.remove();
+                        }, 1000);
+                    }
                 }
 
                 if (data.stats) {

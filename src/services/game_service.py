@@ -52,7 +52,8 @@ class GameService:
                 player2_id=joiner_user.id,
                 player1_choice=creator_move,
                 player2_choice=joiner_move,
-                bet_amount=match.stake
+                bet_amount=match.stake,
+                is_auto_choice=bool(match.auto_moves) if hasattr(match, 'auto_moves') else False
             )
             
             if result == 'draw':
@@ -60,7 +61,7 @@ class GameService:
                 match.stats.draws += 1
                 game_history.is_draw = True
                 
-                # Return stakes to both players
+                # Return stakes to both players (already deducted at match start)
                 creator_user.coins += match.stake
                 joiner_user.coins += match.stake
                 
@@ -75,7 +76,7 @@ class GameService:
                 match.stats.creator_wins += 1
                 game_history.winner_id = creator_user.id
                 
-                # Winner gets both stakes
+                # Winner gets both stakes (already deducted at match start)
                 creator_user.coins += 2 * match.stake
                 
                 # Update stats
@@ -91,7 +92,7 @@ class GameService:
                 match.stats.joiner_wins += 1
                 game_history.winner_id = joiner_user.id
                 
-                # Winner gets both stakes
+                # Winner gets both stakes (already deducted at match start)
                 joiner_user.coins += 2 * match.stake
                 
                 # Update stats

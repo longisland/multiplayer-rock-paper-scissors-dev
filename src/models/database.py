@@ -42,6 +42,8 @@ class GameHistory(db.Model):
     winner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     played_at = db.Column(db.DateTime, default=datetime.utcnow)
     bet_amount = db.Column(db.Integer, default=0)
+    is_auto_choice = db.Column(db.Boolean, default=False)
+    is_draw = db.Column(db.Boolean, default=False)
 
     player1 = db.relationship('User', foreign_keys=[player1_id])
     player2 = db.relationship('User', foreign_keys=[player2_id])
