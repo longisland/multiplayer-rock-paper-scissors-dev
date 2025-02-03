@@ -97,28 +97,56 @@ class MatchService:
         if not old_match.is_rematch_ready():
             return None
 
-        # Randomly choose new creator and joiner
-        new_creator = random.choice([old_match.creator, old_match.joiner])
-        new_joiner = old_match.joiner if new_creator == old_match.creator else old_match.creator
+        try:
+            # Start transaction
+            db.session.begin_nested()
 
-        # Create new match
-        match_id = secrets.token_hex(4)
-        new_match = Match(match_id, new_creator, old_match.stake)
-        new_match.joiner = new_joiner
-        new_match.status = 'waiting'  # Start in waiting state
-        new_match.creator_ready = True  # Both players need to ready up again
-        new_match.joiner_ready = True
+            # Get users from database with row locking
+            creator_user = User.query.filter_by(username=old_match.creator).with_for_update().first()
+            joiner_user = User.query.filter_by(username=old_match.joiner).with_for_update().first()
 
-        # Update match and player states
-        self.matches[match_id] = new_match
-        self.players[new_creator].current_match = match_id
-        self.players[new_joiner].current_match = match_id
+            if not creator_user or not joiner_user:
+                db.session.rollback()
+                return None
 
-        # Start the match
-        new_match.start_match()
-        new_match.start_timer(Config.MATCH_TIMEOUT, self.handle_match_timeout)
+            # Verify coins again within transaction
+            if creator_user.coins < old_match.stake or joiner_user.coins < old_match.stake:
+                db.session.rollback()
+                return None
 
-        return new_match
+            # Deduct stakes from both players
+            creator_user.coins -= old_match.stake
+            joiner_user.coins -= old_match.stake
+
+            # Create new match
+            match_id = secrets.token_hex(4)
+            new_match = Match(match_id, old_match.creator, old_match.stake)
+            new_match.joiner = old_match.joiner
+            new_match.status = 'playing'  # Start in playing state
+            new_match.creator_ready = True
+            new_match.joiner_ready = True
+
+            # Update match and player states
+            self.matches[match_id] = new_match
+            self.players[old_match.creator].current_match = match_id
+            self.players[old_match.joiner].current_match = match_id
+
+            # Update in-memory state
+            self.players[old_match.creator].coins = creator_user.coins
+            self.players[old_match.joiner].coins = joiner_user.coins
+
+            # Commit transaction
+            db.session.commit()
+
+            # Start the match timer
+            new_match.start_match()
+            new_match.start_timer(Config.MATCH_TIMEOUT, self.handle_match_timeout)
+
+            return new_match
+
+        except Exception as e:
+            db.session.rollback()
+            return None
 
     def cleanup_match(self, match_id):
         if match_id in self.matches:
