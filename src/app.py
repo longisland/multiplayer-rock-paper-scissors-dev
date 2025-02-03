@@ -429,6 +429,40 @@ def on_move_timeout(data):
     except Exception as e:
         logger.exception("Error in move_timeout handler")
 
+@socketio.on('move_timeout')
+def on_move_timeout(data):
+    try:
+        session_id = session.get('session_id')
+        match_id = data.get('match_id')
+
+        if not session_id or not match_id:
+            logger.error(f"Invalid session or match ID in move_timeout")
+            return
+
+        match = match_service.get_match(match_id)
+        if not match or match.status != 'playing':
+            logger.error(f"Match {match_id} not found or not in playing state")
+            return
+
+        # Handle timeout by making random moves for players who haven't moved
+        result = match_service.handle_match_timeout(match_id)
+        if result:
+            # Notify about auto moves
+            for player_id in [match.creator, match.joiner]:
+                if player_id not in match.moves:
+                    socketio.emit('move_made', {
+                        'player': match.get_player_role(player_id),
+                        'auto': True
+                    }, room=match.id)
+
+            # Calculate and send result if both moves are now made
+            if match.are_both_moves_made():
+                result_data = game_service.calculate_match_result(match, match_service.players)
+                socketio.emit('match_result', result_data, room=match.id)
+
+    except Exception as e:
+        logger.exception("Error in move_timeout handler")
+
 @socketio.on('rematch_declined')
 def on_rematch_declined(data):
     try:
