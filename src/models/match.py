@@ -31,6 +31,7 @@ class Match:
         self.stats = MatchStats()
         self.result = None
         self.rematch_ready = set()
+        self.stakes_deducted = False  # Track if stakes have been deducted
 
     def to_dict(self):
         return {
@@ -65,9 +66,10 @@ class Match:
             self.timer = None
 
     def start_match(self):
-        self.status = 'playing'
-        self.start_time = time.time()
-        self.moves = {}
+        if self.status != 'playing':  # Only start if not already playing
+            self.status = 'playing'
+            self.start_time = time.time()
+            self.moves = {}
 
     def make_move(self, player_id, move):
         if player_id not in [self.creator, self.joiner]:

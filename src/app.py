@@ -296,18 +296,23 @@ def on_ready_for_match(data):
                     # Log initial state
                     logger.info(f"Before stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}, Stake: {match.stake}")
 
-                    # Deduct stakes immediately
-                    creator_user.coins -= match.stake
-                    joiner_user.coins -= match.stake
+                    # Only deduct stakes if not already deducted
+                    if not match.stakes_deducted:
+                        # Deduct stakes immediately
+                        creator_user.coins -= match.stake
+                        joiner_user.coins -= match.stake
 
-                    # Update in-memory state
-                    creator.coins = creator_user.coins
-                    joiner.coins = joiner_user.coins
+                        # Update in-memory state
+                        creator.coins = creator_user.coins
+                        joiner.coins = joiner_user.coins
 
-                    # Commit stake deductions
-                    db.session.commit()
+                        # Mark stakes as deducted
+                        match.stakes_deducted = True
 
-                    logger.info(f"After stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
+                        # Commit stake deductions
+                        db.session.commit()
+
+                        logger.info(f"After stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
 
                     # Start match after successful stake deduction
                     match.start_match()
@@ -402,40 +407,64 @@ def on_rematch_accepted(data):
                 join_room(new_match.id, sid=match.creator)
                 join_room(new_match.id, sid=match.joiner)
 
-                # Signal ready for both players
-                new_match.creator_ready = True
-                new_match.joiner_ready = True
+                try:
+                    # Start transaction for stake deduction
+                    db.session.begin_nested()
 
-                # Start the match
-                new_match.start_match()
-                new_match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
+                    # Get users with row locking
+                    creator_user = User.query.filter_by(username=new_match.creator).with_for_update().first()
+                    joiner_user = User.query.filter_by(username=new_match.joiner).with_for_update().first()
 
-                # Deduct stakes from both players
-                creator_user = User.query.filter_by(username=new_match.creator).first()
-                joiner_user = User.query.filter_by(username=new_match.joiner).first()
-                
-                if creator_user and joiner_user:
+                    if not creator_user or not joiner_user:
+                        logger.error("Users not found for rematch")
+                        db.session.rollback()
+                        return
+
+                    # Verify both players have enough coins
+                    if creator_user.coins < new_match.stake or joiner_user.coins < new_match.stake:
+                        logger.error("Insufficient coins for rematch")
+                        db.session.rollback()
+                        return
+
                     # Log initial state
                     logger.info(f"Before rematch stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}, Stake: {new_match.stake}")
-                    
-                    # Deduct stakes
+
+                    # Deduct stakes immediately
                     creator_user.coins -= new_match.stake
                     joiner_user.coins -= new_match.stake
-                    
+
                     # Update in-memory state
                     match_service.players[new_match.creator].coins = creator_user.coins
                     match_service.players[new_match.joiner].coins = joiner_user.coins
-                    
-                    # Save changes
+
+                    # Mark stakes as deducted
+                    new_match.stakes_deducted = True
+
+                    # Start the match
+                    new_match.start_match()
+                    new_match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
+
+                    # Signal ready for both players (after stake deduction)
+                    new_match.creator_ready = True
+                    new_match.joiner_ready = True
+
+                    # Commit all changes
                     db.session.commit()
-                    
+
                     logger.info(f"After rematch stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
 
-                # Notify both players that the match has started
-                socketio.emit('match_started', {
-                    'match_id': new_match.id,
-                    'start_time': new_match.start_time
-                }, room=new_match.id)
+                    # Notify both players that the match has started with updated balances
+                    socketio.emit('match_started', {
+                        'match_id': new_match.id,
+                        'start_time': new_match.start_time,
+                        'creator_balance': creator_user.coins,
+                        'joiner_balance': joiner_user.coins
+                    }, room=new_match.id)
+
+                except Exception as e:
+                    logger.exception("Error processing rematch stake deduction")
+                    db.session.rollback()
+                    return
 
                 # Cleanup old match after everything is set up
                 match_service.cleanup_match(match_id)
