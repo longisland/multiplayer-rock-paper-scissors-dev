@@ -4,3 +4,13 @@ INFO:engineio.server:Server initialized for threading.
  * Debug mode: on
 Address already in use
 Port 3001 is in use by another program. Either identify and stop that program, or start the server with a different port.
+2025-02-03 18:18:47,275 - rps_game - INFO - Match result: Creator wins
+2025-02-03 18:18:47,275 - rps_game - INFO - Match result: Creator wins
+2025-02-03 18:18:47,277 - rps_game - INFO - Match result saved to database
+2025-02-03 18:18:47,277 - rps_game - INFO - Match result saved to database
+2025-02-03 18:18:47,286 - rps_game - INFO - Match result: Creator wins
+2025-02-03 18:18:47,286 - rps_game - INFO - Match result: Creator wins
+2025-02-03 18:18:47,286 - rps_game - INFO - Match result: Creator wins
+2025-02-03 18:18:47,288 - rps_game - INFO - Match result saved to database
+2025-02-03 18:18:47,288 - rps_game - INFO - Match result saved to database
+2025-02-03 18:18:47,288 - rps_game - INFO - Match result saved to database

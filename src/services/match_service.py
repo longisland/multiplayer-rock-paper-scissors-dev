@@ -43,9 +43,42 @@ class MatchService:
         if match.status != 'waiting' or match.joiner is not None:
             return None
 
-        match.joiner = joiner_id
-        self.players[joiner_id].current_match = match_id
-        return match
+        try:
+            # Start transaction
+            db.session.begin_nested()
+
+            # Get users from database with row locking
+            creator_user = User.query.filter_by(username=match.creator).with_for_update().first()
+            joiner_user = User.query.filter_by(username=joiner_id).with_for_update().first()
+
+            if not creator_user or not joiner_user:
+                db.session.rollback()
+                return None
+
+            # Verify coins again within transaction
+            if creator_user.coins < match.stake or joiner_user.coins < match.stake:
+                db.session.rollback()
+                return None
+
+            # Deduct stakes from both players immediately
+            creator_user.coins -= match.stake
+            joiner_user.coins -= match.stake
+
+            # Update in-memory state
+            self.players[match.creator].coins = creator_user.coins
+            self.players[joiner_id].coins = joiner_user.coins
+
+            # Update match state
+            match.joiner = joiner_id
+            self.players[joiner_id].current_match = match_id
+
+            # Commit transaction
+            db.session.commit()
+            return match
+
+        except Exception as e:
+            db.session.rollback()
+            return None
 
     def get_match(self, match_id):
         return self.matches.get(match_id)
@@ -68,21 +101,44 @@ class MatchService:
         if not match or match.status != 'playing':
             return
 
-        # Assign random moves to players who haven't made a move
-        if match.creator not in match.moves:
-            match.moves[match.creator] = random.choice(['rock', 'paper', 'scissors'])
+        try:
+            # Start transaction
+            db.session.begin_nested()
 
-        if match.joiner not in match.moves:
-            match.moves[match.joiner] = random.choice(['rock', 'paper', 'scissors'])
+            # Get users from database with row locking
+            creator_user = User.query.filter_by(username=match.creator).with_for_update().first()
+            joiner_user = User.query.filter_by(username=match.joiner).with_for_update().first()
 
-        # Calculate and set match result since both moves are now made
-        from .game_service import GameService
-        result_data = GameService.calculate_match_result(match, self.players)
-        
-        # Cancel the timer since we've handled the timeout
-        match.cancel_timer()
-        
-        return match
+            if not creator_user or not joiner_user:
+                db.session.rollback()
+                return None
+
+            # Assign random moves to players who haven't made a move
+            if match.creator not in match.moves:
+                match.moves[match.creator] = random.choice(['rock', 'paper', 'scissors'])
+
+            if match.joiner not in match.moves:
+                match.moves[match.joiner] = random.choice(['rock', 'paper', 'scissors'])
+
+            # Calculate and set match result since both moves are now made
+            from .game_service import GameService
+            result_data = GameService.calculate_match_result(match, self.players)
+
+            # Update in-memory state
+            self.players[match.creator].coins = creator_user.coins
+            self.players[match.joiner].coins = joiner_user.coins
+
+            # Commit transaction
+            db.session.commit()
+
+            # Cancel the timer since we've handled the timeout
+            match.cancel_timer()
+
+            return match
+
+        except Exception as e:
+            db.session.rollback()
+            return None
 
     def create_rematch(self, old_match_id):
         old_match = self.matches.get(old_match_id)
