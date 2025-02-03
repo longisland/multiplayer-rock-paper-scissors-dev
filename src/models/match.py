@@ -32,6 +32,7 @@ class Match:
         self.result = None
         self.rematch_ready = set()
         self.stakes_deducted = False  # Track if stakes have been deducted
+        self.auto_selected = set()  # Track which players had auto-selected moves
 
     def to_dict(self):
         return {

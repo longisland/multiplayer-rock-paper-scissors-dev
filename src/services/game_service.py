@@ -67,13 +67,21 @@ class GameService:
                 db.session.rollback()
                 return None
 
+            # Check if either move was auto-selected
+            creator_auto = match.creator in (match.auto_selected or set())
+            joiner_auto = match.joiner in (match.auto_selected or set())
+
+            # Log auto-selection status
+            logger.info(f"Auto-selection status - Creator: {creator_auto}, Joiner: {joiner_auto}")
+
             # Create game history record with original moves
             game_history = GameHistory(
                 player1_id=creator_user.id,
                 player2_id=joiner_user.id,
-                player1_choice=original_creator_move,
-                player2_choice=original_joiner_move,
-                bet_amount=match.stake
+                player1_choice=creator_move,
+                player2_choice=joiner_move,
+                bet_amount=match.stake,
+                auto_selected=True if creator_auto or joiner_auto else False
             )
             
             # Log initial state
@@ -100,10 +108,10 @@ class GameService:
                 match.stats.creator_wins += 1
                 game_history.winner_id = creator_user.id
                 
-                if creator_auto:
-                    # Auto-win: only get stake back
+                if creator_auto or joiner_auto:
+                    # If either player had auto-selected move, winner only gets stake back
                     creator_user.coins += match.stake
-                    logger.info("Creator auto-win: returning stake only")
+                    logger.info("Creator win with auto-selection: returning stake only")
                 else:
                     # Manual win: get both stakes
                     creator_user.coins += 2 * match.stake
@@ -125,10 +133,10 @@ class GameService:
                 match.stats.joiner_wins += 1
                 game_history.winner_id = joiner_user.id
                 
-                if joiner_auto:
-                    # Auto-win: only get stake back
+                if creator_auto or joiner_auto:
+                    # If either player had auto-selected move, winner only gets stake back
                     joiner_user.coins += match.stake
-                    logger.info("Joiner auto-win: returning stake only")
+                    logger.info("Joiner win with auto-selection: returning stake only")
                 else:
                     # Manual win: get both stakes
                     joiner_user.coins += 2 * match.stake
