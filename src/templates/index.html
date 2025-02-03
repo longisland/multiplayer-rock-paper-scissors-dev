@@ -376,6 +376,21 @@
                     currentMatchId = matchId;
                     isCreator = false;
                     
+                    // Animate balance deduction
+                    const coinBalance = document.getElementById('coinBalance');
+                    const currentBalance = parseInt(coinBalance.textContent);
+                    const stake = matches[matchId].stake;
+                    
+                    coinBalance.classList.add('animate__animated', 'animate__flash');
+                    coinBalance.style.color = 'var(--danger-color)';
+                    setTimeout(() => {
+                        coinBalance.textContent = currentBalance - stake;
+                        setTimeout(() => {
+                            coinBalance.classList.remove('animate__flash');
+                            coinBalance.style.color = '';
+                        }, 500);
+                    }, 500);
+                    
                     // Join the match room via socket
                     console.log('Joining match room:', matchId);
                     socket.emit('join_match_room', { match_id: matchId });
@@ -686,14 +701,39 @@
                     const resultTextElement = document.getElementById('resultText');
                     
                     if (resultAnimation && resultTextElement) {
+                        const coinBalance = document.getElementById('coinBalance');
+                        const currentBalance = parseInt(coinBalance.textContent);
+                        
                         if (data.winner === 'draw') {
                             resultText = "It's a draw!";
                             resultAnimation.innerHTML = '🤝';
                             resultAnimation.classList.add('animate__animated', 'animate__bounce');
+                            
+                            // Animate stake return
+                            coinBalance.classList.add('animate__animated', 'animate__flash');
+                            coinBalance.style.color = 'var(--success-color)';
+                            setTimeout(() => {
+                                coinBalance.textContent = currentBalance + data.stake;
+                                setTimeout(() => {
+                                    coinBalance.classList.remove('animate__flash');
+                                    coinBalance.style.color = '';
+                                }, 500);
+                            }, 500);
                         } else if (isWinner) {
                             resultText = 'You won!';
                             resultAnimation.innerHTML = '🏆';
                             resultAnimation.classList.add('animate__animated', 'animate__tada');
+                            
+                            // Animate winnings
+                            coinBalance.classList.add('animate__animated', 'animate__flash');
+                            coinBalance.style.color = 'var(--success-color)';
+                            setTimeout(() => {
+                                coinBalance.textContent = currentBalance + (2 * data.stake);
+                                setTimeout(() => {
+                                    coinBalance.classList.remove('animate__flash');
+                                    coinBalance.style.color = '';
+                                }, 500);
+                            }, 500);
                         } else {
                             resultText = 'You lost!';
                             resultAnimation.innerHTML = '💔';

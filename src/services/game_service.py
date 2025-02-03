@@ -55,6 +55,25 @@ class GameService:
                 bet_amount=match.stake
             )
             
+            # Prepare result data first to ensure atomic operation
+            result_data = {
+                'winner': result,
+                'creator_move': creator_move,
+                'joiner_move': joiner_move,
+                'match_stats': match.stats.to_dict(),
+                'creator_stats': players[match.creator].stats.to_dict(),
+                'joiner_stats': players[match.joiner].stats.to_dict(),
+                'stake': match.stake,
+                'can_rematch': (players[match.creator].has_enough_coins(match.stake) and 
+                              players[match.joiner].has_enough_coins(match.stake))
+            }
+
+            # Set result first to prevent double processing
+            if not match.set_result(result_data):
+                logger.info("Match result already processed, rolling back")
+                db.session.rollback()
+                return match.result
+            
             if result == 'draw':
                 logger.info("Match result: Draw")
                 match.stats.draws += 1
@@ -105,30 +124,12 @@ class GameService:
             # Sync in-memory state
             players[match.creator].coins = creator_user.coins
             players[match.joiner].coins = joiner_user.coins
-            
-            # Prepare result data
-            result_data = {
-                'winner': result,
-                'creator_move': creator_move,
-                'joiner_move': joiner_move,
-                'match_stats': match.stats.to_dict(),
-                'creator_stats': players[match.creator].stats.to_dict(),
-                'joiner_stats': players[match.joiner].stats.to_dict(),
-                'stake': match.stake,
-                'can_rematch': (players[match.creator].has_enough_coins(match.stake) and 
-                              players[match.joiner].has_enough_coins(match.stake))
-            }
 
-            # Set result and save to database
-            if match.set_result(result_data):
-                db.session.add(game_history)
-                db.session.commit()
-                logger.info("Match result saved to database")
-                return result_data
-            else:
-                logger.info("Match result already processed, rolling back")
-                db.session.rollback()
-                return match.result
+            # Save to database
+            db.session.add(game_history)
+            db.session.commit()
+            logger.info("Match result saved to database")
+            return result_data
 
         except Exception as e:
             logger.exception("Error processing match result")

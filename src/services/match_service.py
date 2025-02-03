@@ -124,6 +124,10 @@ class MatchService:
             from .game_service import GameService
             result_data = GameService.calculate_match_result(match, self.players)
 
+            if result_data is None:
+                db.session.rollback()
+                return None
+
             # Update in-memory state
             self.players[match.creator].coins = creator_user.coins
             self.players[match.joiner].coins = joiner_user.coins
