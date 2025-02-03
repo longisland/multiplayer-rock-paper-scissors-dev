@@ -198,7 +198,8 @@ def make_move():
 
         if match.are_both_moves_made():
             result = game_service.calculate_match_result(match, match_service.players)
-            socketio.emit('match_result', result, room=match.id)
+            if result:
+                socketio.emit('match_result', result, room=match.id)
 
         return jsonify({'success': True})
     except Exception as e:

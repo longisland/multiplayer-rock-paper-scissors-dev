@@ -72,12 +72,15 @@ class Match:
             self.start_time = time.time()
             self.moves = {}
 
-    def make_move(self, player_id, move):
+    def make_move(self, player_id, move, is_auto=False):
         if player_id not in [self.creator, self.joiner]:
             return False
         if player_id in self.moves:
             return False
         self.moves[player_id] = move
+        if is_auto:
+            self.auto_selected = self.auto_selected or set()
+            self.auto_selected.add(player_id)
         return True
 
     def are_both_moves_made(self):

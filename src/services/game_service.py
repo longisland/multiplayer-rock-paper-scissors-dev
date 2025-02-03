@@ -5,12 +5,6 @@ from datetime import datetime
 class GameService:
     @staticmethod
     def calculate_winner(move1, move2):
-        # Handle auto moves by converting them to random moves
-        if move1 == 'auto':
-            move1 = random.choice(['rock', 'paper', 'scissors'])
-        if move2 == 'auto':
-            move2 = random.choice(['rock', 'paper', 'scissors'])
-
         if move1 == move2:
             return 'draw'
         if (
