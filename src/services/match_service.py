@@ -29,6 +29,17 @@ class MatchService:
         return self.players[session_id]
 
     def create_match(self, creator_id, stake):
+        # Check if player has enough coins
+        if not self.players[creator_id].has_enough_coins(stake):
+            return None
+
+        # Deduct stake from creator
+        self.players[creator_id].add_coins(-stake)
+        user = User.query.filter_by(username=creator_id).first()
+        if user:
+            user.coins -= stake
+            db.session.commit()
+
         match_id = secrets.token_hex(4)
         match = Match(match_id, creator_id, stake)
         self.matches[match_id] = match
@@ -42,6 +53,17 @@ class MatchService:
         match = self.matches[match_id]
         if match.status != 'waiting' or match.joiner is not None:
             return None
+
+        # Check if joiner has enough coins
+        if not self.players[joiner_id].has_enough_coins(match.stake):
+            return None
+
+        # Deduct stake from joiner
+        self.players[joiner_id].add_coins(-match.stake)
+        user = User.query.filter_by(username=joiner_id).first()
+        if user:
+            user.coins -= match.stake
+            db.session.commit()
 
         match.joiner = joiner_id
         self.players[joiner_id].current_match = match_id
