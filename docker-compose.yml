@@ -76,5 +76,7 @@ services:
 volumes:
   redis_data:
     name: rps-game_redis_data
+    external: true
   postgres_data:
     name: rps-game_postgres_data
+    external: true
