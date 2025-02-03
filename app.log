@@ -4,3 +4,1401 @@ INFO:engineio.server:Server initialized for threading.
  * Debug mode: on
 Address already in use
 Port 3001 is in use by another program. Either identify and stop that program, or start the server with a different port.
+2025-02-03 17:25:16,342 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,344 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,344 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,346 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,346 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,346 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,347 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,347 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,347 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,347 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,347 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,347 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,347 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,347 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,347 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,348 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,348 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,348 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,348 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,348 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,348 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,350 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,350 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,350 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,350 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,350 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,350 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:25:16,350 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 59, in calculate_match_result
+    db.session.begin_nested()
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 477, in begin_nested
+    return self._proxied.begin_nested()
+           ^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/orm/scoping.py", line 198, in _proxied
+    return self.registry()
+           ^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/sqlalchemy/util/_collections.py", line 640, in __call__
+    key = self.scopefunc()
+          ^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/flask_sqlalchemy/session.py", line 111, in _app_ctx_id
+    return id(app_ctx._get_current_object())  # type: ignore[attr-defined]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/openhands/poetry/openhands-ai-5O4_aCHf-py3.12/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-03 17:26:50,175 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: True
+2025-02-03 17:26:50,175 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,175 - rps_game - INFO - Match result: Draw
+2025-02-03 17:26:50,175 - rps_game - INFO - Auto-selection draw: stakes are lost
+2025-02-03 17:26:50,175 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,190 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: True
+2025-02-03 17:26:50,190 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: True
+2025-02-03 17:26:50,193 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,193 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,193 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,193 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,193 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:26:50,193 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:26:50,194 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:26:50,194 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:26:50,194 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,194 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,205 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:26:50,205 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:26:50,205 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:26:50,205 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,205 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,205 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,205 - rps_game - INFO - Match result: Draw
+2025-02-03 17:26:50,205 - rps_game - INFO - Match result: Draw
+2025-02-03 17:26:50,205 - rps_game - INFO - Match result: Draw
+2025-02-03 17:26:50,205 - rps_game - INFO - Auto-selection draw: stakes are lost
+2025-02-03 17:26:50,205 - rps_game - INFO - Auto-selection draw: stakes are lost
+2025-02-03 17:26:50,205 - rps_game - INFO - Auto-selection draw: stakes are lost
+2025-02-03 17:26:50,205 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,205 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,205 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,210 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:26:50,210 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:26:50,210 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:26:50,210 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:26:50,211 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,211 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,211 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,211 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,211 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,211 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,211 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,211 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,211 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:26:50,211 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:26:50,211 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:26:50,211 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:26:50,211 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:26:50,211 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:26:50,211 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:26:50,211 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:26:50,211 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,211 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,211 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,211 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,217 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:26:50,217 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:26:50,217 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:26:50,217 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:26:50,217 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:26:50,217 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,217 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,217 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,217 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,217 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,217 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,217 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,217 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,217 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,217 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,217 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:26:50,217 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:26:50,217 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:26:50,217 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:26:50,217 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:26:50,217 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:26:50,217 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:26:50,217 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:26:50,217 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:26:50,217 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:26:50,217 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,217 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,217 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,217 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,217 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,220 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,220 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,220 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,220 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,220 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,220 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,220 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,220 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,220 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,220 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,220 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,220 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,220 - rps_game - INFO - Match result: Draw
+2025-02-03 17:26:50,220 - rps_game - INFO - Match result: Draw
+2025-02-03 17:26:50,220 - rps_game - INFO - Match result: Draw
+2025-02-03 17:26:50,220 - rps_game - INFO - Match result: Draw
+2025-02-03 17:26:50,220 - rps_game - INFO - Match result: Draw
+2025-02-03 17:26:50,220 - rps_game - INFO - Match result: Draw
+2025-02-03 17:26:50,221 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:26:50,221 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:26:50,221 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:26:50,221 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:26:50,221 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:26:50,221 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:26:50,221 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,221 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,221 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,221 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,221 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,221 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,223 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,223 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,223 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,223 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,223 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,223 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,223 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:26:50,223 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,223 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,223 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,223 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,223 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,223 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,223 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:26:50,224 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,224 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,224 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,224 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,224 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,224 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,224 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:26:50,224 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:26:50,224 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:26:50,224 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:26:50,224 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:26:50,224 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:26:50,224 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:26:50,224 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:26:50,224 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:26:50,224 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:26:50,224 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:26:50,224 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:26:50,224 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:26:50,224 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:26:50,224 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:26:50,224 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,224 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,224 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,224 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,224 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,224 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:26:50,224 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,128 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: True
+2025-02-03 17:31:05,129 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,129 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:05,129 - rps_game - INFO - Auto-selection draw: stakes are lost
+2025-02-03 17:31:05,129 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,131 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: True
+2025-02-03 17:31:05,131 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: True
+2025-02-03 17:31:05,132 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,132 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,132 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,132 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,132 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:31:05,132 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:31:05,132 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:31:05,132 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:31:05,132 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,132 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,134 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:05,134 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:05,134 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:05,134 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,134 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,134 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,134 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:05,134 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:05,134 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:05,134 - rps_game - INFO - Auto-selection draw: stakes are lost
+2025-02-03 17:31:05,134 - rps_game - INFO - Auto-selection draw: stakes are lost
+2025-02-03 17:31:05,134 - rps_game - INFO - Auto-selection draw: stakes are lost
+2025-02-03 17:31:05,134 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,134 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,134 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,137 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:05,137 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:05,137 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:05,137 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:05,137 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,137 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,137 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,137 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,137 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,137 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,137 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,137 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,137 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:31:05,137 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:31:05,137 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:31:05,137 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:31:05,137 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:31:05,137 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:31:05,137 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:31:05,137 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:31:05,137 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,137 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,137 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,137 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,141 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:31:05,141 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:31:05,141 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:31:05,141 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:31:05,141 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:31:05,141 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,141 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,141 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,141 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,141 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,141 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,141 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,141 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,141 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,141 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,142 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:31:05,142 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:31:05,142 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:31:05,142 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:31:05,142 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:31:05,142 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:31:05,142 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:31:05,142 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:31:05,142 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:31:05,142 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:31:05,142 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,142 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,142 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,142 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,142 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,144 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,144 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,144 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,144 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,144 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,144 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,144 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,144 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,144 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,144 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,144 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,144 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,144 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:05,144 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:05,144 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:05,144 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:05,144 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:05,144 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:05,144 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:31:05,144 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:31:05,144 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:31:05,144 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:31:05,144 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:31:05,144 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:31:05,145 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,145 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,145 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,145 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,145 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,145 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,147 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,147 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,147 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,147 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,147 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,147 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,147 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:05,147 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,147 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,147 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,147 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,147 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,147 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,147 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:05,147 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,147 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,147 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,147 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,147 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,147 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,147 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:05,147 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:05,147 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:05,147 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:05,147 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:05,147 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:05,147 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:05,147 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:05,147 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:05,147 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:05,147 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:05,147 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:05,147 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:05,147 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:05,147 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:05,147 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,147 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,147 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,147 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,147 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,147 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:05,147 - rps_game - ERROR - Error processing match result
+Traceback (most recent call last):
+  File "/workspace/multiplayer-rock-paper-scissors-dev/src/services/game_service.py", line 177, in calculate_match_result
+    'creator_stats': players[match.creator].stats.to_dict(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'stats'
+2025-02-03 17:31:28,582 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: True
+2025-02-03 17:31:28,582 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,582 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:28,582 - rps_game - INFO - Auto-selection draw: stakes are lost
+2025-02-03 17:31:28,583 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,586 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: True
+2025-02-03 17:31:28,586 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: True
+2025-02-03 17:31:28,586 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,586 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,586 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,586 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,586 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:31:28,586 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:31:28,586 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:31:28,586 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:31:28,587 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,587 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,589 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:28,589 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:28,589 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:28,589 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,589 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,589 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,589 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:28,589 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:28,589 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:28,589 - rps_game - INFO - Auto-selection draw: stakes are lost
+2025-02-03 17:31:28,589 - rps_game - INFO - Auto-selection draw: stakes are lost
+2025-02-03 17:31:28,589 - rps_game - INFO - Auto-selection draw: stakes are lost
+2025-02-03 17:31:28,590 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,590 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,590 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,592 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:28,592 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:28,592 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:28,592 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:31:28,592 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,592 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,592 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,592 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,592 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,592 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,592 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,592 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,592 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:31:28,592 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:31:28,592 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:31:28,592 - rps_game - INFO - Creator auto-win: stake is lost
+2025-02-03 17:31:28,592 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:31:28,592 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:31:28,592 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:31:28,592 - rps_game - INFO - After creator win - Creator coins: 90, Joiner coins: 90
+2025-02-03 17:31:28,592 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,592 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,592 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,592 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,596 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:31:28,596 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:31:28,596 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:31:28,596 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:31:28,596 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:31:28,596 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,596 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,596 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,596 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,596 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,596 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,596 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,596 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,596 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,596 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,596 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:31:28,596 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:31:28,596 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:31:28,596 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:31:28,596 - rps_game - INFO - Creator manual win vs auto: returning stake only
+2025-02-03 17:31:28,596 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:31:28,596 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:31:28,596 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:31:28,596 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:31:28,596 - rps_game - INFO - After creator win - Creator coins: 100, Joiner coins: 90
+2025-02-03 17:31:28,597 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,597 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,597 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,597 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,597 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,599 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,599 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,599 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,599 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,599 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,599 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,599 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,599 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,599 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,599 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,599 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,599 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,599 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:28,599 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:28,599 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:28,599 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:28,599 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:28,599 - rps_game - INFO - Match result: Draw
+2025-02-03 17:31:28,599 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:31:28,599 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:31:28,599 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:31:28,599 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:31:28,599 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:31:28,599 - rps_game - INFO - Manual draw: returning stakes to both players
+2025-02-03 17:31:28,599 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,599 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,599 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,599 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,599 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,599 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,601 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,601 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,601 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,601 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,601 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,601 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,601 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:31:28,601 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,601 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,601 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,601 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,601 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,601 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,601 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:31:28,601 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,601 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,601 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,601 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,601 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,601 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,601 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:31:28,601 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:28,601 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:28,601 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:28,601 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:28,601 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:28,601 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:28,601 - rps_game - INFO - Creator manual win vs manual: awarding double stake
+2025-02-03 17:31:28,602 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:28,602 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:28,602 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:28,602 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:28,602 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:28,602 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:28,602 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:31:28,602 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,602 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,602 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,602 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,602 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,602 - rps_game - INFO - Match result saved to database
+2025-02-03 17:31:28,602 - rps_game - INFO - Match result saved to database

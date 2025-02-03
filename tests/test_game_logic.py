@@ -1,11 +1,41 @@
+import os
 import unittest
+from flask import Flask
 from src.models.database import User, db
 from src.services.game_service import GameService
 from src.services.match_service import MatchService
 from src.models.match import Match
 from src.config import Config
 
+class TestConfig(Config):
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    TESTING = True
+
 class TestGameLogic(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Create Flask app
+        cls.app = Flask(__name__)
+        cls.app.config.from_object(TestConfig)
+        
+        # Initialize database
+        db.init_app(cls.app)
+        
+        # Create application context
+        cls.app_context = cls.app.app_context()
+        cls.app_context.push()
+        
+        # Create tables
+        db.create_all()
+
+    @classmethod
+    def tearDownClass(cls):
+        # Drop tables
+        db.drop_all()
+        
+        # Remove application context
+        cls.app_context.pop()
+
     def setUp(self):
         # Initialize services
         self.game_service = GameService()
@@ -14,6 +44,11 @@ class TestGameLogic(unittest.TestCase):
         # Create test users with initial balance of 100 coins
         self.creator_user = User(username='test_creator', coins=100)
         self.joiner_user = User(username='test_joiner', coins=100)
+        
+        # Add users to database
+        db.session.add(self.creator_user)
+        db.session.add(self.joiner_user)
+        db.session.commit()
         
         # Create test match with stake of 10 coins
         self.stake = 10
@@ -24,199 +59,156 @@ class TestGameLogic(unittest.TestCase):
         self.initial_balance = 100  # Both players start with 100 coins
         
         # Deduct stakes at match start
-        self.creator_user.coins -= self.stake
-        self.joiner_user.coins -= self.stake
+        self.creator_user.coins -= self.stake  # Now 90
+        self.joiner_user.coins -= self.stake   # Now 90
+        db.session.commit()
+        
+        # Initialize auto_selected set
+        self.match.auto_selected = set()
+        
+        # Create player objects for stats
+        self.players = {
+            'test_creator': self.creator_user,
+            'test_joiner': self.joiner_user
+        }
+
+    def tearDown(self):
+        # Clean up database
+        db.session.remove()
+        db.drop_all()
+        db.create_all()
 
     def test_immediate_stake_deduction(self):
         """Test that stakes are immediately deducted at match start"""
-        # Verify balances after stake deduction
+        # Verify balances after stake deduction (90 coins each)
         self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
         self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
 
-    def test_manual_win_creator(self):
-        """Test creator winning with manual moves"""
+    def test_manual_vs_manual_win(self):
+        """Test manual vs manual win scenario"""
         # Set moves
         self.match.moves = {
             'test_creator': 'rock',
             'test_joiner': 'scissors'
         }
         
-        # Calculate result
-        result = self.game_service.calculate_winner(
-            self.match.moves['test_creator'],
-            self.match.moves['test_joiner']
-        )
-        
-        # Verify result
-        self.assertEqual(result, 'player1')
-        
-        # Apply win rewards
-        self.creator_user.coins += 2 * self.stake  # Winner gets both stakes
+        # Process result
+        result_data = self.game_service.calculate_match_result(self.match, self.players)
         
         # Verify final balances
-        # Creator: Initial (100) - Stake (10) + Double Stake (20) = 110
-        # Joiner: Initial (100) - Stake (10) = 90
+        # Creator: 90 + 20 = 110 (initial - stake + double stake)
+        # Joiner: 90 + 0 = 90 (initial - stake)
         self.assertEqual(self.creator_user.coins, self.initial_balance + self.stake)
         self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
 
-    def test_manual_loss_creator(self):
-        """Test creator losing with manual moves"""
-        # Set moves
+    def test_auto_vs_manual_win(self):
+        """Test auto vs manual win scenario"""
+        # Set moves and mark as auto
         self.match.moves = {
-            'test_creator': 'scissors',
-            'test_joiner': 'rock'
-        }
-        
-        # Calculate result
-        result = self.game_service.calculate_winner(
-            self.match.moves['test_creator'],
-            self.match.moves['test_joiner']
-        )
-        
-        # Verify result
-        self.assertEqual(result, 'player2')
-        
-        # Apply win rewards to joiner
-        self.joiner_user.coins += 2 * self.stake  # Winner gets both stakes
-        
-        # Verify final balances
-        # Creator: Initial (100) - Stake (10) = 90
-        # Joiner: Initial (100) - Stake (10) + Double Stake (20) = 110
-        self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
-        self.assertEqual(self.joiner_user.coins, self.initial_balance + self.stake)
-
-    def test_auto_win_creator(self):
-        """Test creator winning with auto move"""
-        # Set moves
-        self.match.moves = {
-            'test_creator': 'auto',
+            'test_creator': 'rock',
             'test_joiner': 'scissors'
         }
+        self.match.auto_selected.add('test_creator')
         
-        # Calculate result (auto move becomes random)
-        result = self.game_service.calculate_winner(
-            'rock',  # Simulating random auto move that wins
-            self.match.moves['test_joiner']
-        )
-        
-        # Verify result
-        self.assertEqual(result, 'player1')
-        
-        # Apply win rewards (auto win only returns stake)
-        self.creator_user.coins += self.stake
+        # Process result
+        result_data = self.game_service.calculate_match_result(self.match, self.players)
         
         # Verify final balances
-        # Creator: Initial (100) - Stake (10) + Stake (10) = 100
-        # Joiner: Initial (100) - Stake (10) = 90
+        # Creator: 90 + 0 = 90 (initial - stake, no stake back for auto win)
+        # Joiner: 90 + 0 = 90 (initial - stake)
+        self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
+
+    def test_manual_vs_auto_win(self):
+        """Test manual vs auto win scenario"""
+        # Set moves and mark as auto
+        self.match.moves = {
+            'test_creator': 'rock',
+            'test_joiner': 'scissors'
+        }
+        self.match.auto_selected.add('test_joiner')
+        
+        # Process result
+        result_data = self.game_service.calculate_match_result(self.match, self.players)
+        
+        # Verify final balances
+        # Creator: 90 + 10 = 100 (initial - stake + stake back)
+        # Joiner: 90 + 0 = 90 (initial - stake)
         self.assertEqual(self.creator_user.coins, self.initial_balance)
         self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
 
-    def test_auto_loss_creator(self):
-        """Test creator losing with auto move"""
-        # Set moves
+    def test_auto_vs_auto_win(self):
+        """Test auto vs auto win scenario"""
+        # Set moves and mark both as auto
         self.match.moves = {
-            'test_creator': 'auto',
-            'test_joiner': 'rock'
+            'test_creator': 'rock',
+            'test_joiner': 'scissors'
         }
+        self.match.auto_selected.add('test_creator')
+        self.match.auto_selected.add('test_joiner')
         
-        # Calculate result (auto move becomes random)
-        result = self.game_service.calculate_winner(
-            'scissors',  # Simulating random auto move that loses
-            self.match.moves['test_joiner']
-        )
-        
-        # Verify result
-        self.assertEqual(result, 'player2')
-        
-        # Apply win rewards to joiner (manual win)
-        self.joiner_user.coins += 2 * self.stake
+        # Process result
+        result_data = self.game_service.calculate_match_result(self.match, self.players)
         
         # Verify final balances
-        # Creator: Initial (100) - Stake (10) = 90
-        # Joiner: Initial (100) - Stake (10) + Double Stake (20) = 110
+        # Creator: 90 + 0 = 90 (initial - stake, no stake back)
+        # Joiner: 90 + 0 = 90 (initial - stake)
         self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
-        self.assertEqual(self.joiner_user.coins, self.initial_balance + self.stake)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
 
-    def test_manual_draw(self):
-        """Test draw with manual moves"""
+    def test_manual_vs_manual_draw(self):
+        """Test manual vs manual draw scenario"""
         # Set moves
         self.match.moves = {
             'test_creator': 'rock',
             'test_joiner': 'rock'
         }
         
-        # Calculate result
-        result = self.game_service.calculate_winner(
-            self.match.moves['test_creator'],
-            self.match.moves['test_joiner']
-        )
-        
-        # Verify result
-        self.assertEqual(result, 'draw')
-        
-        # Apply draw rewards (both get stakes back)
-        self.creator_user.coins += self.stake
-        self.joiner_user.coins += self.stake
+        # Process result
+        result_data = self.game_service.calculate_match_result(self.match, self.players)
         
         # Verify final balances
-        # Both: Initial (100) - Stake (10) + Stake (10) = 100
+        # Both: 90 + 10 = 100 (initial - stake + stake back)
         self.assertEqual(self.creator_user.coins, self.initial_balance)
         self.assertEqual(self.joiner_user.coins, self.initial_balance)
 
-    def test_auto_draw(self):
-        """Test draw with auto moves"""
-        # Set moves
-        self.match.moves = {
-            'test_creator': 'auto',
-            'test_joiner': 'auto'
-        }
-        
-        # Calculate result (auto moves become random)
-        result = self.game_service.calculate_winner(
-            'rock',  # Simulating random auto moves
-            'rock'
-        )
-        
-        # Verify result
-        self.assertEqual(result, 'draw')
-        
-        # Apply draw rewards (both get stakes back)
-        self.creator_user.coins += self.stake
-        self.joiner_user.coins += self.stake
-        
-        # Verify final balances
-        # Both: Initial (100) - Stake (10) + Stake (10) = 100
-        self.assertEqual(self.creator_user.coins, self.initial_balance)
-        self.assertEqual(self.joiner_user.coins, self.initial_balance)
-
-    def test_mixed_draw(self):
-        """Test draw with one manual and one auto move"""
-        # Set moves
+    def test_auto_vs_manual_draw(self):
+        """Test auto vs manual draw scenario"""
+        # Set moves and mark one as auto
         self.match.moves = {
             'test_creator': 'rock',
-            'test_joiner': 'auto'
+            'test_joiner': 'rock'
         }
+        self.match.auto_selected.add('test_creator')
         
-        # Calculate result (auto move becomes random)
-        result = self.game_service.calculate_winner(
-            self.match.moves['test_creator'],
-            'rock'  # Simulating random auto move
-        )
-        
-        # Verify result
-        self.assertEqual(result, 'draw')
-        
-        # Apply draw rewards (both get stakes back)
-        self.creator_user.coins += self.stake
-        self.joiner_user.coins += self.stake
+        # Process result
+        result_data = self.game_service.calculate_match_result(self.match, self.players)
         
         # Verify final balances
-        # Both: Initial (100) - Stake (10) + Stake (10) = 100
-        self.assertEqual(self.creator_user.coins, self.initial_balance)
-        self.assertEqual(self.joiner_user.coins, self.initial_balance)
+        # Both: 90 + 0 = 90 (initial - stake, no stake back in auto draw)
+        self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
+
+    def test_auto_vs_auto_draw(self):
+        """Test auto vs auto draw scenario"""
+        # Set moves and mark both as auto
+        self.match.moves = {
+            'test_creator': 'rock',
+            'test_joiner': 'rock'
+        }
+        self.match.auto_selected.add('test_creator')
+        self.match.auto_selected.add('test_joiner')
+        
+        # Process result
+        result_data = self.game_service.calculate_match_result(self.match, self.players)
+        
+        # Verify final balances
+        # Both: 90 + 0 = 90 (initial - stake, no stake back in auto draw)
+        self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
 
     def test_rematch_stake_verification(self):
-        """Test that rematch is only allowed if both players have enough coins"""
+        """Test rematch stake verification"""
         # Set balances to exactly stake amount
         self.creator_user.coins = self.stake
         self.joiner_user.coins = self.stake
