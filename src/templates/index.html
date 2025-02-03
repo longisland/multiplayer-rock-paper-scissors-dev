@@ -583,7 +583,7 @@
             socket.on('match_started', (data) => {
                 console.log('Match started event received:', data);
                 if (data.match_id === currentMatchId) {
-                    // Reset game state
+                    // Reset game state and update balance
                     matches[currentMatchId] = {
                         status: 'playing',
                         start_time: data.start_time

@@ -23,6 +23,7 @@ class Match:
         self.joiner = None
         self.stake = stake
         self.moves = {}
+        self.auto_selected = {}  # Track auto-selected moves
         self.status = 'waiting'  # waiting, playing, finished
         self.timer = None
         self.start_time = None
@@ -68,6 +69,7 @@ class Match:
         self.status = 'playing'
         self.start_time = time.time()
         self.moves = {}
+        self.auto_selected = {}
 
     def make_move(self, player_id, move):
         if player_id not in [self.creator, self.joiner]:
@@ -75,6 +77,7 @@ class Match:
         if player_id in self.moves:
             return False
         self.moves[player_id] = move
+        self.auto_selected[player_id] = False  # Mark as manually selected
         return True
 
     def are_both_moves_made(self):
