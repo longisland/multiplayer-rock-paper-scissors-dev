@@ -114,9 +114,9 @@ class TestGameLogic(unittest.TestCase):
         result_data = self.game_service.calculate_match_result(self.match, self.players)
         
         # Verify final balances
-        # Creator: 90 + 0 = 90 (initial - stake, no stake back for auto win)
+        # Creator: 90 + 20 = 110 (initial - stake + double stake)
         # Joiner: 90 + 0 = 90 (initial - stake)
-        self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
+        self.assertEqual(self.creator_user.coins, self.initial_balance + self.stake)
         self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
 
     def test_manual_vs_auto_win(self):
@@ -132,9 +132,9 @@ class TestGameLogic(unittest.TestCase):
         result_data = self.game_service.calculate_match_result(self.match, self.players)
         
         # Verify final balances
-        # Creator: 90 + 10 = 100 (initial - stake + stake back)
+        # Creator: 90 + 20 = 110 (initial - stake + double stake)
         # Joiner: 90 + 0 = 90 (initial - stake)
-        self.assertEqual(self.creator_user.coins, self.initial_balance)
+        self.assertEqual(self.creator_user.coins, self.initial_balance + self.stake)
         self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
 
     def test_auto_vs_auto_win(self):
@@ -151,9 +151,9 @@ class TestGameLogic(unittest.TestCase):
         result_data = self.game_service.calculate_match_result(self.match, self.players)
         
         # Verify final balances
-        # Creator: 90 + 0 = 90 (initial - stake, no stake back)
+        # Creator: 90 + 20 = 110 (initial - stake + double stake)
         # Joiner: 90 + 0 = 90 (initial - stake)
-        self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
+        self.assertEqual(self.creator_user.coins, self.initial_balance + self.stake)
         self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
 
     def test_manual_vs_manual_draw(self):
@@ -185,9 +185,9 @@ class TestGameLogic(unittest.TestCase):
         result_data = self.game_service.calculate_match_result(self.match, self.players)
         
         # Verify final balances
-        # Both: 90 + 0 = 90 (initial - stake, no stake back in auto draw)
-        self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
-        self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
+        # Both: 90 + 10 = 100 (initial - stake + stake back)
+        self.assertEqual(self.creator_user.coins, self.initial_balance)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance)
 
     def test_auto_vs_auto_draw(self):
         """Test auto vs auto draw scenario"""
@@ -203,9 +203,9 @@ class TestGameLogic(unittest.TestCase):
         result_data = self.game_service.calculate_match_result(self.match, self.players)
         
         # Verify final balances
-        # Both: 90 + 0 = 90 (initial - stake, no stake back in auto draw)
-        self.assertEqual(self.creator_user.coins, self.initial_balance - self.stake)
-        self.assertEqual(self.joiner_user.coins, self.initial_balance - self.stake)
+        # Both: 90 + 10 = 100 (initial - stake + stake back)
+        self.assertEqual(self.creator_user.coins, self.initial_balance)
+        self.assertEqual(self.joiner_user.coins, self.initial_balance)
 
     def test_rematch_stake_verification(self):
         """Test rematch stake verification"""

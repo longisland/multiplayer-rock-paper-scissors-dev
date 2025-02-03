@@ -1402,3 +1402,161 @@ AttributeError: 'User' object has no attribute 'stats'
 2025-02-03 17:31:28,602 - rps_game - INFO - Match result saved to database
 2025-02-03 17:31:28,602 - rps_game - INFO - Match result saved to database
 2025-02-03 17:31:28,602 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,865 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: True
+2025-02-03 17:41:16,865 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,865 - rps_game - INFO - Match result: Draw
+2025-02-03 17:41:16,865 - rps_game - INFO - Draw: returning stakes to both players
+2025-02-03 17:41:16,866 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,869 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: True
+2025-02-03 17:41:16,869 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: True
+2025-02-03 17:41:16,869 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,869 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,869 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,869 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,869 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,869 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,869 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,869 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,869 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,869 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,872 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:41:16,872 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:41:16,872 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:41:16,872 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,872 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,872 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,872 - rps_game - INFO - Match result: Draw
+2025-02-03 17:41:16,872 - rps_game - INFO - Match result: Draw
+2025-02-03 17:41:16,872 - rps_game - INFO - Match result: Draw
+2025-02-03 17:41:16,873 - rps_game - INFO - Draw: returning stakes to both players
+2025-02-03 17:41:16,873 - rps_game - INFO - Draw: returning stakes to both players
+2025-02-03 17:41:16,873 - rps_game - INFO - Draw: returning stakes to both players
+2025-02-03 17:41:16,873 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,873 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,873 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,876 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:41:16,876 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:41:16,876 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:41:16,876 - rps_game - INFO - Auto-selection status - Creator: True, Joiner: False
+2025-02-03 17:41:16,876 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,876 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,876 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,876 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,876 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,876 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,876 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,876 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,876 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,876 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,876 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,876 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,876 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,876 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,876 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,876 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,876 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,876 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,876 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,876 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,880 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:41:16,880 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:41:16,880 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:41:16,880 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:41:16,880 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: True
+2025-02-03 17:41:16,880 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,880 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,880 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,880 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,880 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,880 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,880 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,880 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,880 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,880 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,880 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,880 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,880 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,880 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,880 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,880 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,880 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,880 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,880 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,880 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,881 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,881 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,881 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,881 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,881 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,883 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,883 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,883 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,883 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,883 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,883 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,883 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,883 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,883 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,883 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,883 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,883 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,883 - rps_game - INFO - Match result: Draw
+2025-02-03 17:41:16,883 - rps_game - INFO - Match result: Draw
+2025-02-03 17:41:16,883 - rps_game - INFO - Match result: Draw
+2025-02-03 17:41:16,883 - rps_game - INFO - Match result: Draw
+2025-02-03 17:41:16,883 - rps_game - INFO - Match result: Draw
+2025-02-03 17:41:16,883 - rps_game - INFO - Match result: Draw
+2025-02-03 17:41:16,883 - rps_game - INFO - Draw: returning stakes to both players
+2025-02-03 17:41:16,883 - rps_game - INFO - Draw: returning stakes to both players
+2025-02-03 17:41:16,883 - rps_game - INFO - Draw: returning stakes to both players
+2025-02-03 17:41:16,883 - rps_game - INFO - Draw: returning stakes to both players
+2025-02-03 17:41:16,883 - rps_game - INFO - Draw: returning stakes to both players
+2025-02-03 17:41:16,883 - rps_game - INFO - Draw: returning stakes to both players
+2025-02-03 17:41:16,884 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,884 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,884 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,884 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,884 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,884 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,886 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,886 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,886 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,886 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,886 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,886 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,886 - rps_game - INFO - Auto-selection status - Creator: False, Joiner: False
+2025-02-03 17:41:16,886 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,886 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,886 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,886 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,886 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,886 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,886 - rps_game - INFO - Processing result - Creator coins: 90, Joiner coins: 90, Stake: 10
+2025-02-03 17:41:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-03 17:41:16,887 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,887 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,887 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,887 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,887 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,887 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,887 - rps_game - INFO - Creator wins: awarding double stake
+2025-02-03 17:41:16,887 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,887 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,887 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,887 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,887 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,887 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,887 - rps_game - INFO - After creator win - Creator coins: 110, Joiner coins: 90
+2025-02-03 17:41:16,887 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,887 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,887 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,887 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,887 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,887 - rps_game - INFO - Match result saved to database
+2025-02-03 17:41:16,887 - rps_game - INFO - Match result saved to database
