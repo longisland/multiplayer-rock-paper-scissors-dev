@@ -274,33 +274,57 @@ def on_ready_for_match(data):
             joiner = match_service.get_player(match.joiner)
 
             if creator.has_enough_coins(match.stake) and joiner.has_enough_coins(match.stake):
-                # Start match first
-                match.start_match()
-                match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
+                try:
+                    # Start transaction for stake deduction
+                    db.session.begin_nested()
 
-                # Log initial state
-                creator_user = User.query.filter_by(username=match.creator).first()
-                joiner_user = User.query.filter_by(username=match.joiner).first()
-                logger.info(f"Before stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}, Stake: {match.stake}")
-                
-                # Deduct stakes from both players
-                creator_user.coins -= match.stake
-                joiner_user.coins -= match.stake
-                
-                # Update in-memory state
-                creator.coins = creator_user.coins
-                joiner.coins = joiner_user.coins
-                
-                # Save changes
-                db.session.commit()
-                
-                logger.info(f"After stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
+                    # Get users with row locking
+                    creator_user = User.query.filter_by(username=match.creator).with_for_update().first()
+                    joiner_user = User.query.filter_by(username=match.joiner).with_for_update().first()
 
-                # Notify players about match start
-                socketio.emit('match_started', {
-                    'match_id': match_id,
-                    'start_time': match.start_time
-                }, room=match_id)
+                    if not creator_user or not joiner_user:
+                        logger.error("Users not found")
+                        db.session.rollback()
+                        return
+
+                    # Double-check coins within transaction
+                    if creator_user.coins < match.stake or joiner_user.coins < match.stake:
+                        logger.error("Insufficient coins")
+                        db.session.rollback()
+                        return
+
+                    # Log initial state
+                    logger.info(f"Before stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}, Stake: {match.stake}")
+
+                    # Deduct stakes immediately
+                    creator_user.coins -= match.stake
+                    joiner_user.coins -= match.stake
+
+                    # Update in-memory state
+                    creator.coins = creator_user.coins
+                    joiner.coins = joiner_user.coins
+
+                    # Commit stake deductions
+                    db.session.commit()
+
+                    logger.info(f"After stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
+
+                    # Start match after successful stake deduction
+                    match.start_match()
+                    match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
+
+                    # Notify players about match start with updated balances
+                    socketio.emit('match_started', {
+                        'match_id': match_id,
+                        'start_time': match.start_time,
+                        'creator_balance': creator_user.coins,
+                        'joiner_balance': joiner_user.coins
+                    }, room=match_id)
+
+                except Exception as e:
+                    logger.exception("Error processing stake deduction")
+                    db.session.rollback()
+                    return
 
                 logger.info(f"Match {match_id} started")
             else:

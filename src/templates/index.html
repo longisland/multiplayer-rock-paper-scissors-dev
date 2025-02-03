@@ -589,6 +589,26 @@
                         start_time: data.start_time
                     };
                     
+                    // Update balances immediately
+                    const coinBalance = document.getElementById('coinBalance');
+                    if (coinBalance) {
+                        if (isCreator && data.creator_balance !== undefined) {
+                            coinBalance.textContent = data.creator_balance;
+                            // Add animation to show balance change
+                            coinBalance.classList.add('animate__animated', 'animate__flash');
+                            setTimeout(() => {
+                                coinBalance.classList.remove('animate__animated', 'animate__flash');
+                            }, 1000);
+                        } else if (!isCreator && data.joiner_balance !== undefined) {
+                            coinBalance.textContent = data.joiner_balance;
+                            // Add animation to show balance change
+                            coinBalance.classList.add('animate__animated', 'animate__flash');
+                            setTimeout(() => {
+                                coinBalance.classList.remove('animate__animated', 'animate__flash');
+                            }, 1000);
+                        }
+                    }
+                    
                     // Show play screen with animation
                     const playScreen = document.getElementById('playScreen');
                     playScreen.classList.add('animate__animated', 'animate__fadeIn');

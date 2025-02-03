@@ -37,6 +37,21 @@ class GameService:
 
         creator_move = match.moves[match.creator]
         joiner_move = match.moves[match.joiner]
+        
+        # Store original moves for history
+        original_creator_move = creator_move
+        original_joiner_move = joiner_move
+        
+        # Check if moves were auto-selected
+        creator_auto = creator_move == 'auto'
+        joiner_auto = joiner_move == 'auto'
+        
+        # Convert auto moves to random moves for winner calculation
+        if creator_auto:
+            creator_move = GameService.random_move()
+        if joiner_auto:
+            joiner_move = GameService.random_move()
+        
         result = GameService.calculate_winner(creator_move, joiner_move)
 
         try:
@@ -52,26 +67,21 @@ class GameService:
                 db.session.rollback()
                 return None
 
-            # Create game history record
+            # Create game history record with original moves
             game_history = GameHistory(
                 player1_id=creator_user.id,
                 player2_id=joiner_user.id,
-                player1_choice=creator_move,
-                player2_choice=joiner_move,
+                player1_choice=original_creator_move,
+                player2_choice=original_joiner_move,
                 bet_amount=match.stake
             )
-            
-            # Check if either move was auto-selected
-            creator_auto = match.moves[match.creator] == 'auto'
-            joiner_auto = match.moves[match.joiner] == 'auto'
             
             if result == 'draw':
                 logger.info("Match result: Draw")
                 match.stats.draws += 1
                 game_history.is_draw = True
                 
-                # In case of draw, always return original stakes
-                # This is fair since neither player won or lost
+                # In draw, both players get their stakes back regardless of auto/manual
                 creator_user.coins += match.stake
                 joiner_user.coins += match.stake
                 
@@ -86,42 +96,44 @@ class GameService:
                 match.stats.creator_wins += 1
                 game_history.winner_id = creator_user.id
                 
-                # Winner gets both stakes, but only original stake if auto-selected
                 if creator_auto:
-                    creator_user.coins += match.stake  # Return original stake only
+                    # Auto-win: only get stake back
+                    creator_user.coins += match.stake
+                    logger.info("Creator auto-win: returning stake only")
                 else:
-                    creator_user.coins += 2 * match.stake  # Get both stakes
+                    # Manual win: get both stakes
+                    creator_user.coins += 2 * match.stake
+                    creator_user.total_coins_won += match.stake
+                    joiner_user.total_coins_lost += match.stake
+                    logger.info("Creator manual win: awarding double stake")
                 
                 # Update stats
                 creator_user.wins += 1
                 creator_user.total_games += 1
-                if not creator_auto:
-                    creator_user.total_coins_won += match.stake
                 joiner_user.losses += 1
                 joiner_user.total_games += 1
-                if not creator_auto:
-                    joiner_user.total_coins_lost += match.stake
 
             else:
                 logger.info("Match result: Joiner wins")
                 match.stats.joiner_wins += 1
                 game_history.winner_id = joiner_user.id
                 
-                # Winner gets both stakes, but only original stake if auto-selected
                 if joiner_auto:
-                    joiner_user.coins += match.stake  # Return original stake only
+                    # Auto-win: only get stake back
+                    joiner_user.coins += match.stake
+                    logger.info("Joiner auto-win: returning stake only")
                 else:
-                    joiner_user.coins += 2 * match.stake  # Get both stakes
+                    # Manual win: get both stakes
+                    joiner_user.coins += 2 * match.stake
+                    joiner_user.total_coins_won += match.stake
+                    creator_user.total_coins_lost += match.stake
+                    logger.info("Joiner manual win: awarding double stake")
                 
                 # Update stats
                 joiner_user.wins += 1
                 joiner_user.total_games += 1
-                if not joiner_auto:
-                    joiner_user.total_coins_won += match.stake
                 creator_user.losses += 1
                 creator_user.total_games += 1
-                if not joiner_auto:
-                    creator_user.total_coins_lost += match.stake
 
             # Sync in-memory state
             players[match.creator].coins = creator_user.coins
