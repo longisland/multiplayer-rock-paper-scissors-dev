@@ -115,3 +115,9 @@ class Match:
             return False
         return (players[self.creator].has_enough_coins(self.stake) and 
                 players[self.joiner].has_enough_coins(self.stake))
+
+    def is_auto_selected(self):
+        """Check if any move was auto-selected due to timeout."""
+        if len(self.moves) != 2:
+            return False
+        return time.time() - self.start_time >= 10  # 10 seconds is the move timeout

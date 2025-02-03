@@ -13,7 +13,8 @@
             <h1>Rock Paper Scissors Arena</h1>
             <div class="coins">
                 <span class="coin-icon">🪙</span>
-                <span id="coinBalance">100</span>
+                <span id="coinBalance" class="animate__animated">100</span>
+                <div id="coinAnimation" class="coin-animation"></div>
             </div>
             <div class="stats animate__animated animate__fadeInUp">
                 <h3 class="stats-title">Your Stats</h3>
@@ -183,6 +184,44 @@
         });
 
         // Game state management
+        function animateCoins(oldValue, newValue) {
+            const coinBalance = document.getElementById('coinBalance');
+            const coinAnimation = document.getElementById('coinAnimation');
+            const difference = newValue - oldValue;
+            
+            if (!coinBalance || !coinAnimation || oldValue === newValue) {
+                return;
+            }
+
+            // Create animation element
+            const animationText = document.createElement('div');
+            animationText.textContent = difference > 0 ? `+${difference}` : difference;
+            animationText.style.color = difference > 0 ? 'var(--secondary-color)' : 'var(--danger-color)';
+            coinAnimation.innerHTML = '';
+            coinAnimation.appendChild(animationText);
+
+            // Apply animation
+            coinBalance.classList.remove('animate__fadeInDown');
+            void coinBalance.offsetWidth;  // Trigger reflow
+            
+            if (difference > 0) {
+                animationText.style.animation = 'coinAdd 0.5s ease forwards';
+                coinBalance.classList.add('animate__fadeInDown');
+            } else {
+                animationText.style.animation = 'coinDeduct 0.5s ease forwards';
+                coinBalance.classList.add('animate__fadeOutUp');
+                setTimeout(() => {
+                    coinBalance.classList.remove('animate__fadeOutUp');
+                    coinBalance.classList.add('animate__fadeInDown');
+                }, 500);
+            }
+
+            // Update balance
+            setTimeout(() => {
+                coinBalance.textContent = newValue;
+            }, difference > 0 ? 0 : 500);
+        }
+
         async function updateGameState() {
             try {
                 const response = await fetch('/api/state');
@@ -191,10 +230,12 @@
                 }
                 const data = await response.json();
                 
-                // Update coin balance and stats
+                // Update coin balance and stats with animation
                 const coinBalance = document.getElementById('coinBalance');
                 if (coinBalance) {
-                    coinBalance.textContent = data.coins;
+                    const oldValue = parseInt(coinBalance.textContent);
+                    const newValue = data.coins;
+                    animateCoins(oldValue, newValue);
                 }
 
                 if (data.stats) {

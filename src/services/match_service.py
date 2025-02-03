@@ -43,9 +43,48 @@ class MatchService:
         if match.status != 'waiting' or match.joiner is not None:
             return None
 
-        match.joiner = joiner_id
-        self.players[joiner_id].current_match = match_id
-        return match
+        try:
+            # Start transaction
+            db.session.begin_nested()
+
+            # Get users from database with row locking
+            creator_user = User.query.filter_by(username=match.creator).with_for_update().first()
+            joiner_user = User.query.filter_by(username=joiner_id).with_for_update().first()
+
+            if not creator_user or not joiner_user:
+                db.session.rollback()
+                return None
+
+            # Verify both players have enough coins
+            if creator_user.coins < match.stake or joiner_user.coins < match.stake:
+                db.session.rollback()
+                return None
+
+            # Deduct stakes immediately
+            creator_user.coins -= match.stake
+            joiner_user.coins -= match.stake
+
+            # Update match state
+            match.joiner = joiner_id
+            match.status = 'playing'
+            self.players[joiner_id].current_match = match_id
+
+            # Update in-memory state
+            self.players[match.creator].coins = creator_user.coins
+            self.players[joiner_id].coins = joiner_user.coins
+
+            # Commit transaction
+            db.session.commit()
+
+            # Start the match timer
+            match.start_match()
+            match.start_timer(Config.MATCH_TIMEOUT, self.handle_match_timeout)
+
+            return match
+
+        except Exception as e:
+            db.session.rollback()
+            return None
 
     def get_match(self, match_id):
         return self.matches.get(match_id)
