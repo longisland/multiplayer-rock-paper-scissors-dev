@@ -31,6 +31,7 @@ class Match:
         self.stats = MatchStats()
         self.result = None
         self.rematch_ready = set()
+        self.bets_placed = set()  # Track which players have placed their bets
 
     def to_dict(self):
         return {
