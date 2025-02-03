@@ -188,9 +188,10 @@ def make_move():
             'auto': False
         }, room=match.id)
 
-        if match.are_both_moves_made():
+        if match.are_both_moves_made() and match.status != 'finished':
             result = game_service.calculate_match_result(match, match_service.players)
-            socketio.emit('match_result', result, room=match.id)
+            if result:  # Only emit if result was calculated successfully
+                socketio.emit('match_result', result, room=match.id)
 
         return jsonify({'success': True})
     except Exception as e:
@@ -346,10 +347,6 @@ def on_rematch_accepted(data):
 
                 logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
 
-                # Join both players to the new match room
-                join_room(new_match.id, sid=match.creator)
-                join_room(new_match.id, sid=match.joiner)
-
                 # Signal ready for both players
                 new_match.creator_ready = True
                 new_match.joiner_ready = True
@@ -362,7 +359,11 @@ def on_rematch_accepted(data):
                 socketio.emit('match_started', {
                     'match_id': new_match.id,
                     'start_time': new_match.start_time
-                }, room=new_match.id)
+                }, room=match.creator)  # Send to individual rooms
+                socketio.emit('match_started', {
+                    'match_id': new_match.id,
+                    'start_time': new_match.start_time
+                }, room=match.joiner)
 
                 # Cleanup old match after everything is set up
                 match_service.cleanup_match(match_id)
@@ -386,7 +387,7 @@ def on_move_timeout(data):
 
         # Handle timeout by making random moves for players who haven't moved
         result = match_service.handle_match_timeout(match_id)
-        if result:
+        if result and match.status != 'finished':  # Only process if not already finished
             # Notify about auto moves
             for player_id in [match.creator, match.joiner]:
                 if player_id not in match.moves:
@@ -398,7 +399,8 @@ def on_move_timeout(data):
             # Calculate and send result if both moves are now made
             if match.are_both_moves_made():
                 result_data = game_service.calculate_match_result(match, match_service.players)
-                socketio.emit('match_result', result_data, room=match.id)
+                if result_data:  # Only emit if result was calculated successfully
+                    socketio.emit('match_result', result_data, room=match.id)
 
     except Exception as e:
         logger.exception("Error in move_timeout handler")
