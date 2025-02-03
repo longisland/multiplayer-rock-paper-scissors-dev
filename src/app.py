@@ -266,15 +266,28 @@ def on_ready_for_match(data):
             joiner = match_service.get_player(match.joiner)
 
             if creator.has_enough_coins(match.stake) and joiner.has_enough_coins(match.stake):
+                # Deduct stakes from both players before starting
+                creator.add_coins(-match.stake)
+                joiner.add_coins(-match.stake)
+                
+                # Update database
+                creator_user = User.query.filter_by(username=match.creator).first()
+                joiner_user = User.query.filter_by(username=match.joiner).first()
+                creator_user.coins -= match.stake
+                joiner_user.coins -= match.stake
+                db.session.commit()
+
                 match.start_match()
                 match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
 
                 socketio.emit('match_started', {
                     'match_id': match_id,
-                    'start_time': match.start_time
+                    'start_time': match.start_time,
+                    'creator_coins': creator.coins,
+                    'joiner_coins': joiner.coins
                 }, room=match_id)
 
-                logger.info(f"Match {match_id} started")
+                logger.info(f"Match {match_id} started - Stakes placed: {match.stake} each")
             else:
                 logger.error(f"Insufficient coins for match {match_id}")
                 socketio.emit('match_error', {
@@ -354,6 +367,20 @@ def on_rematch_accepted(data):
                 new_match.creator_ready = True
                 new_match.joiner_ready = True
 
+                # Deduct stakes from both players
+                creator = match_service.get_player(new_match.creator)
+                joiner = match_service.get_player(new_match.joiner)
+                
+                creator.add_coins(-new_match.stake)
+                joiner.add_coins(-new_match.stake)
+                
+                # Update database
+                creator_user = User.query.filter_by(username=new_match.creator).first()
+                joiner_user = User.query.filter_by(username=new_match.joiner).first()
+                creator_user.coins -= new_match.stake
+                joiner_user.coins -= new_match.stake
+                db.session.commit()
+
                 # Start the match
                 new_match.start_match()
                 new_match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
@@ -361,7 +388,9 @@ def on_rematch_accepted(data):
                 # Notify both players that the match has started
                 socketio.emit('match_started', {
                     'match_id': new_match.id,
-                    'start_time': new_match.start_time
+                    'start_time': new_match.start_time,
+                    'creator_coins': creator.coins,
+                    'joiner_coins': joiner.coins
                 }, room=new_match.id)
 
                 # Cleanup old match after everything is set up

@@ -29,6 +29,10 @@ class MatchService:
         return self.players[session_id]
 
     def create_match(self, creator_id, stake):
+        # Verify creator has enough coins
+        if not self.players[creator_id].has_enough_coins(stake):
+            return None
+        
         match_id = secrets.token_hex(4)
         match = Match(match_id, creator_id, stake)
         self.matches[match_id] = match
