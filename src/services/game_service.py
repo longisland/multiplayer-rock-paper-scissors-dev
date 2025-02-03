@@ -64,6 +64,10 @@ class GameService:
                 creator_user.coins += match.stake
                 joiner_user.coins += match.stake
                 
+                # Update in-memory state
+                players[match.creator].coins = creator_user.coins
+                players[match.joiner].coins = joiner_user.coins
+                
                 # Update stats
                 creator_user.draws += 1
                 creator_user.total_games += 1
@@ -77,6 +81,10 @@ class GameService:
                 
                 # Winner gets both stakes
                 creator_user.coins += 2 * match.stake
+                
+                # Update in-memory state
+                players[match.creator].coins = creator_user.coins
+                players[match.joiner].coins = joiner_user.coins
                 
                 # Update stats
                 creator_user.wins += 1
@@ -93,6 +101,10 @@ class GameService:
                 
                 # Winner gets both stakes
                 joiner_user.coins += 2 * match.stake
+                
+                # Update in-memory state
+                players[match.creator].coins = creator_user.coins
+                players[match.joiner].coins = joiner_user.coins
                 
                 # Update stats
                 joiner_user.wins += 1

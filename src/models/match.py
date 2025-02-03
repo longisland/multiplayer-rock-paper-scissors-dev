@@ -81,7 +81,7 @@ class Match:
         return len(self.moves) == 2
 
     def set_result(self, result_data):
-        if self.status == 'finished':
+        if self.status == 'finished' and self.result is not None:
             return False  # Already processed
         self.result = result_data
         self.status = 'finished'

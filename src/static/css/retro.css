@@ -59,6 +59,40 @@ h1 {
     align-items: center;
     justify-content: center;
     gap: 10px;
+    position: relative;
+}
+
+@keyframes balanceDecrease {
+    0% { transform: scale(1); color: var(--warning-color); }
+    50% { transform: scale(1.2); color: var(--danger-color); }
+    100% { transform: scale(1); color: var(--warning-color); }
+}
+
+@keyframes balanceIncrease {
+    0% { transform: scale(1); color: var(--warning-color); }
+    50% { transform: scale(1.2); color: var(--secondary-color); }
+    100% { transform: scale(1); color: var(--warning-color); }
+}
+
+.balance-change {
+    position: absolute;
+    font-size: 1rem;
+    opacity: 0;
+    animation: balanceChangeFloat 1s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes balanceChangeFloat {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-20px); opacity: 0; }
+}
+
+.balance-decrease {
+    animation: balanceDecrease 0.5s ease-out;
+}
+
+.balance-increase {
+    animation: balanceIncrease 0.5s ease-out;
 }
 
 .coin-icon {

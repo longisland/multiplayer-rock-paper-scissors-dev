@@ -153,6 +153,45 @@
         let matches = {};  // Store match states
         let rematchTimer = null;
         let lastMatchStake = null;  // Store stake for rematch
+        let currentBalance = 100;  // Track current balance
+
+        // Balance change animation functions
+        function showBalanceChange(amount) {
+            const coinsElement = document.querySelector('.coins');
+            const balanceElement = document.getElementById('coinBalance');
+            const changeElement = document.createElement('div');
+            
+            // Set text and class based on amount
+            changeElement.textContent = amount > 0 ? `+${amount}` : amount;
+            changeElement.className = `balance-change ${amount > 0 ? 'balance-increase' : 'balance-decrease'}`;
+            
+            // Position the change element
+            changeElement.style.left = `${balanceElement.offsetLeft}px`;
+            changeElement.style.top = `${balanceElement.offsetTop}px`;
+            
+            // Add to DOM
+            coinsElement.appendChild(changeElement);
+            
+            // Add animation class to balance
+            balanceElement.className = amount > 0 ? 'balance-increase' : 'balance-decrease';
+            
+            // Remove after animation
+            setTimeout(() => {
+                changeElement.remove();
+                balanceElement.className = '';
+            }, 1000);
+        }
+
+        function updateBalance(newBalance) {
+            const oldBalance = currentBalance;
+            const difference = newBalance - oldBalance;
+            
+            if (difference !== 0) {
+                showBalanceChange(difference);
+                document.getElementById('coinBalance').textContent = newBalance;
+                currentBalance = newBalance;
+            }
+        }
 
         // Initialize socket connection with logging
         socket = io({
@@ -191,10 +230,13 @@
                 }
                 const data = await response.json();
                 
-                // Update coin balance and stats
-                const coinBalance = document.getElementById('coinBalance');
-                if (coinBalance) {
-                    coinBalance.textContent = data.coins;
+                // Update coin balance and stats with animation
+                const oldBalance = currentBalance;
+                const newBalance = data.coins;
+                if (oldBalance !== newBalance) {
+                    showBalanceChange(newBalance - oldBalance);
+                    document.getElementById('coinBalance').textContent = newBalance;
+                    currentBalance = newBalance;
                 }
 
                 if (data.stats) {
