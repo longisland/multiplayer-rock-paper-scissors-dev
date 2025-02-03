@@ -69,6 +69,7 @@ class Match:
         self.start_time = time.time()
         self.moves = {}
         self.bets_placed = True  # Flag to track if bets have been placed
+        self.stats = MatchStats()  # Reset match stats for new match
 
     def make_move(self, player_id, move):
         if player_id not in [self.creator, self.joiner]:

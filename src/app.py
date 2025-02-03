@@ -359,42 +359,22 @@ def on_rematch_accepted(data):
 
                 logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
 
-                # Join both players to the new match room
-                join_room(new_match.id, sid=match.creator)
-                join_room(new_match.id, sid=match.joiner)
-
-                # Signal ready for both players
+                # Signal ready for both players but don't start match yet
                 new_match.creator_ready = True
                 new_match.joiner_ready = True
 
-                # Deduct stakes from both players
-                creator = match_service.get_player(new_match.creator)
-                joiner = match_service.get_player(new_match.joiner)
-                
-                creator.add_coins(-new_match.stake)
-                joiner.add_coins(-new_match.stake)
-                
-                # Update database
-                creator_user = User.query.filter_by(username=new_match.creator).first()
-                joiner_user = User.query.filter_by(username=new_match.joiner).first()
-                creator_user.coins -= new_match.stake
-                joiner_user.coins -= new_match.stake
-                db.session.commit()
-
-                # Start the match
-                new_match.start_match()
-                new_match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
-
-                # Notify both players that the match has started
-                socketio.emit('match_started', {
-                    'match_id': new_match.id,
-                    'start_time': new_match.start_time,
-                    'creator_coins': creator.coins,
-                    'joiner_coins': joiner.coins
-                }, room=new_match.id)
+                # Join both players to the new match room
+                try:
+                    join_room(new_match.id, sid=match.creator)
+                    join_room(new_match.id, sid=match.joiner)
+                except Exception as e:
+                    logger.warning(f"Error joining room: {e}")
 
                 # Cleanup old match after everything is set up
                 match_service.cleanup_match(match_id)
+
+                # Let the normal ready_for_match handler start the match
+                # This ensures consistent match start behavior
     except Exception as e:
         logger.exception("Error in rematch_accepted handler")
 

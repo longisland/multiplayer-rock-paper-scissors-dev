@@ -38,7 +38,8 @@ class GameService:
             player2_id=joiner_user.id,
             player1_choice=creator_move,
             player2_choice=joiner_move,
-            bet_amount=match.stake
+            bet_amount=match.stake,
+            timestamp=datetime.utcnow()
         )
         
         if result == 'draw':
