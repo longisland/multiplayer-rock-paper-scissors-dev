@@ -68,6 +68,7 @@ class Match:
         self.status = 'playing'
         self.start_time = time.time()
         self.moves = {}
+        self.auto_moves = set()  # Track which moves were auto-selected
 
     def make_move(self, player_id, move):
         if player_id not in [self.creator, self.joiner]:

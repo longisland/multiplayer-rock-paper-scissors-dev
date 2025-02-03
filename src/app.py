@@ -274,10 +274,26 @@ def on_ready_for_match(data):
             joiner = match_service.get_player(match.joiner)
 
             if creator.has_enough_coins(match.stake) and joiner.has_enough_coins(match.stake):
-                # Log initial state
-                creator_user = User.query.filter_by(username=match.creator).first()
-                joiner_user = User.query.filter_by(username=match.joiner).first()
+                # Start transaction to deduct stakes
+                db.session.begin_nested()
+                
+                # Get users with row locking
+                creator_user = User.query.filter_by(username=match.creator).with_for_update().first()
+                joiner_user = User.query.filter_by(username=match.joiner).with_for_update().first()
+                
+                if not creator_user or not joiner_user:
+                    logger.error("Users not found in database")
+                    db.session.rollback()
+                    return
+                
                 logger.info(f"Before stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}, Stake: {match.stake}")
+                
+                # Verify coins again within transaction
+                if creator_user.coins < match.stake or joiner_user.coins < match.stake:
+                    logger.error("Insufficient coins for match")
+                    db.session.rollback()
+                    socketio.emit('match_error', {'error': 'Insufficient coins'}, room=match_id)
+                    return
                 
                 # Deduct stakes from both players
                 creator_user.coins -= match.stake
@@ -292,6 +308,7 @@ def on_ready_for_match(data):
                 
                 logger.info(f"After stake deduction - Creator coins: {creator_user.coins}, Joiner coins: {joiner_user.coins}")
 
+                # Start match after successful stake deduction
                 match.start_match()
                 match.start_timer(Config.MATCH_TIMEOUT, match_service.handle_match_timeout)
 

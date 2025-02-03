@@ -55,12 +55,16 @@ class GameService:
                 bet_amount=match.stake
             )
             
+            # Check if any moves were auto-selected
+            creator_auto = match.creator in match.auto_moves
+            joiner_auto = match.joiner in match.auto_moves
+            
             if result == 'draw':
                 logger.info("Match result: Draw")
                 match.stats.draws += 1
                 game_history.is_draw = True
                 
-                # Return stakes to both players
+                # Return stakes to both players (no double return)
                 creator_user.coins += match.stake
                 joiner_user.coins += match.stake
                 
@@ -75,7 +79,7 @@ class GameService:
                 match.stats.creator_wins += 1
                 game_history.winner_id = creator_user.id
                 
-                # Winner gets both stakes
+                # Winner gets both stakes (no multiplier for auto-selected moves)
                 creator_user.coins += 2 * match.stake
                 
                 # Update stats
@@ -91,7 +95,7 @@ class GameService:
                 match.stats.joiner_wins += 1
                 game_history.winner_id = joiner_user.id
                 
-                # Winner gets both stakes
+                # Winner gets both stakes (no multiplier for auto-selected moves)
                 joiner_user.coins += 2 * match.stake
                 
                 # Update stats
