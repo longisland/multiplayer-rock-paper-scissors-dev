@@ -1,4 +1,4 @@
-from models.database import db, User
+from .database import db, User
 
 class Player:
     def __init__(self, session_id, initial_coins=100):

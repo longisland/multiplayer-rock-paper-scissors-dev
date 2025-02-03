@@ -1,9 +1,9 @@
 import random
 import secrets
-from models.match import Match
-from models.player import Player
-from models.database import db, User, GameHistory
-from config import Config
+from ..models.match import Match
+from ..models.player import Player
+from ..models.database import db, User, GameHistory
+from ..config import Config
 from datetime import datetime
 
 class MatchService:
