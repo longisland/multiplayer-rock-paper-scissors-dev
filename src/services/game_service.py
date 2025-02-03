@@ -60,7 +60,7 @@ class GameService:
                 match.stats.draws += 1
                 game_history.is_draw = True
                 
-                # Return stakes to both players
+                # Return original stakes to both players (no doubling)
                 creator_user.coins += match.stake
                 joiner_user.coins += match.stake
                 
