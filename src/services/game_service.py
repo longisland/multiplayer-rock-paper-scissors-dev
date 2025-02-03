@@ -70,19 +70,10 @@ class GameService:
                 match.stats.draws += 1
                 game_history.is_draw = True
                 
-                # In case of auto-play draw, no one gets coins back
-                # In case of manual play draw, both get their stakes back
-                if not creator_auto and not joiner_auto:
-                    # Both players made their moves manually, return stakes
-                    creator_user.coins += match.stake
-                    joiner_user.coins += match.stake
-                elif not creator_auto and joiner_auto:
-                    # Only creator made a move, return only creator's stake
-                    creator_user.coins += match.stake
-                elif creator_auto and not joiner_auto:
-                    # Only joiner made a move, return only joiner's stake
-                    joiner_user.coins += match.stake
-                # If both auto, no one gets coins back
+                # In case of draw, always return original stakes
+                # This is fair since neither player won or lost
+                creator_user.coins += match.stake
+                joiner_user.coins += match.stake
                 
                 # Update stats
                 creator_user.draws += 1
