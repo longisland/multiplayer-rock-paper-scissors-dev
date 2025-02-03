@@ -6,13 +6,15 @@ This is the development version of the Multiplayer Rock Paper Scissors game. For
 
 - Multiplayer gameplay with real-time updates
 - Player registration and session management
-- Match creation and joining
-- Player statistics tracking
-- Rematch functionality
+- Match creation and joining with betting system
+- Enhanced betting animations and visual feedback
+- Player statistics tracking with coin management
+- Rematch functionality with stake preservation
 - Persistent user data and game history with PostgreSQL
 - Real-time game state with Redis
 - Automatic match cleanup on disconnection
-- Transaction support for game results
+- Transaction support for game results and betting
+- Explicit visual feedback for all game actions
 
 ## Project Structure
 
@@ -52,32 +54,47 @@ git clone https://github.com/longisland/multiplayer-rock-paper-scissors-dev.git
 cd multiplayer-rock-paper-scissors-dev
 ```
 
-2. Install dependencies:
+2. Switch to the feature branch:
+```bash
+git checkout feature/fix-match-betting
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run the application:
+4. Run the application:
 ```bash
-python -m src.app
+cd src
+python app.py
 ```
+
+Note: The application uses relative imports and must be run from the src directory.
 
 ## Docker Deployment
 
-1. Build and start the containers:
+1. Switch to the feature branch:
+```bash
+git checkout feature/fix-match-betting
+```
+
+2. Build and start the containers:
 ```bash
 docker-compose up -d --build
 ```
 
-2. View logs:
+3. View logs:
 ```bash
 docker-compose logs -f
 ```
 
-3. Stop the containers:
+4. Stop the containers:
 ```bash
 docker-compose down
 ```
+
+Note: The Docker deployment is configured to use relative imports and sets the correct PYTHONPATH and working directory.
 
 ## Server Deployment
 
@@ -93,20 +110,24 @@ sshpass -p "TMPpass99" ssh root@165.227.160.131
 cd /var/www/rps-game
 ```
 
-3. Create required directories:
+3. Create required directories with proper permissions:
 ```bash
 mkdir -p postgres/backup
+chmod 777 postgres/backup
 ```
 
-4. Pull the latest changes:
+4. Switch to the feature branch and pull the latest changes:
 ```bash
-git pull origin main
+git checkout feature/fix-match-betting
+git pull origin feature/fix-match-betting
 ```
 
 5. Build and start the containers:
 ```bash
 docker-compose up -d --build
 ```
+
+Note: The backup directory permissions are important for PostgreSQL archiving to work correctly.
 
 ### Redeployment with Data Preservation
 
@@ -125,9 +146,10 @@ cd /var/www/rps-game
 docker-compose exec postgres pg_dump -U rps_user rps_db > postgres/backup/pre_deploy_backup.sql
 ```
 
-4. Pull the latest changes:
+4. Switch to the feature branch and pull the latest changes:
 ```bash
-git pull origin main
+git checkout feature/fix-match-betting
+git pull origin feature/fix-match-betting
 ```
 
 5. Rebuild and restart the containers:
@@ -141,7 +163,9 @@ docker-compose up -d --build --force-recreate
 docker-compose exec postgres psql -U rps_user -d rps_db < postgres/backup/pre_deploy_backup.sql
 ```
 
-Note: The `--force-recreate` flag ensures that the containers are recreated with the latest code, avoiding any caching issues.
+Note: 
+- The `--force-recreate` flag ensures that the containers are recreated with the latest code, avoiding any caching issues.
+- The feature branch uses relative imports and requires specific PYTHONPATH configuration, which is handled by the Docker setup.
 
 ### Data Persistence
 
@@ -186,11 +210,20 @@ The application can be configured through environment variables:
 - `DEBUG`: Enable debug mode (default: True)
 - `SECRET_KEY`: Flask secret key (auto-generated if not provided)
 - `SQLALCHEMY_TRACK_MODIFICATIONS`: SQLAlchemy event system (default: False)
+- `PYTHONPATH`: Python path for imports (set to /app/src in Docker)
+- `FLASK_APP`: Flask application module (set to src.app in Docker)
+
+### Game Configuration
+- `INITIAL_COINS`: Starting coins for new players (default: 100)
+- `MATCH_TIMEOUT`: Time limit for each match in seconds (default: 30)
+- `MIN_BET`: Minimum bet amount (default: 1)
+- `MAX_BET`: Maximum bet amount (default: player's current coins)
 
 ## Contributing
 
-1. Create a new branch for your feature:
+1. Create a new branch from the feature branch:
 ```bash
+git checkout feature/fix-match-betting
 git checkout -b feature/your-feature-name
 ```
 
@@ -205,7 +238,9 @@ git commit -m "Description of changes"
 git push origin feature/your-feature-name
 ```
 
-4. Create a Pull Request on GitHub.
+4. Create a Pull Request on GitHub targeting the feature/fix-match-betting branch.
+
+Note: All new features should be based on the feature/fix-match-betting branch as it contains the latest project structure and betting system improvements.
 
 ## License
 
