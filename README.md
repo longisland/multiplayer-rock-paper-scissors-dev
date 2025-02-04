@@ -131,13 +131,11 @@ mkdir -p postgres/backup
 chmod 777 postgres/backup
 ```
 
-4. Generate SSL certificate:
+4. Install Certbot and obtain SSL certificate:
 ```bash
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout /etc/nginx/ssl/rockpaperscissors.fun.key \
-    -out /etc/nginx/ssl/rockpaperscissors.fun.crt \
-    -subj "/C=US/ST=New York/L=New York/O=RPS Game/CN=rockpaperscissors.fun" \
-    -addext "subjectAltName=DNS:rockpaperscissors.fun,DNS:www.rockpaperscissors.fun"
+snap install --classic certbot
+ln -s /snap/bin/certbot /usr/bin/certbot
+certbot --nginx -d rockpaperscissors.fun --non-interactive --agree-tos --email openhands@all-hands.dev
 ```
 
 5. Configure nginx:
@@ -146,6 +144,8 @@ cp nginx/rockpaperscissors.fun.conf /etc/nginx/sites-available/
 ln -sf /etc/nginx/sites-available/rockpaperscissors.fun.conf /etc/nginx/sites-enabled/
 nginx -t && systemctl restart nginx
 ```
+
+Note: SSL certificate will be automatically renewed by Certbot's scheduled task.
 
 6. Create external volumes for data persistence:
 ```bash
