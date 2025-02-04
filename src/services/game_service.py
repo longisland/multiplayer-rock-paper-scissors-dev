@@ -105,6 +105,10 @@ class GameService:
             # Sync in-memory state
             players[match.creator].coins = creator_user.coins
             players[match.joiner].coins = joiner_user.coins
+
+            # Sync in-memory stats
+            players[match.creator]._user = creator_user
+            players[match.joiner]._user = joiner_user
             
             # Prepare result data
             result_data = {
