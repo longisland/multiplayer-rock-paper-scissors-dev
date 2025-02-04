@@ -8,6 +8,7 @@ RUN apt-get update && \
     build-essential \
     libpq-dev \
     curl \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first to leverage Docker cache
