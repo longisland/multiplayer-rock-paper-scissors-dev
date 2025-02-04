@@ -132,15 +132,6 @@ def create_match():
 
         stake = request.json.get('stake', 0)
 
-
-@app.after_request
-def add_headers(response):
-    response.headers['X-Frame-Options'] = 'ALLOWALL'
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-    return response
-
         if not isinstance(stake, int) or stake <= 0:
             logger.error(f"Invalid stake: {stake}")
             return jsonify({'error': 'Invalid stake'}), 400
