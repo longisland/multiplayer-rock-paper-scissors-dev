@@ -185,6 +185,16 @@
                 currentMatchId = null;
                 isCreator = false;
                 isRematch = false;
+
+                // Update coin balance with animation if provided
+                if (data.coins !== undefined) {
+                    const coinBalance = document.getElementById('coinBalance');
+                    if (coinBalance) {
+                        animateValueChange(coinBalance, lastValues.coins, data.coins);
+                        lastValues.coins = data.coins;
+                    }
+                }
+
                 showScreen('lobbyScreen');
                 updateGameState();
             }
@@ -211,7 +221,15 @@
                     return;
                 }
 
-                // The match_cancelled event will handle the UI update
+                const data = await response.json();
+                if (data.coins !== undefined) {
+                    const coinBalance = document.getElementById('coinBalance');
+                    if (coinBalance) {
+                        animateValueChange(coinBalance, lastValues.coins, data.coins);
+                        lastValues.coins = data.coins;
+                    }
+                }
+                // The match_cancelled event will handle the rest of the UI update
             } catch (error) {
                 console.error('Error cancelling match:', error);
             }

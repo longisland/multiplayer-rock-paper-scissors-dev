@@ -5,11 +5,11 @@ import redis
 import secrets
 from datetime import datetime, timedelta
 
-from .config import Config
-from .services.match_service import MatchService
-from .services.game_service import GameService
-from .utils.logger import setup_logger
-from .models.database import db, User, GameHistory
+from src.config import Config
+from src.services.match_service import MatchService
+from src.services.game_service import GameService
+from src.utils.logger import setup_logger
+from src.models.database import db, User, GameHistory
 
 # Configure logging
 logger = setup_logger()
@@ -195,17 +195,27 @@ def cancel_match():
             logger.error(f"Player {session_id} not authorized to cancel match {match_id}")
             return jsonify({'error': 'Not authorized'}), 403
 
-        # Cancel the match
-        match_service.cleanup_match(match_id)
+        # Cancel the match and refund stake
+        result = match_service.cancel_match(match_id)
+        if not result:
+            logger.error(f"Failed to cancel match {match_id}")
+            return jsonify({'error': 'Failed to cancel match'}), 500
+
+        # Get updated player state
+        player = match_service.get_player(session_id)
         
         # Notify players about match cancellation
         socketio.emit('match_cancelled', {
             'match_id': match_id,
-            'message': 'Match cancelled by creator'
+            'message': 'Match cancelled by creator',
+            'coins': player.coins
         }, room=match_id)
 
         logger.info(f"Match {match_id} cancelled by creator {session_id}")
-        return jsonify({'success': True})
+        return jsonify({
+            'success': True,
+            'coins': player.coins
+        })
     except Exception as e:
         logger.exception("Error cancelling match")
         return jsonify({'error': 'Internal server error'}), 500

@@ -215,7 +215,41 @@ class MatchService:
             db.session.rollback()
             return None
 
+    def cancel_match(self, match_id):
+        """Cancel a match and refund the stake to the creator."""
+        try:
+            match = self.matches.get(match_id)
+            if not match or match.status != 'waiting':
+                return None
+
+            # Start transaction
+            db.session.begin_nested()
+
+            # Get creator from database with row locking
+            creator_user = User.query.filter_by(username=match.creator).with_for_update().first()
+            if not creator_user:
+                db.session.rollback()
+                return None
+
+            # Refund stake to creator
+            creator_user.coins += match.stake
+            
+            # Update in-memory state
+            self.players[match.creator].coins = creator_user.coins
+
+            # Commit transaction
+            db.session.commit()
+
+            # Clean up the match
+            self.cleanup_match(match_id)
+            return True
+
+        except Exception as e:
+            db.session.rollback()
+            return None
+
     def cleanup_match(self, match_id):
+        """Clean up match resources without handling refunds."""
         if match_id in self.matches:
             match = self.matches[match_id]
             match.cancel_timer()
