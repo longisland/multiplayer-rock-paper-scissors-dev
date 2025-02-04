@@ -17,6 +17,13 @@ class User(db.Model):
     draws = db.Column(db.Integer, default=0)
     total_coins_won = db.Column(db.Integer, default=0)
     total_coins_lost = db.Column(db.Integer, default=0)
+    
+    # Telegram-specific fields
+    telegram_id = db.Column(db.BigInteger, unique=True)
+    telegram_username = db.Column(db.String(80))
+    telegram_first_name = db.Column(db.String(80))
+    telegram_last_name = db.Column(db.String(80))
+    telegram_auth_date = db.Column(db.DateTime)
 
     def to_dict(self):
         return {

@@ -17,6 +17,8 @@ services:
       - POSTGRES_USER=rps_user
       - POSTGRES_PASSWORD=rps_password
       - POSTGRES_DB=rps_db
+      - BOT_TOKEN=7801495507:AAHhi-8ader_tX6_iJLOrdQQgKLcSP1uKbU
+      - BASE_URL=https://rockpaperscissors.fun
     depends_on:
       redis:
         condition: service_started

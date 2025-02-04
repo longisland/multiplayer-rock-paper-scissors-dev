@@ -12,6 +12,10 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     INITIAL_COINS = 100
     MATCH_TIMEOUT = 30.0  # seconds
+    
+    # Telegram settings
+    BOT_TOKEN = os.getenv('BOT_TOKEN', '7801495507:AAHhi-8ader_tX6_iJLOrdQQgKLcSP1uKbU')
+    BASE_URL = os.getenv('BASE_URL', 'https://rockpaperscissors.fun')
 
 class TestConfig(Config):
     TESTING = True
