@@ -121,7 +121,11 @@ def create_match():
 
         match = match_service.create_match(session_id, stake)
         logger.info(f"Match created: {match.id} by {session_id}")
-        return jsonify({'match_id': match.id})
+        player = match_service.get_player(session_id)
+        return jsonify({
+            'match_id': match.id,
+            'coins': player.coins
+        })
     except Exception as e:
         logger.exception("Error creating match")
         return jsonify({'error': 'Internal server error'}), 500
@@ -159,7 +163,11 @@ def join_match():
             return jsonify({'error': 'Failed to join match'}), 400
 
         logger.info(f"Player {session_id} joined match {match_id}")
-        return jsonify({'success': True})
+        player = match_service.get_player(session_id)
+        return jsonify({
+            'success': True,
+            'coins': player.coins
+        })
     except Exception as e:
         logger.exception("Error joining match")
         return jsonify({'error': 'Internal server error'}), 500

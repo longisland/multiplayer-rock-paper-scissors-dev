@@ -375,6 +375,16 @@
                 if (data.success) {
                     currentMatchId = matchId;
                     isCreator = false;
+
+                    // Update balance immediately
+                    const coinBalance = document.getElementById('coinBalance');
+                    if (coinBalance && data.coins !== undefined) {
+                        coinBalance.textContent = data.coins;
+                        coinBalance.classList.add('animate__animated', 'animate__flash');
+                        setTimeout(() => {
+                            coinBalance.classList.remove('animate__animated', 'animate__flash');
+                        }, 1000);
+                    }
                     
                     // Join the match room via socket
                     console.log('Joining match room:', matchId);
@@ -467,6 +477,16 @@
                         if (response.ok && data.match_id) {
                             currentMatchId = data.match_id;
                             isCreator = true;
+
+                            // Update balance immediately
+                            const coinBalance = document.getElementById('coinBalance');
+                            if (coinBalance && data.coins !== undefined) {
+                                coinBalance.textContent = data.coins;
+                                coinBalance.classList.add('animate__animated', 'animate__flash');
+                                setTimeout(() => {
+                                    coinBalance.classList.remove('animate__animated', 'animate__flash');
+                                }, 1000);
+                            }
 
                             // Join the match room via socket
                             console.log('Joining match room:', data.match_id);
