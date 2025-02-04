@@ -1,11 +1,10 @@
 import pytest
-from src.app import create_app
+from src.app import app
 from src.models.database import db as _db
 from src.services.match_service import MatchService
 
 @pytest.fixture
 def app():
-    app = create_app()
     app.config['TESTING'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     return app
