@@ -16,14 +16,20 @@ class Player:
                 db.session.add(self._user)
                 db.session.commit()
 
+    def _refresh_user(self):
+        """Refresh user data from database"""
+        if self._user:
+            db.session.expire_all()
+            self._user = User.query.filter_by(username=self.session_id).first()
+
     @property
     def coins(self):
-        self._ensure_user_exists(100)
+        self._refresh_user()
         return self._user.coins
 
     @coins.setter
     def coins(self, value):
-        self._ensure_user_exists(100)
+        self._refresh_user()
         self._user.coins = value
         db.session.commit()
 
@@ -33,7 +39,7 @@ class Player:
         return self.to_stats_dict()
 
     def to_dict(self):
-        self._ensure_user_exists(100)
+        self._refresh_user()
         return {
             'coins': self._user.coins,
             'current_match': self.current_match,
@@ -41,30 +47,30 @@ class Player:
         }
 
     def has_enough_coins(self, amount):
-        self._ensure_user_exists(100)
+        self._refresh_user()
         return self._user.coins >= amount
 
     def record_win(self):
-        self._ensure_user_exists(100)
+        self._refresh_user()
         self._user.wins += 1
         self._user.total_games += 1
         db.session.commit()
 
     def record_loss(self):
-        self._ensure_user_exists(100)
+        self._refresh_user()
         self._user.losses += 1
         self._user.total_games += 1
         db.session.commit()
 
     def record_draw(self):
-        self._ensure_user_exists(100)
+        self._refresh_user()
         self._user.draws += 1
         self._user.total_games += 1
         db.session.commit()
 
     def to_stats_dict(self):
         """Return a dictionary with stats that matches the old PlayerStats interface"""
-        self._ensure_user_exists(100)
+        self._refresh_user()
         return type('PlayerStats', (), {
             'wins': self._user.wins,
             'losses': self._user.losses,

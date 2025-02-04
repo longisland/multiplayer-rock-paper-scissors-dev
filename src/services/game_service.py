@@ -102,13 +102,10 @@ class GameService:
                 creator_user.total_games += 1
                 creator_user.total_coins_lost += match.stake
 
-            # Sync in-memory state
-            players[match.creator].coins = creator_user.coins
-            players[match.joiner].coins = joiner_user.coins
-
-            # Sync in-memory stats
-            players[match.creator]._user = creator_user
-            players[match.joiner]._user = joiner_user
+            # Commit transaction and refresh player states
+            db.session.commit()
+            players[match.creator]._refresh_user()
+            players[match.joiner]._refresh_user()
             
             # Prepare result data
             result_data = {

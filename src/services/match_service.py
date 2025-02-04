@@ -156,10 +156,6 @@ class MatchService:
         if not old_match:
             return None
 
-        # Check if both players have enough coins
-        if not old_match.can_rematch(self.players):
-            return None
-
         # Check if both players have accepted rematch
         if not old_match.is_rematch_ready():
             return None
@@ -198,12 +194,15 @@ class MatchService:
             self.players[old_match.creator].current_match = match_id
             self.players[old_match.joiner].current_match = match_id
 
-            # Update in-memory state
-            self.players[old_match.creator].coins = creator_user.coins
-            self.players[old_match.joiner].coins = joiner_user.coins
-
-            # Commit transaction
+            # Update in-memory state and commit transaction
             db.session.commit()
+
+            # Refresh player states
+            self.players[old_match.creator]._refresh_user()
+            self.players[old_match.joiner]._refresh_user()
+
+            # Clean up old match
+            self.cleanup_match(old_match_id)
 
             # Start the match timer
             new_match.start_match()
