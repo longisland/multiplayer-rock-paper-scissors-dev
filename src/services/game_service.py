@@ -57,7 +57,6 @@ class GameService:
             
             if result == 'draw':
                 logger.info("Match result: Draw")
-                match.stats.draws += 1
                 game_history.is_draw = True
                 
                 # Return stakes to both players
@@ -72,7 +71,7 @@ class GameService:
 
             elif result == 'player1':
                 logger.info("Match result: Creator wins")
-                match.stats.creator_wins += 1
+                
                 game_history.winner_id = creator_user.id
                 
                 # Winner gets both stakes
@@ -88,7 +87,7 @@ class GameService:
 
             else:
                 logger.info("Match result: Joiner wins")
-                match.stats.joiner_wins += 1
+                
                 game_history.winner_id = joiner_user.id
                 
                 # Winner gets both stakes
