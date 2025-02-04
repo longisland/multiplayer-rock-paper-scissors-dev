@@ -760,29 +760,10 @@
                         resultTextElement.textContent = resultText;
                     }
                     
-                    // Show match stats with animation
-                    const stats = data.match_stats;
+                    // Clear any previous match stats
                     const statsContainer = document.getElementById('matchStats');
-                    if (statsContainer && stats) {
-                        statsContainer.classList.add('animate__animated', 'animate__fadeIn');
-                        statsContainer.innerHTML = `
-                            <div class="stats-item">
-                                <span>Total Rounds:</span>
-                                <span>${stats.rounds}</span>
-                            </div>
-                            <div class="stats-item">
-                                <span>Creator Wins:</span>
-                                <span>${stats.creator_wins}</span>
-                            </div>
-                            <div class="stats-item">
-                                <span>Joiner Wins:</span>
-                                <span>${stats.joiner_wins}</span>
-                            </div>
-                            <div class="stats-item">
-                                <span>Draws:</span>
-                                <span>${stats.draws}</span>
-                            </div>
-                        `;
+                    if (statsContainer) {
+                        statsContainer.innerHTML = '';
                     }
                 }, 1000);
                 
