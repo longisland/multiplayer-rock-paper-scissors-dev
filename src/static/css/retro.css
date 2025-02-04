@@ -59,6 +59,23 @@ h1 {
     align-items: center;
     justify-content: center;
     gap: 10px;
+    position: relative;
+}
+
+.coin-change {
+    position: absolute;
+    font-size: 1em;
+    opacity: 0;
+    animation: coinChangeAnim 1s ease-out forwards;
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+.coin-change.increase {
+    color: var(--secondary-color);
+}
+
+.coin-change.decrease {
+    color: var(--danger-color);
 }
 
 .coin-icon {
@@ -176,6 +193,32 @@ h1 {
     background-color: rgba(255, 255, 255, 0.15);
     border-radius: 10px;
     animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    overflow: hidden;
+}
+
+.result.win {
+    animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+               winningGlow 2s infinite;
+    background-color: rgba(46, 204, 113, 0.15);
+}
+
+.result.lose {
+    background-color: rgba(231, 76, 60, 0.15);
+}
+
+.result.draw {
+    background-color: rgba(241, 196, 15, 0.15);
+}
+
+.celebration-particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--warning-color);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: celebrationParticles 1s ease-out forwards;
 }
 
 .result-title {
@@ -404,6 +447,48 @@ h1 {
 @keyframes timerRing {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+@keyframes coinChangeAnim {
+    0% {
+        opacity: 0;
+        transform: translateY(0);
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+        transform: translateY(-30px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+}
+
+@keyframes winningGlow {
+    0% {
+        box-shadow: 0 0 10px var(--secondary-color);
+    }
+    50% {
+        box-shadow: 0 0 30px var(--secondary-color),
+                    0 0 50px var(--warning-color);
+    }
+    100% {
+        box-shadow: 0 0 10px var(--secondary-color);
+    }
+}
+
+@keyframes celebrationParticles {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
 }
 
 /* Mobile Responsive */
