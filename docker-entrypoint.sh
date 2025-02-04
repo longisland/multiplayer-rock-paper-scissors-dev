@@ -7,14 +7,12 @@ until PGPASSWORD=rps_password psql -h postgres -U rps_user -d rps_db -c '\q'; do
   sleep 1
 done
 
-# Initialize migrations if needed
-if [ ! -d "migrations" ]; then
-  flask db init
-fi
-
-# Run database migrations
-flask db migrate -m "Add Telegram fields"
-flask db upgrade
+# Initialize database
+python -c "
+from src.app import app, db
+with app.app_context():
+    db.create_all()
+"
 
 # Initialize Telegram bot
 python -c "from src.scripts.init_telegram_bot import init_telegram_bot; init_telegram_bot()"
