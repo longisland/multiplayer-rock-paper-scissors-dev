@@ -243,6 +243,95 @@ The application can be configured through environment variables:
 - `MIN_BET`: Minimum bet amount (default: 1)
 - `MAX_BET`: Maximum bet amount (default: player's current coins)
 
+## Testing
+
+The project includes a comprehensive test suite covering game mechanics and mathematical models. Tests are written using pytest and can be run both locally and in Docker.
+
+### Test Coverage
+
+The test suite covers:
+
+1. Game Mechanics
+   - Match creation and joining
+   - Move making and result calculation
+   - Match timeout handling
+   - Rematch functionality
+   - Draw handling
+   - Match cancellation
+
+2. Mathematical Model
+   - Betting distribution for wins
+   - Betting distribution for draws
+   - Betting limits
+   - Consecutive matches betting
+   - Rematch betting
+
+### Running Tests
+
+#### Local Testing
+```bash
+# Install test dependencies
+pip install pytest pytest-flask
+
+# Run all tests
+pytest -v
+
+# Run specific test file
+pytest tests/test_game_mechanics.py -v
+
+# Run specific test
+pytest tests/test_game_mechanics.py::test_match_creation -v
+```
+
+#### Docker Testing
+```bash
+# Run tests in Docker container
+docker-compose exec web pytest -v
+
+# Run specific test file
+docker-compose exec web pytest tests/test_game_mechanics.py -v
+
+# Run specific test
+docker-compose exec web pytest tests/test_game_mechanics.py::test_match_creation -v
+```
+
+### Test Configuration
+
+The test suite uses SQLite in-memory database for testing to ensure:
+- Fast test execution
+- No interference with production data
+- Clean state for each test
+- No need for external database setup
+
+Test configuration is managed through `conftest.py`:
+- SQLite in-memory database
+- Test-specific Flask configuration
+- Isolated test environment
+- Automatic database cleanup
+
+### Writing Tests
+
+When adding new features or fixing bugs:
+1. Create test file in `tests/` directory
+2. Use appropriate fixtures from `conftest.py`
+3. Follow existing test patterns
+4. Ensure all tests pass before submitting PR
+5. Add new test cases for bug fixes
+
+Example test structure:
+```python
+def test_feature_name(match_service, db):
+    # Setup
+    creator_id = "player1"
+    
+    # Execute
+    result = match_service.some_action(creator_id)
+    
+    # Assert
+    assert result is not None
+    assert result.some_property == expected_value
+```
+
 ## Contributing
 
 1. Create a new branch from the main branch:
