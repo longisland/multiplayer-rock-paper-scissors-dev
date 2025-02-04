@@ -146,7 +146,13 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // Initialize Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+
         // Global variables
         let currentMatchId = null;
         let moveTimer = null;
@@ -164,6 +170,16 @@
                 draws: null,
                 total_coins_won: null
             }
+        };
+
+        // Add Telegram init data to all API requests
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options = {}) {
+            const newUrl = new URL(url, window.location.origin);
+            if (tg.initData) {
+                newUrl.searchParams.append('tgWebAppData', tg.initData);
+            }
+            return originalFetch(newUrl, options);
         };
 
         // Initialize socket connection with logging

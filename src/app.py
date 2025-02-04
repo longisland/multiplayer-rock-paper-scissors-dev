@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_session import Session
+from flask_migrate import Migrate
 import redis
 import secrets
 from datetime import datetime, timedelta
@@ -8,6 +9,7 @@ from datetime import datetime, timedelta
 from src.config import Config
 from src.services.match_service import MatchService
 from src.services.game_service import GameService
+from src.services.telegram_service import TelegramService
 from src.utils.logger import setup_logger
 from src.models.database import db, User, GameHistory
 
@@ -26,6 +28,7 @@ Session(app)
 
 # Initialize database
 db.init_app(app)
+migrate = Migrate(app, db)
 if not app.config.get('TESTING'):
     with app.app_context():
         try:
@@ -53,14 +56,57 @@ socketio = SocketIO(
 # Initialize services
 match_service = MatchService()
 game_service = GameService()
+telegram_service = TelegramService(Config.BOT_TOKEN)
+
+@app.route('/telegram/webhook', methods=['POST'])
+def telegram_webhook():
+    if request.headers.get('X-Telegram-Bot-Api-Secret-Token') != Config.BOT_TOKEN:
+        return 'Unauthorized', 401
+    
+    try:
+        telegram_service.handle_webhook(request.json)
+        return 'OK', 200
+    except Exception as e:
+        logger.exception("Error handling Telegram webhook")
+        return 'Error', 500
 
 @app.route('/')
 def index():
     if 'session_id' not in session:
-        session_id = secrets.token_hex(8)
-        session['session_id'] = session_id
-        match_service.get_player(session_id)  # Initialize player
-        logger.info(f"Created new session: {session_id}")
+        # Check for Telegram Web App data
+        init_data = request.args.get('tgWebAppData')
+        if init_data:
+            # Verify and get user data from Telegram
+            user_data = telegram_service.verify_web_app_data(init_data)
+            if user_data:
+                # Find or create user
+                user = User.query.filter_by(telegram_id=user_data['id']).first()
+                if not user:
+                    user = User(
+                        username=user_data['username'] or f"user_{user_data['id']}",
+                        telegram_id=user_data['id'],
+                        telegram_username=user_data['username'],
+                        telegram_first_name=user_data['first_name'],
+                        telegram_last_name=user_data['last_name'],
+                        telegram_auth_date=datetime.utcnow()
+                    )
+                    db.session.add(user)
+                    db.session.commit()
+                
+                session_id = str(user.id)
+                session['session_id'] = session_id
+                match_service.get_player(session_id)
+                logger.info(f"Telegram user authenticated: {user_data['username']}")
+            else:
+                logger.error("Invalid Telegram Web App data")
+                return "Invalid Telegram authentication", 400
+        else:
+            # Legacy anonymous session for testing
+            session_id = secrets.token_hex(8)
+            session['session_id'] = session_id
+            match_service.get_player(session_id)
+            logger.info(f"Created anonymous session: {session_id}")
+    
     return render_template('index.html')
 
 @app.route('/api/state')

@@ -8,6 +8,7 @@ RUN apt-get update && \
     build-essential \
     libpq-dev \
     curl \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first to leverage Docker cache
@@ -30,6 +31,10 @@ ENV PORT=5000
 # Expose port
 EXPOSE 5000
 
+# Create entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Run the application
 WORKDIR /app
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]
+ENTRYPOINT ["docker-entrypoint.sh"]
