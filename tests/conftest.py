@@ -1,12 +1,15 @@
 import pytest
-from src.app import app
+from flask import Flask
 from src.models.database import db as _db
 from src.services.match_service import MatchService
 
 @pytest.fixture
 def app():
+    app = Flask(__name__)
     app.config['TESTING'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'test_key'
     return app
 
 @pytest.fixture
