@@ -76,6 +76,12 @@
                     <span class="message-text">Looking for worthy opponents</span>
                     <span class="dots">...</span>
                 </div>
+                <div id="cancelMatchContainer" style="display: none; margin-top: 20px;">
+                    <button id="cancelMatchBtn" class="btn glow-effect">
+                        <span class="btn-icon">❌</span>
+                        Cancel Match
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -149,6 +155,7 @@
         let matches = {};  // Store match states
         let rematchTimer = null;
         let lastMatchStake = null;  // Store stake for rematch
+        let isRematch = false;  // Track if current match is a rematch
         let lastValues = {
             coins: null,
             stats: {
@@ -170,6 +177,62 @@
 
         socket.on('connect', () => {
             console.log('Socket connected:', socket.id);
+        });
+
+        // Handle match cancellation
+        socket.on('match_cancelled', (data) => {
+            if (data.match_id === currentMatchId) {
+                currentMatchId = null;
+                isCreator = false;
+                isRematch = false;
+
+                // Update coin balance with animation if provided
+                if (data.coins !== undefined) {
+                    const coinBalance = document.getElementById('coinBalance');
+                    if (coinBalance) {
+                        animateValueChange(coinBalance, lastValues.coins, data.coins);
+                        lastValues.coins = data.coins;
+                    }
+                }
+
+                showScreen('lobbyScreen');
+                updateGameState();
+            }
+        });
+
+        // Add event listener for cancel button
+        document.getElementById('cancelMatchBtn').addEventListener('click', async () => {
+            if (!currentMatchId || !isCreator) return;
+
+            try {
+                const response = await fetch('/api/cancel_match', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        match_id: currentMatchId
+                    })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    console.error('Error cancelling match:', data.error);
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.coins !== undefined) {
+                    const coinBalance = document.getElementById('coinBalance');
+                    if (coinBalance) {
+                        animateValueChange(coinBalance, lastValues.coins, data.coins);
+                        lastValues.coins = data.coins;
+                    }
+                }
+                // The match_cancelled event will handle the rest of the UI update
+            } catch (error) {
+                console.error('Error cancelling match:', error);
+            }
         });
 
         socket.on('connect_error', (error) => {
@@ -301,6 +364,14 @@
             const targetScreen = document.getElementById(screenId);
             if (targetScreen) {
                 targetScreen.classList.add('active');
+                
+                // Handle cancel button visibility in waiting screen
+                if (screenId === 'waitingScreen') {
+                    const cancelContainer = document.getElementById('cancelMatchContainer');
+                    if (cancelContainer) {
+                        cancelContainer.style.display = isCreator && !isRematch ? 'block' : 'none';
+                    }
+                }
             } else {
                 console.error('Screen not found:', screenId);
             }
@@ -648,8 +719,10 @@
                     // Reset game state
                     matches[currentMatchId] = {
                         status: 'playing',
-                        start_time: data.start_time
+                        start_time: data.start_time,
+                        is_rematch: data.is_rematch || false
                     };
+                    isRematch = data.is_rematch || false;
                     
                     // Show play screen with animation
                     const playScreen = document.getElementById('playScreen');
@@ -926,6 +999,7 @@
                 // Update match state
                 currentMatchId = data.match_id;
                 isCreator = data.is_creator;
+                isRematch = data.is_rematch || false;
                 
                 // Show waiting screen
                 showScreen('waitingScreen');

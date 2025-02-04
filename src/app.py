@@ -5,11 +5,11 @@ import redis
 import secrets
 from datetime import datetime, timedelta
 
-from .config import Config
-from .services.match_service import MatchService
-from .services.game_service import GameService
-from .utils.logger import setup_logger
-from .models.database import db, User, GameHistory
+from src.config import Config
+from src.services.match_service import MatchService
+from src.services.game_service import GameService
+from src.utils.logger import setup_logger
+from src.models.database import db, User, GameHistory
 
 # Configure logging
 logger = setup_logger()
@@ -170,6 +170,54 @@ def join_match():
         })
     except Exception as e:
         logger.exception("Error joining match")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/cancel_match', methods=['POST'])
+def cancel_match():
+    try:
+        session_id = session.get('session_id')
+        if not session_id:
+            logger.error(f"Invalid session: {session_id}")
+            return jsonify({'error': 'Invalid session'}), 400
+
+        match_id = request.json.get('match_id')
+        if not match_id:
+            logger.error("No match_id provided")
+            return jsonify({'error': 'Match ID required'}), 400
+
+        match = match_service.get_match(match_id)
+        if not match or match.status != 'waiting':
+            logger.error(f"Invalid match or not in waiting state: {match_id}")
+            return jsonify({'error': 'Match not available'}), 400
+
+        # Only the creator can cancel the match
+        if session_id != match.creator:
+            logger.error(f"Player {session_id} not authorized to cancel match {match_id}")
+            return jsonify({'error': 'Not authorized'}), 403
+
+        # Cancel the match and refund stake
+        result = match_service.cancel_match(match_id)
+        if not result:
+            logger.error(f"Failed to cancel match {match_id}")
+            return jsonify({'error': 'Failed to cancel match'}), 500
+
+        # Get updated player state
+        player = match_service.get_player(session_id)
+        
+        # Notify players about match cancellation
+        socketio.emit('match_cancelled', {
+            'match_id': match_id,
+            'message': 'Match cancelled by creator',
+            'coins': player.coins
+        }, room=match_id)
+
+        logger.info(f"Match {match_id} cancelled by creator {session_id}")
+        return jsonify({
+            'success': True,
+            'coins': player.coins
+        })
+    except Exception as e:
+        logger.exception("Error cancelling match")
         return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/api/move', methods=['POST'])
@@ -351,14 +399,16 @@ def on_rematch_accepted(data):
                     'match_id': new_match.id,
                     'is_creator': True,
                     'stake': new_match.stake,
-                    'coins': creator.coins
+                    'coins': creator.coins,
+                    'is_rematch': True
                 }, room=match.creator)
 
                 socketio.emit('rematch_started', {
                     'match_id': new_match.id,
                     'is_creator': False,
                     'stake': new_match.stake,
-                    'coins': joiner.coins
+                    'coins': joiner.coins,
+                    'is_rematch': True
                 }, room=match.joiner)
 
                 logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
@@ -378,7 +428,8 @@ def on_rematch_accepted(data):
                 # Notify both players that the match has started
                 socketio.emit('match_started', {
                     'match_id': new_match.id,
-                    'start_time': new_match.start_time
+                    'start_time': new_match.start_time,
+                    'is_rematch': True
                 }, room=new_match.id)
 
                 # Cleanup old match after everything is set up
