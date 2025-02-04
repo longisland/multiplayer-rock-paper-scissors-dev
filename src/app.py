@@ -523,8 +523,13 @@ def on_rematch_declined(data):
         logger.exception("Error in rematch_declined handler")
 
 if __name__ == '__main__':
+    ssl_context = None
+    if Config.SSL_CERT and Config.SSL_KEY:
+        ssl_context = (Config.SSL_CERT, Config.SSL_KEY)
+    
     socketio.run(app, 
                 host=Config.HOST,
                 port=Config.PORT,
                 debug=Config.DEBUG,
-                allow_unsafe_werkzeug=True)
+                allow_unsafe_werkzeug=True,
+                ssl_context=ssl_context)

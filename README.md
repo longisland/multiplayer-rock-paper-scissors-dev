@@ -127,26 +127,39 @@ cd /var/www/rps-game
 
 3. Create required directories with proper permissions:
 ```bash
-mkdir -p postgres/backup
+mkdir -p postgres/backup ssl
 chmod 777 postgres/backup
 ```
 
-4. Create external volumes for data persistence:
+4. Generate SSL certificate:
+```bash
+cd ssl
+./generate_cert.sh
+cd ..
+```
+
+5. Create external volumes for data persistence:
 ```bash
 docker volume create --name=rps-game_postgres_data
 docker volume create --name=rps-game_redis_data
 ```
 
-5. Switch to main branch and pull the latest changes:
+6. Configure DNS:
+- Add A record for rockpaperscissors.fun pointing to 165.227.160.131
+- Add A record for www.rockpaperscissors.fun pointing to 165.227.160.131
+
+7. Switch to main branch and pull the latest changes:
 ```bash
 git checkout main
 git pull origin main
 ```
 
-6. Build and start the containers:
+8. Build and start the containers:
 ```bash
 docker-compose up -d --build
 ```
+
+Note: The application will be available at https://rockpaperscissors.fun
 
 Note: 
 - The backup directory permissions are important for PostgreSQL archiving
