@@ -872,12 +872,10 @@
 
             socket.on('rematch_started', (data) => {
                 console.log('Rematch started:', data);
-                currentMatchId = data.match_id;
-                isCreator = data.is_creator;
-                
+
                 // Stop rematch timer
                 stopRematchTimer();
-                
+
                 // Clear rematch UI
                 const rematchBtn = document.getElementById('rematchBtn');
                 const rematchStatus = document.getElementById('rematchStatus');
@@ -891,6 +889,20 @@
                     rematchStatus.textContent = '';
                     rematchStatus.classList.remove('animate__fadeOut');
                 }
+
+                // Update balance immediately
+                const coinBalance = document.getElementById('coinBalance');
+                if (coinBalance && data.coins !== undefined) {
+                    coinBalance.textContent = data.coins;
+                    coinBalance.classList.add('animate__animated', 'animate__flash');
+                    setTimeout(() => {
+                        coinBalance.classList.remove('animate__animated', 'animate__flash');
+                    }, 1000);
+                }
+
+                // Update match state
+                currentMatchId = data.match_id;
+                isCreator = data.is_creator;
                 
                 // Show waiting screen
                 showScreen('waitingScreen');
