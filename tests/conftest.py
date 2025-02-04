@@ -26,7 +26,11 @@ def db(app):
 
 @pytest.fixture
 def match_service(db):
-    return MatchService()
+    service = MatchService()
+    # Initialize players with initial coins
+    service.get_player("player1")
+    service.get_player("player2")
+    return service
 
 @pytest.fixture
 def client(app):
