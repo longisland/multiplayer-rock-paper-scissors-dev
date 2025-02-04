@@ -1,11 +1,13 @@
 # Multiplayer Rock Paper Scissors - Development Version
 
-This is the development version of the Multiplayer Rock Paper Scissors game. For the stable version, please check the main repository at [multiplayer-rock-paper-scissors](https://github.com/longisland/multiplayer-rock-paper-scissors).
+This is the development version of the Multiplayer Rock Paper Scissors game. For the stable version, please check the main repository at [multiplayer-rock-paper-scissors](https://github.com/longisland/multiplayer-rock-scissors).
 
 ## Features
 
 - Multiplayer gameplay with real-time updates
-- Player registration and session management
+- Telegram Mini App integration
+- Telegram bot for game invites and notifications
+- Secure authentication via Telegram
 - Match creation and joining with betting system
 - Enhanced betting animations and visual feedback
 - Player statistics tracking with coin management
@@ -15,6 +17,31 @@ This is the development version of the Multiplayer Rock Paper Scissors game. For
 - Automatic match cleanup on disconnection
 - Transaction support for game results and betting
 - Explicit visual feedback for all game actions
+
+## Telegram Integration
+
+### Mini App Setup
+
+1. Create a Telegram bot through [@BotFather](https://t.me/botfather)
+2. Enable the Web App feature and set the domain
+3. Configure the bot token in the environment:
+```bash
+export BOT_TOKEN=your_bot_token_here
+```
+
+### Bot Commands
+
+The game bot supports the following commands:
+- `/start` - Start playing and access the game
+- `/help` - Show help information
+- `/stats` - View your game statistics
+
+### Authentication Flow
+
+1. Users access the game through Telegram Mini App
+2. Telegram provides secure user data
+3. The game verifies the data and creates/updates user profile
+4. Users are automatically logged in with their Telegram identity
 
 ## Project Structure
 
@@ -157,22 +184,40 @@ docker volume create --name=rps-game_redis_data
 - Add A record for rockpaperscissors.fun pointing to 165.227.160.131
 - Add A record for www.rockpaperscissors.fun pointing to 165.227.160.131
 
-8. Switch to main branch and pull the latest changes:
+8. Configure Telegram bot:
+- Create a bot through [@BotFather](https://t.me/botfather)
+- Enable Web App and set domain to rockpaperscissors.fun
+- Set bot commands:
+  ```
+  start - Start playing Rock Paper Scissors
+  help - Show help information
+  stats - View your game statistics
+  ```
+- Get the bot token and set it in the environment:
+  ```bash
+  echo "BOT_TOKEN=your_bot_token_here" >> .env
+  echo "BASE_URL=https://rockpaperscissors.fun" >> .env
+  ```
+
+9. Switch to main branch and pull the latest changes:
 ```bash
 git checkout main
 git pull origin main
 ```
 
-9. Build and start the containers:
+10. Build and start the containers:
 ```bash
 docker-compose up -d --build
 ```
 
-Note: The application will be available at https://rockpaperscissors.fun
+Note: The application will be available at:
+- Web: https://rockpaperscissors.fun
+- Telegram: t.me/your_bot_username
 
 Note: 
 - The backup directory permissions are important for PostgreSQL archiving
 - External volumes ensure data persistence across deployments
+- Telegram webhook will be automatically configured on startup
 
 ### Redeployment with Data Preservation
 
@@ -258,6 +303,10 @@ The application can be configured through environment variables:
 - `SQLALCHEMY_TRACK_MODIFICATIONS`: SQLAlchemy event system (default: False)
 - `PYTHONPATH`: Python path for imports (set to /app/src in Docker)
 - `FLASK_APP`: Flask application module (set to src.app in Docker)
+
+### Telegram Configuration
+- `BOT_TOKEN`: Telegram bot token (required)
+- `BASE_URL`: Base URL for webhook and Mini App (e.g., https://rockpaperscissors.fun)
 
 ### Game Configuration
 - `INITIAL_COINS`: Starting coins for new players (default: 100)
