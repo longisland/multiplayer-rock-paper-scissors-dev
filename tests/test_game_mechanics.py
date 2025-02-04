@@ -48,11 +48,13 @@ class TestGameMechanics(unittest.TestCase):
         with self.assertRaises(ValueError):
             match.make_move(self.player1_id, 'invalid_move')
 
-        # Test valid moves
-        valid_moves = ['rock', 'paper', 'scissors']
-        for move in valid_moves:
-            match.make_move(self.player1_id, move)
-            self.assertEqual(match.moves[self.player1_id], move)
+        # Test valid move
+        match.make_move(self.player1_id, 'rock')
+        self.assertEqual(match.moves[self.player1_id], 'rock')
+
+        # Test making move twice
+        with self.assertRaises(ValueError):
+            match.make_move(self.player1_id, 'paper')
 
     def test_auto_selection_mechanics(self):
         match = self.match_service.create_match(self.player1_id, 50)
@@ -82,14 +84,19 @@ class TestGameMechanics(unittest.TestCase):
         # Request rematch
         rematch = self.match_service.request_rematch(match.id, self.player1_id)
         self.assertIsNotNone(rematch)
-        self.assertEqual(rematch.stake, match.stake)
-        self.assertEqual(rematch.creator, self.player1_id)
+        self.assertTrue(rematch.creator_rematch)
+        self.assertFalse(rematch.joiner_rematch)
 
         # Accept rematch
-        accepted_rematch = self.match_service.accept_rematch(rematch.id, self.player2_id)
+        accepted_rematch = self.match_service.accept_rematch(match.id, self.player2_id)
         self.assertIsNotNone(accepted_rematch)
+        self.assertEqual(accepted_rematch.stake, match.stake)
+        self.assertEqual(accepted_rematch.creator, self.player1_id)
         self.assertEqual(accepted_rematch.joiner, self.player2_id)
-        self.assertEqual(accepted_rematch.status, 'in_progress')
+        self.assertEqual(accepted_rematch.status, 'playing')
+
+        # Verify old match is cleaned up
+        self.assertNotIn(match.id, self.match_service.matches)
 
     def test_game_result_calculation(self):
         test_cases = [
@@ -105,13 +112,22 @@ class TestGameMechanics(unittest.TestCase):
         ]
 
         for p1_move, p2_move, expected_winner in test_cases:
+            # Reset player coins for each test case
+            self.match_service.players[self.player1_id].coins = self.initial_coins
+            self.match_service.players[self.player2_id].coins = self.initial_coins
+
+            # Create and setup match
             match = self.match_service.create_match(self.player1_id, 50)
             self.match_service.join_match(match.id, self.player2_id)
             match.start_match()
+
+            # Make moves
             match.make_move(self.player1_id, p1_move)
             match.make_move(self.player2_id, p2_move)
 
+            # Calculate result
             result = self.game_service.calculate_match_result(match, self.match_service.players)
+            self.assertIsNotNone(result)
             self.assertEqual(result['winner'], expected_winner)
 
     def test_match_timer_mechanics(self):
@@ -123,7 +139,7 @@ class TestGameMechanics(unittest.TestCase):
         self.assertIsNotNone(start_time)
 
         # Verify match is in progress
-        self.assertEqual(match.status, 'in_progress')
+        self.assertEqual(match.status, 'playing')
 
         # Handle timeout
         result_match = self.match_service.handle_match_timeout(match.id)

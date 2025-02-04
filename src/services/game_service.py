@@ -4,7 +4,7 @@ from datetime import datetime
 
 class GameService:
     @staticmethod
-    def calculate_winner(move1, move2):
+    def calculate_winner(move1, move2, player1_id, player2_id):
         if move1 == move2:
             return 'draw'
         if (
@@ -12,8 +12,8 @@ class GameService:
             (move1 == 'paper' and move2 == 'rock') or
             (move1 == 'scissors' and move2 == 'paper')
         ):
-            return 'player1'
-        return 'player2'
+            return player1_id
+        return player2_id
 
     @staticmethod
     def random_move():
@@ -31,7 +31,7 @@ class GameService:
 
         creator_move = match.moves[match.creator]
         joiner_move = match.moves[match.joiner]
-        result = GameService.calculate_winner(creator_move, joiner_move)
+        result = GameService.calculate_winner(creator_move, joiner_move, match.creator, match.joiner)
 
         try:
             # Start transaction
@@ -43,6 +43,12 @@ class GameService:
 
             if not creator_user or not joiner_user:
                 logger.error("Users not found in database")
+                db.session.rollback()
+                return None
+
+            # Ensure both players have enough coins for the match
+            if creator_user.coins < match.stake or joiner_user.coins < match.stake:
+                logger.error("Insufficient coins for match")
                 db.session.rollback()
                 return None
 
@@ -70,7 +76,7 @@ class GameService:
                 joiner_user.draws += 1
                 joiner_user.total_games += 1
 
-            elif result == 'player1':
+            elif result == match.creator:
                 logger.info("Match result: Creator wins")
                 match.stats.creator_wins += 1
                 game_history.winner_id = creator_user.id

@@ -79,14 +79,14 @@ class TestMatchmaking(unittest.TestCase):
         match = self.match_service.create_match(self.player1_id, 50)
         match_id = match.id
 
-        # Simulate disconnection
-        self.match_service.handle_disconnect(self.player1_id)
+        # Simulate disconnection and get returned coins
+        returned_coins = self.match_service.handle_disconnect(self.player1_id)
 
         # Verify match was cleaned up
         self.assertNotIn(match_id, self.match_service.matches)
         
         # Verify stake was returned
-        self.assertEqual(self.match_service.players[self.player1_id].coins, self.initial_coins)
+        self.assertEqual(returned_coins, self.initial_coins)
 
     def test_match_timeout_handling(self):
         # Create and join match

@@ -109,14 +109,16 @@ class TestBettingModel(unittest.TestCase):
         # Request rematch
         rematch = self.match_service.request_rematch(match.id, self.player1_id)
         
-        # Verify stake is deducted again
+        # Verify stake is not deducted until rematch is accepted
         self.assertEqual(self.match_service.players[self.player1_id].coins, 
-                        self.initial_coins + stake - stake)  # Won previous + new stake deducted
+                        self.initial_coins + stake)  # Won previous match
 
         # Accept rematch
-        accepted_rematch = self.match_service.accept_rematch(rematch.id, self.player2_id)
+        accepted_rematch = self.match_service.accept_rematch(match.id, self.player2_id)
         
-        # Verify stake is deducted from second player
+        # Verify stakes are deducted after rematch is accepted
+        self.assertEqual(self.match_service.players[self.player1_id].coins, 
+                        self.initial_coins + stake - stake)  # Won previous + new stake deducted
         self.assertEqual(self.match_service.players[self.player2_id].coins, 
                         self.initial_coins - stake - stake)  # Lost previous + new stake deducted
 
@@ -133,8 +135,9 @@ class TestBettingModel(unittest.TestCase):
         # Simulate disconnection
         self.match_service.handle_disconnect(self.player1_id)
 
-        # Verify stakes are returned
-        self.assertEqual(self.match_service.players[self.player1_id].coins, self.initial_coins)
+        # Get player from database to verify coins
+        user = User.query.filter_by(username=self.player1_id).first()
+        self.assertEqual(user.coins, self.initial_coins)
         self.assertEqual(self.match_service.players[self.player2_id].coins, self.initial_coins)
 
 if __name__ == '__main__':
