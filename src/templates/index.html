@@ -153,6 +153,15 @@
         let matches = {};  // Store match states
         let rematchTimer = null;
         let lastMatchStake = null;  // Store stake for rematch
+        let lastValues = {
+            coins: null,
+            stats: {
+                wins: null,
+                losses: null,
+                draws: null,
+                total_coins_won: null
+            }
+        };
 
         // Initialize socket connection with logging
         socket = io({
@@ -191,24 +200,28 @@
                 }
                 const data = await response.json();
                 
-                // Update coin balance and stats
+                // Update coin balance and stats with animations
                 const coinBalance = document.getElementById('coinBalance');
                 if (coinBalance) {
+                    animateValueChange(coinBalance, lastValues.coins, data.coins);
                     coinBalance.textContent = data.coins;
+                    lastValues.coins = data.coins;
                 }
 
                 if (data.stats) {
                     const elements = {
-                        'playerWins': data.stats.wins,
-                        'playerLosses': data.stats.losses,
-                        'playerDraws': data.stats.draws,
-                        'totalCoinsWon': data.stats.total_coins_won
+                        'playerWins': ['wins', data.stats.wins],
+                        'playerLosses': ['losses', data.stats.losses],
+                        'playerDraws': ['draws', data.stats.draws],
+                        'totalCoinsWon': ['total_coins_won', data.stats.total_coins_won]
                     };
 
-                    for (const [id, value] of Object.entries(elements)) {
+                    for (const [id, [key, value]] of Object.entries(elements)) {
                         const element = document.getElementById(id);
                         if (element) {
+                            animateValueChange(element, lastValues.stats[key], value);
                             element.textContent = value;
+                            lastValues.stats[key] = value;
                         }
                     }
                 }
@@ -251,6 +264,33 @@
         }
 
         // Global functions
+        function animateValueChange(element, oldValue, newValue) {
+            if (oldValue === null || oldValue === newValue) return;
+
+            element.classList.add('value-changed');
+            if (newValue > oldValue) {
+                element.classList.add('increased');
+                // Add floating animation element for increase
+                const changeEl = document.createElement('span');
+                changeEl.className = 'coin-change coin-increase';
+                changeEl.textContent = `+${newValue - oldValue}`;
+                element.parentElement.appendChild(changeEl);
+                setTimeout(() => changeEl.remove(), 1000);
+            } else if (newValue < oldValue) {
+                element.classList.add('decreased');
+                // Add floating animation element for decrease
+                const changeEl = document.createElement('span');
+                changeEl.className = 'coin-change coin-decrease';
+                changeEl.textContent = `${newValue - oldValue}`;
+                element.parentElement.appendChild(changeEl);
+                setTimeout(() => changeEl.remove(), 1000);
+            }
+
+            setTimeout(() => {
+                element.classList.remove('value-changed', 'increased', 'decreased');
+            }, 500);
+        }
+
         function showScreen(screenId) {
             console.log('Showing screen:', screenId);
             document.querySelectorAll('.screen').forEach(screen => {

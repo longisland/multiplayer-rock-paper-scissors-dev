@@ -54,15 +54,38 @@ h1 {
     color: var(--warning-color);
     margin: 20px 0;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    animation: coinPulse 2s infinite;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
+    position: relative;
 }
 
 .coin-icon {
     font-size: 1.2em;
+    animation: coinPulse 2s infinite;
+}
+
+.coin-change {
+    position: absolute;
+    font-size: 0.8em;
+    opacity: 0;
+    pointer-events: none;
+    font-weight: bold;
+}
+
+.coin-increase {
+    color: var(--secondary-color);
+    animation: coinIncrease 1s ease-out forwards;
+}
+
+.coin-decrease {
+    color: var(--danger-color);
+    animation: coinDecrease 1s ease-out forwards;
+}
+
+#coinBalance.value-changed {
+    animation: valuePulse 0.5s ease-out;
 }
 
 .btn {
@@ -263,6 +286,20 @@ h1 {
 
 .stats-value {
     color: var(--warning-color);
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.stats-value.value-changed {
+    animation: valuePulse 0.5s ease-out;
+}
+
+.stats-value.increased {
+    color: var(--secondary-color);
+}
+
+.stats-value.decreased {
+    color: var(--danger-color);
 }
 
 .moves-container {
@@ -388,6 +425,54 @@ h1 {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
+}
+
+@keyframes coinIncrease {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 100%);
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -100%);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -150%);
+    }
+}
+
+@keyframes coinDecrease {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -100%);
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+        transform: translate(-50%, 100%);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, 150%);
+    }
+}
+
+@keyframes valuePulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 @keyframes timerPulse {
