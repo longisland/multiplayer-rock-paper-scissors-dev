@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_session import Session
+from flask_migrate import Migrate
 import redis
 import secrets
 from datetime import datetime, timedelta
@@ -27,6 +28,7 @@ Session(app)
 
 # Initialize database
 db.init_app(app)
+migrate = Migrate(app, db)
 if not app.config.get('TESTING'):
     with app.app_context():
         try:
