@@ -57,10 +57,37 @@ game_service = GameService()
 @app.route('/')
 def index():
     if 'session_id' not in session:
-        session_id = secrets.token_hex(8)
-        session['session_id'] = session_id
-        match_service.get_player(session_id)  # Initialize player
-        logger.info(f"Created new session: {session_id}")
+
+        # Check for Telegram Web App data
+        init_data = request.args.get('tgWebAppData')
+        if init_data:
+            # Verify and get user data from Telegram
+            user_data = telegram_service.verify_web_app_data(init_data)
+            if user_data:
+                # Find or create user
+                user = User.query.filter_by(telegram_id=user_data['id']).first()
+                if not user:
+                    user = User(
+                        username=user_data['username'] or f"user_{user_data['id']}",
+                        telegram_id=user_data['id'],
+                        telegram_username=user_data['username'],
+                        telegram_first_name=user_data['first_name'],
+                        telegram_last_name=user_data['last_name'],
+                        telegram_auth_date=datetime.utcnow()
+                    )
+                    db.session.add(user)
+                    db.session.commit()
+                
+                session_id = str(user.id)
+                session['session_id'] = session_id
+                match_service.get_player(session_id)
+                logger.info(f"Telegram user authenticated: {user_data['username']}")
+            else:
+                logger.error("Invalid Telegram Web App data")
+                return "Invalid Telegram authentication", 400
+        else:
+            return "Please open the game through Telegram.", 403
+    
     return render_template('index.html')
 
 @app.route('/api/state')
@@ -68,9 +95,7 @@ def get_state():
     try:
         session_id = session.get('session_id')
         if not session_id:
-            session_id = secrets.token_hex(8)
-            session['session_id'] = session_id
-            logger.info(f"Created new session: {session_id}")
+            return "Please open the game through Telegram.", 403
 
         player = match_service.get_player(session_id)
         open_matches = match_service.get_open_matches(session_id)
@@ -106,6 +131,16 @@ def create_match():
             return jsonify({'error': 'Invalid session'}), 400
 
         stake = request.json.get('stake', 0)
+
+
+@app.after_request
+def add_headers(response):
+    response.headers['X-Frame-Options'] = 'ALLOWALL'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    return response
+
         if not isinstance(stake, int) or stake <= 0:
             logger.error(f"Invalid stake: {stake}")
             return jsonify({'error': 'Invalid stake'}), 400
