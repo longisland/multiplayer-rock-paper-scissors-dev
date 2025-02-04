@@ -2,6 +2,7 @@ import pytest
 from flask import Flask
 from src.models.database import db as _db
 from src.services.match_service import MatchService
+from src.config import Config
 
 @pytest.fixture
 def app():
@@ -10,6 +11,9 @@ def app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = 'test_key'
+    app.config['INITIAL_COINS'] = Config.INITIAL_COINS
+    app.config['MATCH_TIMEOUT'] = Config.MATCH_TIMEOUT
+    _db.init_app(app)
     return app
 
 @pytest.fixture
