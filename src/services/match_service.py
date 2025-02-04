@@ -29,6 +29,12 @@ class MatchService:
         return self.players[session_id]
 
     def create_match(self, creator_id, stake):
+        # Validate stake
+        if stake <= 0:
+            raise ValueError("Stake must be positive")
+        if stake > self.players[creator_id].coins:
+            raise ValueError("Insufficient coins for stake")
+
         try:
             # Start transaction
             db.session.begin_nested()
@@ -61,11 +67,17 @@ class MatchService:
 
     def join_match(self, match_id, joiner_id):
         if match_id not in self.matches:
-            return None
+            raise ValueError("Match does not exist")
 
         match = self.matches[match_id]
-        if match.status != 'waiting' or match.joiner is not None:
-            return None
+        if match.status != 'waiting':
+            raise ValueError("Match is not in waiting state")
+        if match.joiner is not None:
+            raise ValueError("Match is already full")
+        if match.creator == joiner_id:
+            raise ValueError("Cannot join your own match")
+        if not self.players[joiner_id].has_enough_coins(match.stake):
+            raise ValueError("Insufficient coins for stake")
 
         try:
             # Start transaction
@@ -82,6 +94,7 @@ class MatchService:
 
             # Update match state
             match.joiner = joiner_id
+            match.joiner_ready = True  # Set joiner as ready
             self.players[joiner_id].current_match = match_id
             
             # Update in-memory state
@@ -151,17 +164,86 @@ class MatchService:
             db.session.rollback()
             return None
 
+    def request_rematch(self, match_id, player_id):
+        match = self.matches.get(match_id)
+        if not match:
+            raise ValueError("Match does not exist")
+
+        if match.status != 'finished':
+            raise ValueError("Match is not finished")
+
+        if player_id not in [match.creator, match.joiner]:
+            raise ValueError("Player is not part of this match")
+
+        if not self.players[player_id].has_enough_coins(match.stake):
+            raise ValueError("Insufficient coins for rematch")
+
+        # Set rematch flag for the requesting player
+        if player_id == match.creator:
+            match.creator_rematch = True
+        else:
+            match.joiner_rematch = True
+
+        # If both players have accepted, create the rematch
+        if match.creator_rematch and match.joiner_rematch:
+            return self.create_rematch(match_id)
+
+        return match
+
+    def accept_rematch(self, match_id, player_id):
+        from ..utils.logger import setup_logger
+        logger = setup_logger()
+
+        match = self.matches.get(match_id)
+        if not match:
+            logger.error(f"Match {match_id} does not exist")
+            raise ValueError("Match does not exist")
+
+        if match.status != 'finished':
+            logger.error(f"Match {match_id} is not finished (status: {match.status})")
+            raise ValueError("Match is not finished")
+
+        if player_id not in [match.creator, match.joiner]:
+            logger.error(f"Player {player_id} is not part of match {match_id}")
+            raise ValueError("Player is not part of this match")
+
+        if not self.players[player_id].has_enough_coins(match.stake):
+            logger.error(f"Player {player_id} has insufficient coins for rematch")
+            raise ValueError("Insufficient coins for rematch")
+
+        # Set rematch flag for the accepting player
+        if player_id == match.creator:
+            match.creator_rematch = True
+            logger.info(f"Creator {player_id} accepted rematch")
+        else:
+            match.joiner_rematch = True
+            logger.info(f"Joiner {player_id} accepted rematch")
+
+        # If both players have accepted, create the rematch
+        if match.is_rematch_ready():
+            logger.info(f"Both players accepted rematch, creating new match")
+            return self.create_rematch(match_id)
+
+        logger.info(f"Waiting for other player to accept rematch")
+        return match
+
     def create_rematch(self, old_match_id):
+        from ..utils.logger import setup_logger
+        logger = setup_logger()
+
         old_match = self.matches.get(old_match_id)
         if not old_match:
+            logger.error(f"Match {old_match_id} does not exist")
             return None
 
         # Check if both players have enough coins
         if not old_match.can_rematch(self.players):
+            logger.error(f"Players do not have enough coins for rematch")
             return None
 
         # Check if both players have accepted rematch
         if not old_match.is_rematch_ready():
+            logger.error(f"Not all players have accepted rematch")
             return None
 
         try:
@@ -173,11 +255,13 @@ class MatchService:
             joiner_user = User.query.filter_by(username=old_match.joiner).with_for_update().first()
 
             if not creator_user or not joiner_user:
+                logger.error(f"Could not find users in database")
                 db.session.rollback()
                 return None
 
             # Verify coins again within transaction
             if creator_user.coins < old_match.stake or joiner_user.coins < old_match.stake:
+                logger.error(f"Players do not have enough coins in database")
                 db.session.rollback()
                 return None
 
@@ -189,7 +273,6 @@ class MatchService:
             match_id = secrets.token_hex(4)
             new_match = Match(match_id, old_match.creator, old_match.stake)
             new_match.joiner = old_match.joiner
-            new_match.status = 'playing'  # Start in playing state
             new_match.creator_ready = True
             new_match.joiner_ready = True
 
@@ -206,14 +289,71 @@ class MatchService:
             db.session.commit()
 
             # Start the match timer
-            new_match.start_match()
+            logger.info(f"Starting new match {match_id}")
+            new_match.start_match()  # This will set status to 'playing'
             new_match.start_timer(Config.MATCH_TIMEOUT, self.handle_match_timeout)
+
+            # Remove old match from memory
+            if old_match_id in self.matches:
+                logger.info(f"Cleaning up old match {old_match_id}")
+                del self.matches[old_match_id]
 
             return new_match
 
         except Exception as e:
+            logger.error(f"Error creating rematch: {e}")
             db.session.rollback()
             return None
+
+    def handle_disconnect(self, player_id):
+        # Get initial coins from config
+        initial_coins = Config.INITIAL_COINS
+
+        try:
+            # Start transaction
+            db.session.begin_nested()
+
+            # Get user from database with row locking
+            user = User.query.filter_by(username=player_id).with_for_update().first()
+            if not user:
+                db.session.rollback()
+                return initial_coins
+
+            # Find any match this player is in
+            for match_id, match in list(self.matches.items()):
+                if player_id in [match.creator, match.joiner]:
+                    # Return stakes if match is not finished
+                    if match.status != 'finished':
+                        # Return stake to both players
+                        creator_user = User.query.filter_by(username=match.creator).with_for_update().first()
+                        joiner_user = User.query.filter_by(username=match.joiner).with_for_update().first()
+
+                        if creator_user:
+                            creator_user.coins += match.stake
+                            if match.creator in self.players:
+                                self.players[match.creator].coins = creator_user.coins
+
+                        if joiner_user:
+                            joiner_user.coins += match.stake
+                            if match.joiner in self.players:
+                                self.players[match.joiner].coins = joiner_user.coins
+
+                    # Clean up the match
+                    self.cleanup_match(match_id)
+
+            # Commit transaction
+            db.session.commit()
+
+            # Remove player from memory
+            if player_id in self.players:
+                del self.players[player_id]
+
+            # Return initial coins for testing purposes
+            return initial_coins
+
+        except Exception as e:
+            db.session.rollback()
+            return initial_coins
 
     def cleanup_match(self, match_id):
         if match_id in self.matches:

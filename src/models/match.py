@@ -30,7 +30,8 @@ class Match:
         self.joiner_ready = False
         self.stats = MatchStats()
         self.result = None
-        self.rematch_ready = set()
+        self.creator_rematch = False
+        self.joiner_rematch = False
 
     def to_dict(self):
         return {
@@ -57,7 +58,9 @@ class Match:
         if self.timer:
             self.timer.cancel()
         self.timer = Timer(timeout, callback, args=[self.id])
+        self.timer.daemon = True  # Make timer daemon to prevent blocking on program exit
         self.timer.start()
+        return self.timer
 
     def cancel_timer(self):
         if self.timer:
@@ -65,15 +68,27 @@ class Match:
             self.timer = None
 
     def start_match(self):
+        if self.status != 'waiting':
+            raise ValueError("Match must be in waiting state to start")
+        if not self.creator or not self.joiner:
+            raise ValueError("Both players must be present to start match")
+        if not self.creator_ready or not self.joiner_ready:
+            raise ValueError("Both players must be ready to start match")
+
         self.status = 'playing'
         self.start_time = time.time()
         self.moves = {}
+        return self.start_time
 
     def make_move(self, player_id, move):
+        if self.status != 'playing':
+            raise ValueError("Match is not in playing state")
         if player_id not in [self.creator, self.joiner]:
-            return False
+            raise ValueError("Player is not in this match")
         if player_id in self.moves:
-            return False
+            raise ValueError("Player has already made a move")
+        if move not in ['rock', 'paper', 'scissors']:
+            raise ValueError("Invalid move. Must be 'rock', 'paper', or 'scissors'")
         self.moves[player_id] = move
         return True
 
@@ -85,19 +100,17 @@ class Match:
             return False  # Already processed
         self.result = result_data
         self.status = 'finished'
-        self.rematch_ready = set()  # Reset rematch_ready when match finishes
+        self.creator_rematch = False  # Reset rematch flags when match finishes
+        self.joiner_rematch = False
         return True
-
-    def add_rematch_ready(self, player_id):
-        """Add a player to the rematch_ready set and return their role."""
-        if player_id not in [self.creator, self.joiner]:
-            return None
-        self.rematch_ready.add(player_id)
-        return 'creator' if player_id == self.creator else 'joiner'
 
     def is_rematch_ready(self):
         """Check if both players are ready for rematch."""
-        return len(self.rematch_ready) == 2
+        from ..utils.logger import setup_logger
+        logger = setup_logger()
+        
+        logger.info(f"Checking rematch readiness: creator={self.creator_rematch}, joiner={self.joiner_rematch}")
+        return self.creator_rematch and self.joiner_rematch
 
     def get_other_player(self, player_id):
         """Get the other player's ID."""
