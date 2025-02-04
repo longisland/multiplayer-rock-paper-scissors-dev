@@ -200,7 +200,6 @@
                 const coinBalance = document.getElementById('coinBalance');
                 if (coinBalance) {
                     animateValueChange(coinBalance, lastValues.coins, data.coins);
-                    coinBalance.textContent = data.coins;
                     lastValues.coins = data.coins;
                 }
 
@@ -261,7 +260,10 @@
 
         // Global functions
         function animateValueChange(element, oldValue, newValue) {
-            if (oldValue === null || oldValue === newValue) return;
+            if (oldValue === null || oldValue === newValue) {
+                element.textContent = newValue;
+                return;
+            }
 
             element.classList.add('value-changed');
             if (newValue > oldValue) {
@@ -271,6 +273,8 @@
                 changeEl.className = 'coin-change coin-increase';
                 changeEl.textContent = `+${newValue - oldValue}`;
                 element.parentElement.appendChild(changeEl);
+                // Update value immediately with the animation
+                element.textContent = newValue;
                 setTimeout(() => changeEl.remove(), 1000);
             } else if (newValue < oldValue) {
                 element.classList.add('decreased');
@@ -279,6 +283,8 @@
                 changeEl.className = 'coin-change coin-decrease';
                 changeEl.textContent = `${newValue - oldValue}`;
                 element.parentElement.appendChild(changeEl);
+                // Update value immediately with the animation
+                element.textContent = newValue;
                 setTimeout(() => changeEl.remove(), 1000);
             }
 
@@ -412,11 +418,11 @@
                     currentMatchId = matchId;
                     isCreator = false;
 
-                    // Update balance immediately
+                    // Update balance with animation
                     const coinBalance = document.getElementById('coinBalance');
                     if (coinBalance && data.coins !== undefined) {
-                        coinBalance.textContent = data.coins;
-                        coinBalance.classList.add('animate__animated', 'animate__flash');
+                        animateValueChange(coinBalance, lastValues.coins, data.coins);
+                        lastValues.coins = data.coins;
                         setTimeout(() => {
                             coinBalance.classList.remove('animate__animated', 'animate__flash');
                         }, 1000);
@@ -514,11 +520,11 @@
                             currentMatchId = data.match_id;
                             isCreator = true;
 
-                            // Update balance immediately
+                            // Update balance with animation
                             const coinBalance = document.getElementById('coinBalance');
                             if (coinBalance && data.coins !== undefined) {
-                                coinBalance.textContent = data.coins;
-                                coinBalance.classList.add('animate__animated', 'animate__flash');
+                                animateValueChange(coinBalance, lastValues.coins, data.coins);
+                                lastValues.coins = data.coins;
                                 setTimeout(() => {
                                     coinBalance.classList.remove('animate__animated', 'animate__flash');
                                 }, 1000);
@@ -907,11 +913,11 @@
                     rematchStatus.classList.remove('animate__fadeOut');
                 }
 
-                // Update balance immediately
+                // Update balance with animation
                 const coinBalance = document.getElementById('coinBalance');
                 if (coinBalance && data.coins !== undefined) {
-                    coinBalance.textContent = data.coins;
-                    coinBalance.classList.add('animate__animated', 'animate__flash');
+                    animateValueChange(coinBalance, lastValues.coins, data.coins);
+                    lastValues.coins = data.coins;
                     setTimeout(() => {
                         coinBalance.classList.remove('animate__animated', 'animate__flash');
                     }, 1000);
