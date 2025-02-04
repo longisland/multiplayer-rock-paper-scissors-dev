@@ -342,17 +342,23 @@ def on_rematch_accepted(data):
                 # Update joiner
                 match_service.join_match(new_match.id, match.joiner)
 
-                # Notify both players
+                # Get updated balances
+                creator = match_service.get_player(match.creator)
+                joiner = match_service.get_player(match.joiner)
+
+                # Notify both players with their updated balances
                 socketio.emit('rematch_started', {
                     'match_id': new_match.id,
                     'is_creator': True,
-                    'stake': new_match.stake
+                    'stake': new_match.stake,
+                    'coins': creator.coins
                 }, room=match.creator)
 
                 socketio.emit('rematch_started', {
                     'match_id': new_match.id,
                     'is_creator': False,
-                    'stake': new_match.stake
+                    'stake': new_match.stake,
+                    'coins': joiner.coins
                 }, room=match.joiner)
 
                 logger.info(f"Rematch started: {new_match.id} (original: {match_id})")
