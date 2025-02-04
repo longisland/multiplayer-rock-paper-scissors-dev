@@ -12,9 +12,10 @@ def test_betting_distribution_win(match_service, db):
     match = match_service.create_match(creator_id, stake)
     match = match_service.join_match(match.id, joiner_id)
     
-    # Record initial coins
-    creator_initial = User.query.filter_by(username=creator_id).first().coins
-    joiner_initial = User.query.filter_by(username=joiner_id).first().coins
+    # Start the match
+    match.creator_ready = True
+    match.joiner_ready = True
+    match.start_match()
     
     # Make moves where creator wins
     match.make_move(creator_id, "rock")
@@ -27,8 +28,8 @@ def test_betting_distribution_win(match_service, db):
     creator = User.query.filter_by(username=creator_id).first()
     joiner = User.query.filter_by(username=joiner_id).first()
     
-    assert creator.coins == creator_initial + stake  # Gets back stake + opponent's stake
-    assert joiner.coins == joiner_initial - stake  # Loses stake
+    assert creator.coins == 150  # Initial 100 - stake 50 + win 100
+    assert joiner.coins == 50  # Initial 100 - stake 50
     assert creator.total_coins_won == stake
     assert joiner.total_coins_lost == stake
 
@@ -42,9 +43,10 @@ def test_betting_distribution_draw(match_service, db):
     match = match_service.create_match(creator_id, stake)
     match = match_service.join_match(match.id, joiner_id)
     
-    # Record initial coins
-    creator_initial = User.query.filter_by(username=creator_id).first().coins
-    joiner_initial = User.query.filter_by(username=joiner_id).first().coins
+    # Start the match
+    match.creator_ready = True
+    match.joiner_ready = True
+    match.start_match()
     
     # Make moves for a draw
     match.make_move(creator_id, "rock")
@@ -57,8 +59,8 @@ def test_betting_distribution_draw(match_service, db):
     creator = User.query.filter_by(username=creator_id).first()
     joiner = User.query.filter_by(username=joiner_id).first()
     
-    assert creator.coins == creator_initial  # Gets back stake
-    assert joiner.coins == joiner_initial  # Gets back stake
+    assert creator.coins == 100  # Initial 100 - stake 50 + return 50
+    assert joiner.coins == 100  # Initial 100 - stake 50 + return 50
     assert creator.total_coins_won == 0
     assert joiner.total_coins_won == 0
 

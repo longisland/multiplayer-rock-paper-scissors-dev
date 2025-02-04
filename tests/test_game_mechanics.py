@@ -72,6 +72,12 @@ def test_match_timeout(match_service, db):
     match = match_service.create_match(creator_id, stake)
     match = match_service.join_match(match.id, joiner_id)
     
+    # Start the match
+    match.creator_ready = True
+    match.joiner_ready = True
+    match.start_match()
+    match.start_timer(30, match_service.handle_match_timeout)
+    
     # Only creator makes a move
     match.make_move(creator_id, "rock")
     
