@@ -5,16 +5,33 @@ def init_telegram_bot():
     bot = telebot.TeleBot(Config.BOT_TOKEN)
 
     # Set up bot commands
-    bot.set_my_commands([
-        telebot.types.BotCommand("start", "Start playing Rock Paper Scissors"),
-        telebot.types.BotCommand("help", "Show help information"),
-        telebot.types.BotCommand("stats", "View your game statistics")
-    ])
+    try:
+        bot.set_my_commands([
+            telebot.types.BotCommand("start", "Start playing Rock Paper Scissors"),
+            telebot.types.BotCommand("help", "Show help information"),
+            telebot.types.BotCommand("stats", "View your game statistics")
+        ])
+    except telebot.apihelper.ApiTelegramException as e:
+        if e.error_code == 429:  # Too Many Requests
+            import time
+            time.sleep(e.result_json['parameters']['retry_after'])
+            bot.set_my_commands([
+                telebot.types.BotCommand("start", "Start playing Rock Paper Scissors"),
+                telebot.types.BotCommand("help", "Show help information"),
+                telebot.types.BotCommand("stats", "View your game statistics")
+            ])
 
     # Set up webhook
     webhook_url = f"{Config.BASE_URL}/telegram/webhook"
-    bot.delete_webhook()
-    bot.set_webhook(url=webhook_url)
+    try:
+        bot.delete_webhook()
+        bot.set_webhook(url=webhook_url)
+    except telebot.apihelper.ApiTelegramException as e:
+        if e.error_code == 429:  # Too Many Requests
+            import time
+            time.sleep(e.result_json['parameters']['retry_after'])
+            bot.delete_webhook()
+            bot.set_webhook(url=webhook_url)
 
     # Set up bot handlers
     @bot.message_handler(commands=['start'])
