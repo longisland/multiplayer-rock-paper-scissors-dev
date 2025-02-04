@@ -131,22 +131,44 @@ mkdir -p postgres/backup
 chmod 777 postgres/backup
 ```
 
-4. Create external volumes for data persistence:
+4. Install Certbot and obtain SSL certificate:
+```bash
+snap install --classic certbot
+ln -s /snap/bin/certbot /usr/bin/certbot
+certbot --nginx -d rockpaperscissors.fun --non-interactive --agree-tos --email openhands@all-hands.dev
+```
+
+5. Configure nginx:
+```bash
+cp nginx/rockpaperscissors.fun.conf /etc/nginx/sites-available/
+ln -sf /etc/nginx/sites-available/rockpaperscissors.fun.conf /etc/nginx/sites-enabled/
+nginx -t && systemctl restart nginx
+```
+
+Note: SSL certificate will be automatically renewed by Certbot's scheduled task.
+
+6. Create external volumes for data persistence:
 ```bash
 docker volume create --name=rps-game_postgres_data
 docker volume create --name=rps-game_redis_data
 ```
 
-5. Switch to main branch and pull the latest changes:
+7. Configure DNS:
+- Add A record for rockpaperscissors.fun pointing to 165.227.160.131
+- Add A record for www.rockpaperscissors.fun pointing to 165.227.160.131
+
+8. Switch to main branch and pull the latest changes:
 ```bash
 git checkout main
 git pull origin main
 ```
 
-6. Build and start the containers:
+9. Build and start the containers:
 ```bash
 docker-compose up -d --build
 ```
+
+Note: The application will be available at https://rockpaperscissors.fun
 
 Note: 
 - The backup directory permissions are important for PostgreSQL archiving

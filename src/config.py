@@ -5,7 +5,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', secrets.token_hex(16))
     DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
     HOST = os.getenv('HOST', '0.0.0.0')
-    PORT = int(os.getenv('PORT', 51443))
+    PORT = int(os.getenv('PORT', 5000))
     REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
     DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://rps_user:rps_password@localhost:5432/rps_db')
     SQLALCHEMY_DATABASE_URI = DATABASE_URL
