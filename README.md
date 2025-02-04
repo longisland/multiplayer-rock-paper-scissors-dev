@@ -127,34 +127,43 @@ cd /var/www/rps-game
 
 3. Create required directories with proper permissions:
 ```bash
-mkdir -p postgres/backup ssl
+mkdir -p postgres/backup
 chmod 777 postgres/backup
 ```
 
 4. Generate SSL certificate:
 ```bash
-cd ssl
-./generate_cert.sh
-cd ..
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/nginx/ssl/rockpaperscissors.fun.key \
+    -out /etc/nginx/ssl/rockpaperscissors.fun.crt \
+    -subj "/C=US/ST=New York/L=New York/O=RPS Game/CN=rockpaperscissors.fun" \
+    -addext "subjectAltName=DNS:rockpaperscissors.fun,DNS:www.rockpaperscissors.fun"
 ```
 
-5. Create external volumes for data persistence:
+5. Configure nginx:
+```bash
+cp nginx/rockpaperscissors.fun.conf /etc/nginx/sites-available/
+ln -sf /etc/nginx/sites-available/rockpaperscissors.fun.conf /etc/nginx/sites-enabled/
+nginx -t && systemctl restart nginx
+```
+
+6. Create external volumes for data persistence:
 ```bash
 docker volume create --name=rps-game_postgres_data
 docker volume create --name=rps-game_redis_data
 ```
 
-6. Configure DNS:
+7. Configure DNS:
 - Add A record for rockpaperscissors.fun pointing to 165.227.160.131
 - Add A record for www.rockpaperscissors.fun pointing to 165.227.160.131
 
-7. Switch to main branch and pull the latest changes:
+8. Switch to main branch and pull the latest changes:
 ```bash
 git checkout main
 git pull origin main
 ```
 
-8. Build and start the containers:
+9. Build and start the containers:
 ```bash
 docker-compose up -d --build
 ```

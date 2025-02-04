@@ -27,9 +27,9 @@ ENV FLASK_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=5000
 
-# Expose ports
-EXPOSE 80 443
+# Expose port
+EXPOSE 5000
 
 # Run the application
 WORKDIR /app
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--cert=${SSL_CERT}", "--key=${SSL_KEY}"]
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]
