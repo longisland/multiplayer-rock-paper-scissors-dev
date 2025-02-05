@@ -78,12 +78,14 @@ class Player:
             'total_games': self._user.total_games,
             'total_coins_won': self._user.total_coins_won or 0,
             'total_coins_lost': self._user.total_coins_lost or 0,
+            'earnings': (self._user.total_coins_won or 0) - (self._user.total_coins_lost or 0),
             'to_dict': lambda: {
                 'wins': self._user.wins,
                 'losses': self._user.losses,
                 'draws': self._user.draws,
                 'total_games': self._user.total_games,
                 'total_coins_won': self._user.total_coins_won or 0,
-                'total_coins_lost': self._user.total_coins_lost or 0
+                'total_coins_lost': self._user.total_coins_lost or 0,
+                'earnings': (self._user.total_coins_won or 0) - (self._user.total_coins_lost or 0)
             }
         })
