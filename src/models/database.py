@@ -1,4 +1,5 @@
 from datetime import datetime
+import uuid
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -6,7 +7,7 @@ db = SQLAlchemy()
 class User(db.Model):
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, db.Sequence('user_id_seq'), primary_key=True)
+    id = db.Column(db.UUID, primary_key=True, default=uuid.uuid4)
     username = db.Column(db.String(80), unique=True, nullable=False)
     coins = db.Column(db.Integer, default=100)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -20,7 +21,7 @@ class User(db.Model):
 
     def to_dict(self):
         return {
-            'id': self.id,
+            'id': str(self.id),
             'username': self.username,
             'coins': self.coins,
             'total_games': self.total_games,
@@ -34,12 +35,12 @@ class User(db.Model):
 class GameHistory(db.Model):
     __tablename__ = 'game_history'
 
-    id = db.Column(db.Integer, db.Sequence('game_history_id_seq'), primary_key=True)
-    player1_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    player2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    id = db.Column(db.UUID, primary_key=True, default=uuid.uuid4)
+    player1_id = db.Column(db.UUID, db.ForeignKey('users.id'), nullable=False)
+    player2_id = db.Column(db.UUID, db.ForeignKey('users.id'), nullable=False)
     player1_choice = db.Column(db.String(10), nullable=False)
     player2_choice = db.Column(db.String(10), nullable=False)
-    winner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    winner_id = db.Column(db.UUID, db.ForeignKey('users.id'))
     played_at = db.Column(db.DateTime, default=datetime.utcnow)
     bet_amount = db.Column(db.Integer, default=0)
 
