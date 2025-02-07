@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_session import Session
+from flask_migrate import Migrate
 import redis
 import secrets
 from datetime import datetime, timedelta
@@ -24,18 +25,9 @@ app.config['SESSION_REDIS'] = redis.from_url(Config.REDIS_URL)
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 Session(app)
 
-# Initialize database
+# Initialize database and migrations
 db.init_app(app)
-if not app.config.get('TESTING'):
-    with app.app_context():
-        try:
-            db.create_all()
-        except Exception as e:
-            print(f"Error creating database tables: {e}")
-            # Wait for PostgreSQL to be ready
-            import time
-            time.sleep(10)
-            db.create_all()
+migrate = Migrate(app, db)
 
 # Configure Flask-SocketIO
 socketio = SocketIO(
