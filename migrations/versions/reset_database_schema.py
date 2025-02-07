@@ -23,7 +23,7 @@ def upgrade():
 
     # Create users table
     op.create_table('users',
-        sa.Column('id', sa.Integer(), sa.Sequence('user_id_seq'), primary_key=True),
+        sa.Column('id', sa.UUID(), primary_key=True, server_default=sa.text('gen_random_uuid()')),
         sa.Column('username', sa.String(length=80), nullable=False),
         sa.Column('coins', sa.Integer(), nullable=True, default=100),
         sa.Column('created_at', sa.DateTime(), nullable=True, default=sa.func.now()),
@@ -39,12 +39,12 @@ def upgrade():
 
     # Create game_history table
     op.create_table('game_history',
-        sa.Column('id', sa.Integer(), sa.Sequence('game_history_id_seq'), primary_key=True),
-        sa.Column('player1_id', sa.Integer(), nullable=False),
-        sa.Column('player2_id', sa.Integer(), nullable=False),
+        sa.Column('id', sa.UUID(), primary_key=True, server_default=sa.text('gen_random_uuid()')),
+        sa.Column('player1_id', sa.UUID(), nullable=False),
+        sa.Column('player2_id', sa.UUID(), nullable=False),
         sa.Column('player1_choice', sa.String(length=10), nullable=False),
         sa.Column('player2_choice', sa.String(length=10), nullable=False),
-        sa.Column('winner_id', sa.Integer(), nullable=True),
+        sa.Column('winner_id', sa.UUID(), nullable=True),
         sa.Column('played_at', sa.DateTime(), nullable=True, default=sa.func.now()),
         sa.Column('bet_amount', sa.Integer(), nullable=True, default=0),
         sa.ForeignKeyConstraint(['player1_id'], ['users.id'], ),
