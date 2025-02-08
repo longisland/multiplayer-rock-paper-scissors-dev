@@ -10,3 +10,183 @@ Port 3001 is in use by another program. Either identify and stop that program, o
 2025-02-03 22:04:28,650 - rps_game - INFO - Match result: Draw
 2025-02-03 22:04:28,652 - rps_game - INFO - Match result saved to database
 2025-02-03 22:04:28,652 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,813 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,815 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,823 - rps_game - INFO - Match result: Joiner wins
+2025-02-08 10:54:16,823 - rps_game - INFO - Match result: Joiner wins
+2025-02-08 10:54:16,825 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,825 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,833 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,833 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,833 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,834 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,834 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,834 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,842 - rps_game - INFO - Match result: Draw
+2025-02-08 10:54:16,842 - rps_game - INFO - Match result: Draw
+2025-02-08 10:54:16,842 - rps_game - INFO - Match result: Draw
+2025-02-08 10:54:16,842 - rps_game - INFO - Match result: Draw
+2025-02-08 10:54:16,843 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,843 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,843 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,843 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,855 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,855 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,855 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,855 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,855 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,857 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,857 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,857 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,857 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,857 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,863 - rps_game - INFO - Match result: Draw
+2025-02-08 10:54:16,863 - rps_game - INFO - Match result: Draw
+2025-02-08 10:54:16,863 - rps_game - INFO - Match result: Draw
+2025-02-08 10:54:16,863 - rps_game - INFO - Match result: Draw
+2025-02-08 10:54:16,863 - rps_game - INFO - Match result: Draw
+2025-02-08 10:54:16,863 - rps_game - INFO - Match result: Draw
+2025-02-08 10:54:16,864 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,864 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,864 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,864 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,864 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,864 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,876 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,876 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,876 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,876 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,876 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,876 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,876 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,877 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,877 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,877 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,877 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,877 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,877 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,877 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,879 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,879 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,879 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,879 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,879 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,879 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,879 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,879 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,880 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,880 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,880 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,880 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,880 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,880 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,880 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,880 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,886 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:54:16,888 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,888 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,888 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,888 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,888 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,888 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,888 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,888 - rps_game - INFO - Match result saved to database
+2025-02-08 10:54:16,888 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,552 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,553 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,560 - rps_game - INFO - Match result: Draw
+2025-02-08 10:55:27,560 - rps_game - INFO - Match result: Draw
+2025-02-08 10:55:27,561 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,561 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,567 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,567 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,567 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,568 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,568 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,568 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,575 - rps_game - INFO - Match result: Draw
+2025-02-08 10:55:27,575 - rps_game - INFO - Match result: Draw
+2025-02-08 10:55:27,575 - rps_game - INFO - Match result: Draw
+2025-02-08 10:55:27,575 - rps_game - INFO - Match result: Draw
+2025-02-08 10:55:27,576 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,576 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,576 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,576 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,588 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,588 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,588 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,588 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,588 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,589 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,589 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,589 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,589 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,589 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,595 - rps_game - INFO - Match result: Draw
+2025-02-08 10:55:27,595 - rps_game - INFO - Match result: Draw
+2025-02-08 10:55:27,595 - rps_game - INFO - Match result: Draw
+2025-02-08 10:55:27,595 - rps_game - INFO - Match result: Draw
+2025-02-08 10:55:27,595 - rps_game - INFO - Match result: Draw
+2025-02-08 10:55:27,595 - rps_game - INFO - Match result: Draw
+2025-02-08 10:55:27,596 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,596 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,596 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,596 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,596 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,596 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,607 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,607 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,607 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,607 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,607 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,607 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,607 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,609 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,609 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,609 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,609 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,609 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,609 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,609 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,610 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,610 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,610 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,610 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,610 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,610 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,610 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,610 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,611 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,611 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,611 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,611 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,611 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,611 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,611 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,611 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,617 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,617 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,617 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,617 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,617 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,617 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,617 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,617 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,617 - rps_game - INFO - Match result: Creator wins
+2025-02-08 10:55:27,618 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,618 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,618 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,618 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,618 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,618 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,618 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,618 - rps_game - INFO - Match result saved to database
+2025-02-08 10:55:27,618 - rps_game - INFO - Match result saved to database

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -9,8 +9,8 @@ class User(db.Model):
     id = db.Column(db.Integer, db.Sequence('user_id_seq'), primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     coins = db.Column(db.Integer, default=100)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    last_seen = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     total_games = db.Column(db.Integer, default=0)
     wins = db.Column(db.Integer, default=0)
     losses = db.Column(db.Integer, default=0)
@@ -40,7 +40,7 @@ class GameHistory(db.Model):
     player1_choice = db.Column(db.String(10), nullable=False)
     player2_choice = db.Column(db.String(10), nullable=False)
     winner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    played_at = db.Column(db.DateTime, default=datetime.utcnow)
+    played_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     bet_amount = db.Column(db.Integer, default=0)
 
     player1 = db.relationship('User', foreign_keys=[player1_id])

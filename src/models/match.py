@@ -56,7 +56,20 @@ class Match:
     def start_timer(self, timeout, callback):
         if self.timer:
             self.timer.cancel()
-        self.timer = Timer(timeout, callback, args=[self.id])
+        
+        # Get the Flask app instance
+        from flask import current_app
+        if not current_app:
+            from src import create_app
+            app = create_app()
+        else:
+            app = current_app._get_current_object()
+        
+        def timer_callback():
+            with app.app_context():
+                callback(self.id)
+        
+        self.timer = Timer(timeout, timer_callback)
         self.timer.start()
 
     def cancel_timer(self):
