@@ -49,18 +49,27 @@ class Player:
         self._user.wins += 1
         self._user.total_games += 1
         db.session.commit()
+        # Update in-memory stats
+        self.stats.wins = self._user.wins
+        self.stats.total_games = self._user.total_games
 
     def record_loss(self):
         self._ensure_user_exists(100)
         self._user.losses += 1
         self._user.total_games += 1
         db.session.commit()
+        # Update in-memory stats
+        self.stats.losses = self._user.losses
+        self.stats.total_games = self._user.total_games
 
     def record_draw(self):
         self._ensure_user_exists(100)
         self._user.draws += 1
         self._user.total_games += 1
         db.session.commit()
+        # Update in-memory stats
+        self.stats.draws = self._user.draws
+        self.stats.total_games = self._user.total_games
 
     def to_stats_dict(self):
         """Return a dictionary with stats that matches the old PlayerStats interface"""

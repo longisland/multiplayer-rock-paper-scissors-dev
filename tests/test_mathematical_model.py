@@ -61,8 +61,12 @@ def test_betting_distribution_draw(match_service, db):
     
     assert creator.coins == 100  # Initial 100 - stake 50 + return 50
     assert joiner.coins == 100  # Initial 100 - stake 50 + return 50
-    assert creator.total_coins_won == 0
-    assert joiner.total_coins_won == 0
+    assert creator.total_coins_won == 0  # No coins won in a draw
+    assert creator.total_coins_lost == 0  # No coins lost in a draw
+    assert joiner.total_coins_won == 0  # No coins won in a draw
+    assert joiner.total_coins_lost == 0  # No coins lost in a draw
+    assert creator.draws == 1  # Draw count should increase
+    assert joiner.draws == 1  # Draw count should increase
 
 def test_betting_limits(match_service, db):
     creator_id = "player1"

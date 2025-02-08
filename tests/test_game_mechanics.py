@@ -63,6 +63,32 @@ def test_match_moves_and_result(match_service, db):
     joiner = User.query.filter_by(username=joiner_id).first()
     assert creator.coins == 150  # Initial 100 - stake 50 + win 100
     assert joiner.coins == 50  # Initial 100 - stake 50
+    
+    # Verify match statistics
+    assert match.stats.creator_wins == 1
+    assert match.stats.joiner_wins == 0
+    assert match.stats.draws == 0
+    
+    # Verify player statistics
+    assert creator.wins == 1
+    assert creator.losses == 0
+    assert creator.draws == 0
+    assert creator.total_games == 1
+    assert creator.total_coins_won == stake
+    assert creator.total_coins_lost == 0
+    
+    assert joiner.wins == 0
+    assert joiner.losses == 1
+    assert joiner.draws == 0
+    assert joiner.total_games == 1
+    assert joiner.total_coins_won == 0
+    assert joiner.total_coins_lost == stake
+    
+    # Verify in-memory player statistics match database
+    assert match_service.players[creator_id].stats.wins == creator.wins
+    assert match_service.players[creator_id].stats.total_games == creator.total_games
+    assert match_service.players[joiner_id].stats.losses == joiner.losses
+    assert match_service.players[joiner_id].stats.total_games == joiner.total_games
 
 def test_match_timeout(match_service, db):
     # Setup match with two players

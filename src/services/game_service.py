@@ -60,15 +60,16 @@ class GameService:
                 match.stats.draws += 1
                 game_history.is_draw = True
                 
-                # Return stakes to both players
+                # Return stakes to both players (only the original stake)
                 creator_user.coins += match.stake
                 joiner_user.coins += match.stake
                 
-                # Update stats
+                # Update stats (no coins won/lost in a draw)
                 creator_user.draws += 1
                 creator_user.total_games += 1
                 joiner_user.draws += 1
                 joiner_user.total_games += 1
+                # No change to total_coins_won/lost as it's a draw
 
             elif result == 'player1':
                 logger.info("Match result: Creator wins")
