@@ -791,6 +791,25 @@
                 const isWinner = (data.winner === 'player1' && isCreator) || 
                                (data.winner === 'player2' && !isCreator);
                 
+                // Update player stats based on creator/joiner status
+                const playerStats = isCreator ? data.creator_stats : data.joiner_stats;
+                if (playerStats) {
+                    const elements = {
+                        'playerWins': ['wins', playerStats.wins],
+                        'playerLosses': ['losses', playerStats.losses],
+                        'playerDraws': ['draws', playerStats.draws],
+                        'totalCoinsWon': ['total_coins_won', playerStats.total_coins_won]
+                    };
+
+                    for (const [id, [key, value]] of Object.entries(elements)) {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            animateValueChange(element, lastValues.stats[key], value);
+                            lastValues.stats[key] = value;
+                        }
+                    }
+                }
+                
                 // Prepare move displays with animations
                 const playerMoveElement = document.getElementById('playerMove');
                 const opponentMoveElement = document.getElementById('opponentMove');
