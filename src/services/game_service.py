@@ -1,5 +1,5 @@
 import random
-from ..models.database import db, User, GameHistory
+from models.database import db, User, GameHistory
 from datetime import datetime
 
 class GameService:
@@ -67,8 +67,12 @@ class GameService:
                 # Update stats
                 creator_user.draws += 1
                 creator_user.total_games += 1
+                players[match.creator].stats.draws += 1
+                players[match.creator].stats.total_games += 1
                 joiner_user.draws += 1
                 joiner_user.total_games += 1
+                players[match.joiner].stats.draws += 1
+                players[match.joiner].stats.total_games += 1
 
             elif result == 'player1':
                 logger.info("Match result: Creator wins")
@@ -82,9 +86,15 @@ class GameService:
                 creator_user.wins += 1
                 creator_user.total_games += 1
                 creator_user.total_coins_won += match.stake
+                players[match.creator].stats.wins += 1
+                players[match.creator].stats.total_games += 1
+                players[match.creator].stats.total_coins_won += match.stake
                 joiner_user.losses += 1
                 joiner_user.total_games += 1
                 joiner_user.total_coins_lost += match.stake
+                players[match.joiner].stats.losses += 1
+                players[match.joiner].stats.total_games += 1
+                players[match.joiner].stats.total_coins_lost += match.stake
 
             else:
                 logger.info("Match result: Joiner wins")
@@ -98,9 +108,15 @@ class GameService:
                 joiner_user.wins += 1
                 joiner_user.total_games += 1
                 joiner_user.total_coins_won += match.stake
+                players[match.joiner].stats.wins += 1
+                players[match.joiner].stats.total_games += 1
+                players[match.joiner].stats.total_coins_won += match.stake
                 creator_user.losses += 1
                 creator_user.total_games += 1
                 creator_user.total_coins_lost += match.stake
+                players[match.creator].stats.losses += 1
+                players[match.creator].stats.total_games += 1
+                players[match.creator].stats.total_coins_lost += match.stake
 
             # Sync in-memory state
             players[match.creator].coins = creator_user.coins
