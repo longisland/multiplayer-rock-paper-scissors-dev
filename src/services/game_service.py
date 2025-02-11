@@ -136,6 +136,10 @@ class GameService:
 
             # Update player stats in database
             db.session.commit()
+
+            # Log stats update
+            logger.info(f"Updated stats for {match.creator}: wins={creator_user.wins}, losses={creator_user.losses}, draws={creator_user.draws}")
+            logger.info(f"Updated stats for {match.joiner}: wins={joiner_user.wins}, losses={joiner_user.losses}, draws={joiner_user.draws}")
             
             # Prepare result data
             result_data = {
