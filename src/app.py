@@ -1,16 +1,14 @@
 from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
-from flask_session import Session
 from flask_migrate import Migrate
-import redis
 import secrets
 from datetime import datetime, timedelta
 
-from src.config import Config
-from src.services.match_service import MatchService
-from src.services.game_service import GameService
-from src.utils.logger import setup_logger
-from src.models.database import db, User, GameHistory
+from config import Config
+from services.match_service import MatchService
+from services.game_service import GameService
+from utils.logger import setup_logger
+from models.database import db, User, GameHistory
 
 # Configure logging
 logger = setup_logger()
@@ -19,15 +17,17 @@ logger = setup_logger()
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Configure Redis session interface
-app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_REDIS'] = redis.from_url(Config.REDIS_URL)
+# Configure session interface
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
-Session(app)
+app.config['SECRET_KEY'] = Config.SECRET_KEY
 
 # Initialize database and migrations
 db.init_app(app)
 migrate = Migrate(app, db)
+
+# Create database tables
+with app.app_context():
+    db.create_all()
 
 # Configure Flask-SocketIO
 socketio = SocketIO(
@@ -255,7 +255,7 @@ def make_move():
         return jsonify({'error': 'Internal server error'}), 500
 
 @socketio.on('connect')
-def handle_connect():
+def handle_connect(auth=None):
     try:
         session_id = session.get('session_id')
         if session_id:
@@ -515,13 +515,19 @@ def on_rematch_declined(data):
         logger.exception("Error in rematch_declined handler")
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--port', type=int, default=Config.PORT)
+    parser.add_argument('--host', type=str, default=Config.HOST)
+    args = parser.parse_args()
+
     ssl_context = None
     if Config.SSL_CERT and Config.SSL_KEY:
         ssl_context = (Config.SSL_CERT, Config.SSL_KEY)
     
     socketio.run(app, 
-                host=Config.HOST,
-                port=Config.PORT,
+                host=args.host,
+                port=args.port,
                 debug=Config.DEBUG,
                 allow_unsafe_werkzeug=True,
                 ssl_context=ssl_context)
