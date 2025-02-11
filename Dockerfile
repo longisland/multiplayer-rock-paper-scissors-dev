@@ -14,10 +14,9 @@ RUN apt-get update && \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code, migrations, and tests
+# Copy application code and migrations
 COPY src/ ./src/
 COPY migrations/ ./migrations/
-COPY tests/ ./tests/
 COPY alembic.ini .
 
 # Set environment variables
