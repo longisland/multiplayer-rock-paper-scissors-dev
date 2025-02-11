@@ -138,8 +138,8 @@ class GameService:
             db.session.commit()
 
             # Log stats update
-            logger.info(f"Updated stats for {match.creator}: wins={creator_user.wins}, losses={creator_user.losses}, draws={creator_user.draws}")
-            logger.info(f"Updated stats for {match.joiner}: wins={joiner_user.wins}, losses={joiner_user.losses}, draws={joiner_user.draws}")
+            logger.info(f"Updated stats for {match.creator}: wins={creator_user.wins}, losses={creator_user.losses}, draws={creator_user.draws}, total_games={creator_user.total_games}, total_coins_won={creator_user.total_coins_won}, total_coins_lost={creator_user.total_coins_lost}")
+            logger.info(f"Updated stats for {match.joiner}: wins={joiner_user.wins}, losses={joiner_user.losses}, draws={joiner_user.draws}, total_games={joiner_user.total_games}, total_coins_won={joiner_user.total_coins_won}, total_coins_lost={joiner_user.total_coins_lost}")
             
             # Prepare result data
             result_data = {
