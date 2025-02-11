@@ -120,7 +120,19 @@ class GameService:
 
             # Sync in-memory state
             players[match.creator].coins = creator_user.coins
+            players[match.creator].stats.wins = creator_user.wins
+            players[match.creator].stats.losses = creator_user.losses
+            players[match.creator].stats.draws = creator_user.draws
+            players[match.creator].stats.total_games = creator_user.total_games
+            players[match.creator].stats.total_coins_won = creator_user.total_coins_won
+            players[match.creator].stats.total_coins_lost = creator_user.total_coins_lost
             players[match.joiner].coins = joiner_user.coins
+            players[match.joiner].stats.wins = joiner_user.wins
+            players[match.joiner].stats.losses = joiner_user.losses
+            players[match.joiner].stats.draws = joiner_user.draws
+            players[match.joiner].stats.total_games = joiner_user.total_games
+            players[match.joiner].stats.total_coins_won = joiner_user.total_coins_won
+            players[match.joiner].stats.total_coins_lost = joiner_user.total_coins_lost
             
             # Prepare result data
             result_data = {
