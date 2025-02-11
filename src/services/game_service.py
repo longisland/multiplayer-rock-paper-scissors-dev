@@ -1,5 +1,5 @@
 import random
-from models.database import db, User, GameHistory
+from src.models.database import db, User, GameHistory
 from datetime import datetime
 
 class GameService:
