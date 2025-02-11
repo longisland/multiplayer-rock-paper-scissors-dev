@@ -4,11 +4,11 @@ from flask_migrate import Migrate
 import secrets
 from datetime import datetime, timedelta
 
-from config import Config
-from services.match_service import MatchService
-from services.game_service import GameService
-from utils.logger import setup_logger
-from models.database import db, User, GameHistory
+from src.config import Config
+from src.services.match_service import MatchService
+from src.services.game_service import GameService
+from src.utils.logger import setup_logger
+from src.models.database import db, User, GameHistory
 
 # Configure logging
 logger = setup_logger()
