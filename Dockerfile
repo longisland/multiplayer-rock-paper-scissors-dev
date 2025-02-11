@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY migrations/ ./migrations/
 COPY alembic.ini .
+COPY wsgi.py .
 
 # Set environment variables
 ENV PYTHONPATH=/app
@@ -31,4 +32,4 @@ EXPOSE 5000
 
 # Run the application
 WORKDIR /app
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]
+CMD ["python", "wsgi.py"]
