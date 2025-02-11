@@ -277,9 +277,13 @@
                     for (const [id, [key, value]] of Object.entries(elements)) {
                         const element = document.getElementById(id);
                         if (element) {
-                            animateValueChange(element, lastValues.stats[key], value);
-                            element.textContent = value;
-                            lastValues.stats[key] = value;
+                            if (lastValues.stats[key] === null) {
+                                element.textContent = value;
+                                lastValues.stats[key] = value;
+                            } else {
+                                animateValueChange(element, lastValues.stats[key], value);
+                                lastValues.stats[key] = value;
+                            }
                         }
                     }
                 }
@@ -847,7 +851,30 @@
                 }, 1000);
                 
                 showScreen('resultScreen');
-                updateGameState();
+                
+                // Update stats immediately with the match result
+                const playerStats = isCreator ? data.creator_stats : data.joiner_stats;
+                if (playerStats) {
+                    const elements = {
+                        'playerWins': ['wins', playerStats.wins],
+                        'playerLosses': ['losses', playerStats.losses],
+                        'playerDraws': ['draws', playerStats.draws],
+                        'totalCoinsWon': ['total_coins_won', playerStats.total_coins_won]
+                    };
+
+                    for (const [id, [key, value]] of Object.entries(elements)) {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            animateValueChange(element, lastValues.stats[key], value);
+                            lastValues.stats[key] = value;
+                        }
+                    }
+                }
+
+                // Update game state after a short delay to ensure server has processed everything
+                setTimeout(() => {
+                    updateGameState();
+                }, 1500);
 
                 // Handle rematch
                 lastMatchStake = data.stake;
