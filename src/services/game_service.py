@@ -133,6 +133,9 @@ class GameService:
             players[match.joiner].stats.total_games = joiner_user.total_games
             players[match.joiner].stats.total_coins_won = joiner_user.total_coins_won
             players[match.joiner].stats.total_coins_lost = joiner_user.total_coins_lost
+
+            # Update player stats in database
+            db.session.commit()
             
             # Prepare result data
             result_data = {
