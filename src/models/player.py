@@ -10,9 +10,9 @@ class Player:
     def _ensure_user_exists(self, initial_coins):
         """Ensure user exists in database and create if not"""
         if not self._user:
-            self._user = User.query.filter_by(username=self.session_id).first()
+            self._user = User.query.filter_by(session_id=self.session_id).first()
             if not self._user:
-                self._user = User(username=self.session_id, coins=initial_coins)
+                self._user = User(session_id=self.session_id, coins=initial_coins)
                 db.session.add(self._user)
                 db.session.commit()
 

@@ -20,6 +20,21 @@ class GameService:
         return random.choice(['rock', 'paper', 'scissors'])
 
     @staticmethod
+    def handle_timeout(match, players):
+        """Handle match timeout by making random moves for players who haven't moved"""
+        import random
+        
+        # Make random moves for players who haven't moved
+        if match.creator not in match.moves or match.moves[match.creator] is None:
+            match.moves[match.creator] = random.choice(['rock', 'paper', 'scissors'])
+        
+        if match.joiner not in match.moves or match.moves[match.joiner] is None:
+            match.moves[match.joiner] = random.choice(['rock', 'paper', 'scissors'])
+        
+        # Calculate and return the result
+        return GameService.calculate_match_result(match, players)
+
+    @staticmethod
     def calculate_match_result(match, players):
         from ..utils.logger import setup_logger
         logger = setup_logger()
@@ -38,8 +53,8 @@ class GameService:
             db.session.begin_nested()
 
             # Get users from database with row locking
-            creator_user = User.query.filter_by(username=match.creator).with_for_update().first()
-            joiner_user = User.query.filter_by(username=match.joiner).with_for_update().first()
+            creator_user = User.query.filter_by(session_id=match.creator).with_for_update().first()
+            joiner_user = User.query.filter_by(session_id=match.joiner).with_for_update().first()
 
             if not creator_user or not joiner_user:
                 logger.error("Users not found in database")

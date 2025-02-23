@@ -30,6 +30,7 @@ def test_win_calculation(game_service, db_session):
                 self.joiner = 'player2'
                 self.stake = 10
                 self.moves = {'player1': p1_move, 'player2': p2_move}
+                self.result = None
         
         mock_match = MockMatch()
         players = {'player1': player1, 'player2': player2}
@@ -55,6 +56,7 @@ def test_auto_selection(game_service, db_session):
             self.joiner = 'player2'
             self.stake = 10
             self.moves = {'player1': 'rock', 'player2': None}
+            self.result = None
             
         def make_move(self, player_id, move):
             self.moves[player_id] = move
@@ -81,6 +83,7 @@ def test_rematch_stake_handling(game_service, db_session):
             self.joiner = 'player2'
             self.stake = 10
             self.moves = {'player1': 'rock', 'player2': 'scissors'}
+            self.result = None
     
     mock_match = MockMatch()
     players = {'player1': player1, 'player2': player2}
