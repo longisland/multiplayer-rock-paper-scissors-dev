@@ -267,7 +267,7 @@ The application can be configured through environment variables:
 
 ## Testing
 
-The project includes a comprehensive test suite covering game mechanics and mathematical models. Tests are written using pytest and can be run both locally and in Docker.
+The project includes a comprehensive test suite covering game mechanics, mathematical models, and UI automation. Tests are written using pytest and Selenium, and can be run both locally and in Docker.
 
 ### Test Coverage
 
@@ -280,6 +280,7 @@ The test suite covers:
    - Rematch functionality
    - Draw handling
    - Match cancellation
+   - Auto-selection for timeouts
 
 2. Mathematical Model
    - Betting distribution for wins
@@ -288,57 +289,69 @@ The test suite covers:
    - Consecutive matches betting
    - Rematch betting
 
+3. UI Automation
+   - Full game flow testing
+   - Match creation and joining
+   - Player moves and interactions
+   - Rematch system
+   - Visual feedback
+   - Timer functionality
+
 ### Running Tests
+
+#### Automated Test Suite
+```bash
+# Run all tests (unit tests and UI automation)
+./run_tests.sh
+```
 
 #### Local Testing
 ```bash
 # Install test dependencies
-pip install pytest pytest-flask
+pip install -r requirements.txt
 
-# Run all tests
-pytest -v
+# Run unit tests with coverage
+pytest tests/test_match_mechanics.py tests/test_game_service.py -v --cov=src
 
-# Run specific test file
-pytest tests/test_game_mechanics.py -v
-
-# Run specific test
-pytest tests/test_game_mechanics.py::test_match_creation -v
+# Run UI automation tests (requires Chrome/ChromeDriver)
+python tests/test_ui_automation.py
 ```
 
 #### Docker Testing
 ```bash
-# Run tests in Docker container
-docker-compose exec web pytest -v
+# Build and run tests in Docker
+docker-compose build
+docker-compose run web ./run_tests.sh
 
 # Run specific test file
-docker-compose exec web pytest tests/test_game_mechanics.py -v
+docker-compose exec web pytest tests/test_match_mechanics.py -v
 
-# Run specific test
-docker-compose exec web pytest tests/test_game_mechanics.py::test_match_creation -v
+# Run UI tests in Docker
+docker-compose exec web python tests/test_ui_automation.py
 ```
 
 ### Test Configuration
 
-The test suite uses SQLite in-memory database for testing to ensure:
-- Fast test execution
-- No interference with production data
-- Clean state for each test
-- No need for external database setup
+The test suite uses:
+- SQLite in-memory database for unit tests
+- Chrome in headless mode for UI tests
+- Pytest fixtures for dependency injection
+- Coverage reporting for code quality
+- Parallel test execution support
 
-Test configuration is managed through `conftest.py`:
-- SQLite in-memory database
-- Test-specific Flask configuration
-- Isolated test environment
-- Automatic database cleanup
+Test configuration is managed through:
+- `conftest.py`: Test fixtures and database setup
+- `test_ui_automation.py`: Selenium test configuration
+- `run_tests.sh`: Test execution orchestration
 
 ### Writing Tests
 
 When adding new features or fixing bugs:
-1. Create test file in `tests/` directory
-2. Use appropriate fixtures from `conftest.py`
-3. Follow existing test patterns
-4. Ensure all tests pass before submitting PR
-5. Add new test cases for bug fixes
+1. Add unit tests in `tests/` directory
+2. Add UI tests if the feature has visual components
+3. Use fixtures from `conftest.py`
+4. Ensure all tests pass locally and in Docker
+5. Maintain test coverage above 80%
 
 Example test structure:
 ```python
@@ -352,6 +365,23 @@ def test_feature_name(match_service, db):
     # Assert
     assert result is not None
     assert result.some_property == expected_value
+```
+
+Example UI test:
+```python
+def test_ui_feature(driver):
+    # Navigate and interact
+    driver.get(app_url)
+    element = driver.find_element(By.ID, 'feature-button')
+    element.click()
+    
+    # Wait for response
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CLASS_NAME, 'result'))
+    )
+    
+    # Verify
+    assert element.text == 'Expected Result'
 ```
 
 ## Contributing
