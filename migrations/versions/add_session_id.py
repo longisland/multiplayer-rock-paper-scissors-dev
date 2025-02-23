@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'add_session_id'
-down_revision = None
+down_revision = 'telegram_fields'
 branch_labels = None
 depends_on = None
 
