@@ -19,6 +19,16 @@ COPY src/ ./src/
 COPY migrations/ ./migrations/
 COPY alembic.ini .
 COPY wsgi.py .
+COPY tests/ ./tests/
+COPY run_tests.sh .
+
+# Make test script executable
+RUN chmod +x run_tests.sh
+
+# Install Chrome and ChromeDriver for Selenium tests
+RUN apt-get update && \
+    apt-get install -y chromium chromium-driver && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set environment variables
 ENV PYTHONPATH=/app
