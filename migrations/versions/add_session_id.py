@@ -18,6 +18,9 @@ def upgrade():
     # Add session_id column
     op.add_column('users', sa.Column('session_id', sa.String(80), nullable=True))
     
+    # Copy username to session_id for existing users
+    op.execute("UPDATE users SET session_id = username")
+    
     # Make username nullable
     op.alter_column('users', 'username',
                     existing_type=sa.String(80),
@@ -25,6 +28,11 @@ def upgrade():
     
     # Create unique index on session_id
     op.create_unique_constraint('uq_users_session_id', 'users', ['session_id'])
+    
+    # Make session_id non-nullable
+    op.alter_column('users', 'session_id',
+                    existing_type=sa.String(80),
+                    nullable=False)
 
 def downgrade():
     # Drop unique constraint on session_id
