@@ -26,11 +26,30 @@ def test_win_calculation(game_service, db_session):
     for p1_move, p2_move, expected_winner in test_cases:
         class MockMatch:
             def __init__(self):
+                self.id = 'test_match'
                 self.creator = 'player1'
                 self.joiner = 'player2'
                 self.stake = 10
                 self.moves = {'player1': p1_move, 'player2': p2_move}
                 self.result = None
+                self.stats = type('MatchStats', (), {
+                    'creator_wins': 0,
+                    'joiner_wins': 0,
+                    'draws': 0,
+                    'rounds': 0,
+                    'to_dict': lambda: {
+                        'creator_wins': 0,
+                        'joiner_wins': 0,
+                        'draws': 0,
+                        'rounds': 0
+                    }
+                })()
+                self.status = 'playing'
+
+            def set_result(self, result_data):
+                self.result = result_data
+                self.status = 'finished'
+                return True
         
         mock_match = MockMatch()
         players = {'player1': player1, 'player2': player2}
@@ -52,14 +71,33 @@ def test_auto_selection(game_service, db_session):
     
     class MockMatch:
         def __init__(self):
+            self.id = 'test_match'
             self.creator = 'player1'
             self.joiner = 'player2'
             self.stake = 10
             self.moves = {'player1': 'rock', 'player2': None}
             self.result = None
+            self.stats = type('MatchStats', (), {
+                'creator_wins': 0,
+                'joiner_wins': 0,
+                'draws': 0,
+                'rounds': 0,
+                'to_dict': lambda: {
+                    'creator_wins': 0,
+                    'joiner_wins': 0,
+                    'draws': 0,
+                    'rounds': 0
+                }
+            })()
+            self.status = 'playing'
             
         def make_move(self, player_id, move):
             self.moves[player_id] = move
+            return True
+            
+        def set_result(self, result_data):
+            self.result = result_data
+            self.status = 'finished'
             return True
     
     mock_match = MockMatch()
@@ -79,11 +117,30 @@ def test_rematch_stake_handling(game_service, db_session):
     
     class MockMatch:
         def __init__(self):
+            self.id = 'test_match'
             self.creator = 'player1'
             self.joiner = 'player2'
             self.stake = 10
             self.moves = {'player1': 'rock', 'player2': 'scissors'}
             self.result = None
+            self.stats = type('MatchStats', (), {
+                'creator_wins': 0,
+                'joiner_wins': 0,
+                'draws': 0,
+                'rounds': 0,
+                'to_dict': lambda: {
+                    'creator_wins': 0,
+                    'joiner_wins': 0,
+                    'draws': 0,
+                    'rounds': 0
+                }
+            })()
+            self.status = 'playing'
+            
+        def set_result(self, result_data):
+            self.result = result_data
+            self.status = 'finished'
+            return True
     
     mock_match = MockMatch()
     players = {'player1': player1, 'player2': player2}
