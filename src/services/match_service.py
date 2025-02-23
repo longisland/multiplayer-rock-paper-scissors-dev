@@ -14,9 +14,9 @@ class MatchService:
     def get_player(self, session_id):
         if session_id not in self.players:
             # Check if user exists in database
-            user = User.query.filter_by(username=session_id).first()
+            user = User.query.filter_by(session_id=session_id).first()
             if not user:
-                user = User(username=session_id, coins=Config.INITIAL_COINS)
+                user = User(session_id=session_id, coins=Config.INITIAL_COINS)
                 db.session.add(user)
                 db.session.commit()
             
@@ -34,7 +34,7 @@ class MatchService:
             db.session.begin_nested()
 
             # Get creator from database with row locking
-            creator_user = User.query.filter_by(username=creator_id).with_for_update().first()
+            creator_user = User.query.filter_by(session_id=creator_id).with_for_update().first()
             if not creator_user or creator_user.coins < stake:
                 db.session.rollback()
                 return None
@@ -72,7 +72,7 @@ class MatchService:
             db.session.begin_nested()
 
             # Get joiner from database with row locking
-            joiner_user = User.query.filter_by(username=joiner_id).with_for_update().first()
+            joiner_user = User.query.filter_by(session_id=joiner_id).with_for_update().first()
             if not joiner_user or joiner_user.coins < match.stake:
                 db.session.rollback()
                 return None
@@ -121,8 +121,8 @@ class MatchService:
             db.session.begin_nested()
 
             # Get both players from database with row locking
-            creator_user = User.query.filter_by(username=match.creator).with_for_update().first()
-            joiner_user = User.query.filter_by(username=match.joiner).with_for_update().first()
+            creator_user = User.query.filter_by(session_id=match.creator).with_for_update().first()
+            joiner_user = User.query.filter_by(session_id=match.joiner).with_for_update().first()
 
             if not creator_user or not joiner_user:
                 db.session.rollback()
@@ -169,8 +169,8 @@ class MatchService:
             db.session.begin_nested()
 
             # Get users from database with row locking
-            creator_user = User.query.filter_by(username=old_match.creator).with_for_update().first()
-            joiner_user = User.query.filter_by(username=old_match.joiner).with_for_update().first()
+            creator_user = User.query.filter_by(session_id=old_match.creator).with_for_update().first()
+            joiner_user = User.query.filter_by(session_id=old_match.joiner).with_for_update().first()
 
             if not creator_user or not joiner_user:
                 db.session.rollback()
@@ -226,7 +226,7 @@ class MatchService:
             db.session.begin_nested()
 
             # Get creator from database with row locking
-            creator_user = User.query.filter_by(username=match.creator).with_for_update().first()
+            creator_user = User.query.filter_by(session_id=match.creator).with_for_update().first()
             if not creator_user:
                 db.session.rollback()
                 return None
